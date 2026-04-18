@@ -16,69 +16,122 @@ export function MarketCard({ address }: { address: `0x${string}` }) {
     ],
   });
 
-  const question = (data?.[0]?.result as string) ?? "…";
+  const question = (data?.[0]?.result as string) ?? "Loading…";
   const yesPrice = (data?.[1]?.result as bigint) ?? 0n;
   const resolutionTime = (data?.[2]?.result as bigint) ?? 0n;
   const resolved = (data?.[3]?.result as boolean) ?? false;
   const yesReserve = (data?.[4]?.result as bigint) ?? 0n;
   const noReserve = (data?.[5]?.result as bigint) ?? 0n;
 
-  const yesPct = Number(yesPrice) / 1e16; // 1e18 scale -> percent
+  const yesPct = Number(yesPrice) / 1e16;
   const noPct = 100 - yesPct;
-
   const tvl = yesReserve < noReserve ? yesReserve : noReserve;
   const deadline = new Date(Number(resolutionTime) * 1000);
+  const daysLeft = Math.max(
+    0,
+    Math.ceil((deadline.getTime() - Date.now()) / 86_400_000)
+  );
 
   return (
-    <div className="group rounded-lg border border-zinc-800 bg-zinc-900/40 p-5 transition hover:border-zinc-700 hover:bg-zinc-900">
-      <div className="flex items-start justify-between gap-3">
-        <h3 className="text-sm font-medium leading-snug text-zinc-100">
-          {question}
-        </h3>
-        {resolved && (
-          <span className="rounded bg-zinc-800 px-2 py-0.5 text-[10px] uppercase tracking-wide text-zinc-400">
-            Resolved
+    <article className="card group relative cursor-pointer overflow-hidden rounded-2xl p-6 transition">
+      {/* Subtle glow on hover */}
+      <div className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100">
+        <div className="absolute inset-x-0 -top-px mx-auto h-px w-1/3 bg-gradient-to-r from-transparent via-silver-300 to-transparent" />
+      </div>
+
+      {/* Status pill */}
+      <div className="mb-5 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <span
+            className={`h-1.5 w-1.5 rounded-full ${
+              resolved
+                ? "bg-silver-500"
+                : "bg-accent-bull shadow-[0_0_8px_rgba(63,185,129,0.4)]"
+            }`}
+          />
+          <span className="text-[10px] uppercase tracking-[0.18em] text-silver-500">
+            {resolved ? "Settled" : "Live market"}
           </span>
-        )}
-      </div>
-
-      <div className="mt-4 flex items-center gap-3">
-        <div className="flex-1">
-          <div className="flex items-center justify-between text-xs text-zinc-400">
-            <span>YES</span>
-            <span className="font-mono text-emerald-400">
-              {yesPct.toFixed(1)}¢
-            </span>
-          </div>
-          <div className="mt-1 h-1.5 overflow-hidden rounded bg-zinc-800">
-            <div
-              className="h-full bg-emerald-500/70"
-              style={{ width: `${yesPct}%` }}
-            />
-          </div>
         </div>
-        <div className="flex-1">
-          <div className="flex items-center justify-between text-xs text-zinc-400">
-            <span>NO</span>
-            <span className="font-mono text-rose-400">{noPct.toFixed(1)}¢</span>
-          </div>
-          <div className="mt-1 h-1.5 overflow-hidden rounded bg-zinc-800">
-            <div
-              className="h-full bg-rose-500/70"
-              style={{ width: `${noPct}%` }}
-            />
-          </div>
-        </div>
-      </div>
-
-      <div className="mt-4 flex items-center justify-between text-xs text-zinc-500">
-        <span>TVL: {Number(formatEther(tvl)).toFixed(2)} zkLTC</span>
-        <span>
-          {resolved
-            ? "Ended"
-            : `Ends ${deadline.toLocaleDateString(undefined, { month: "short", day: "numeric" })}`}
+        <span className="text-[10px] uppercase tracking-[0.18em] text-silver-500 tabular">
+          {resolved ? "Ended" : daysLeft === 0 ? "Ends today" : `${daysLeft}d left`}
         </span>
       </div>
+
+      {/* Question - editorial serif */}
+      <h3 className="mb-6 font-display text-[22px] font-normal leading-[1.15] tracking-tighter text-silver-50 [text-wrap:balance]">
+        {question}
+      </h3>
+
+      {/* Probability split */}
+      <div className="space-y-2.5">
+        <Row
+          label="YES"
+          pct={yesPct}
+          color="bull"
+          muted={resolved}
+        />
+        <Row
+          label="NO"
+          pct={noPct}
+          color="bear"
+          muted={resolved}
+        />
+      </div>
+
+      {/* Footer metadata */}
+      <div className="mt-6 flex items-center justify-between border-t border-silver-800/50 pt-4">
+        <div className="flex items-baseline gap-1.5">
+          <span className="text-[10px] uppercase tracking-[0.18em] text-silver-500">
+            Liquidity
+          </span>
+          <span className="font-mono text-xs text-silver-200 tabular">
+            {Number(formatEther(tvl)).toFixed(2)}
+          </span>
+          <span className="text-[10px] text-silver-500">zkLTC</span>
+        </div>
+        <span className="text-[11px] text-silver-400 transition group-hover:text-silver-200">
+          Enter market →
+        </span>
+      </div>
+    </article>
+  );
+}
+
+function Row({
+  label,
+  pct,
+  color,
+  muted,
+}: {
+  label: string;
+  pct: number;
+  color: "bull" | "bear";
+  muted?: boolean;
+}) {
+  const barColor =
+    color === "bull" ? "bg-accent-bull" : "bg-accent-bear";
+  const textColor =
+    muted
+      ? "text-silver-500"
+      : color === "bull"
+        ? "text-accent-bull"
+        : "text-accent-bear";
+
+  return (
+    <div className="flex items-center gap-4">
+      <span className="w-6 font-mono text-[10px] uppercase tracking-widest text-silver-400">
+        {label}
+      </span>
+      <div className="prob-bar h-2 flex-1 rounded-full">
+        <div
+          className={`h-full rounded-full ${muted ? "bg-silver-700" : barColor} transition-all duration-700`}
+          style={{ width: `${Math.max(2, pct)}%` }}
+        />
+      </div>
+      <span className={`w-14 text-right font-mono text-sm tabular ${textColor}`}>
+        {pct.toFixed(1)}¢
+      </span>
     </div>
   );
 }

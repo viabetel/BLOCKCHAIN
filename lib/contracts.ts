@@ -1,4 +1,3 @@
-// Endereços já deployados na LiteForge testnet.
 export const addresses = {
   factory: "0xbB2b40F1ed12F64966ac2eA6157760Da26020032" as `0x${string}`,
   collateral: "0x967662A01D65c6a18D836365eef13De128a2caa7" as `0x${string}`,
