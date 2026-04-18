@@ -1,10 +1,10 @@
 "use client";
 
 import { useReadContract, useReadContracts } from "wagmi";
-import { ConnectButton } from "@rainbow-me/rainbowkit";
 import Link from "next/link";
-import { addresses, factoryAbi, marketAbi } from "@/lib/contracts";
+import { addresses, factoryAbi } from "@/lib/contracts";
 import { MarketCard } from "@/components/MarketCard";
+import { ConnectButton } from "@/components/ConnectButton";
 
 export default function HomePage() {
   const { data: length } = useReadContract({
@@ -52,11 +52,7 @@ export default function HomePage() {
         {count === 0 ? (
           <div className="rounded-lg border border-dashed border-zinc-800 p-10 text-center">
             <p className="text-zinc-400">
-              No markets yet. Deploy the factory and seed markets via{" "}
-              <code className="rounded bg-zinc-900 px-1.5 py-0.5 text-xs">
-                forge script Deploy.s.sol
-              </code>
-              .
+              No markets found. Create one via the MarketFactory contract.
             </p>
           </div>
         ) : (

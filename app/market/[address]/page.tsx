@@ -1,11 +1,11 @@
 "use client";
 
 import { useReadContracts } from "wagmi";
-import { ConnectButton } from "@rainbow-me/rainbowkit";
 import Link from "next/link";
 import { formatEther } from "viem";
 import { marketAbi } from "@/lib/contracts";
 import { TradeBox } from "@/components/TradeBox";
+import { ConnectButton } from "@/components/ConnectButton";
 
 export default function MarketPage({
   params,
@@ -55,28 +55,15 @@ export default function MarketPage({
 
         <div className="mt-6 grid gap-4 md:grid-cols-3">
           <Stat label="YES price" value={`${yesPct.toFixed(1)}¢`} accent="emerald" />
-          <Stat
-            label="NO price"
-            value={`${(100 - yesPct).toFixed(1)}¢`}
-            accent="rose"
-          />
-          <Stat
-            label="TVL"
-            value={`${Number(formatEther(tvl)).toFixed(2)} zkLTC`}
-          />
+          <Stat label="NO price" value={`${(100 - yesPct).toFixed(1)}¢`} accent="rose" />
+          <Stat label="TVL" value={`${Number(formatEther(tvl)).toFixed(2)} zkLTC`} />
         </div>
 
         {resolved ? (
           <div className="mt-6 rounded-lg border border-zinc-800 bg-zinc-900/60 p-4">
             <p className="text-sm text-zinc-400">
               Resolved ·{" "}
-              <span
-                className={
-                  winningOutcome === 1n
-                    ? "font-medium text-emerald-400"
-                    : "font-medium text-rose-400"
-                }
-              >
+              <span className={winningOutcome === 1n ? "font-medium text-emerald-400" : "font-medium text-rose-400"}>
                 {winningOutcome === 1n ? "YES" : "NO"} won
               </span>
             </p>
@@ -109,16 +96,12 @@ function Stat({
   accent?: "emerald" | "rose";
 }) {
   const color =
-    accent === "emerald"
-      ? "text-emerald-400"
-      : accent === "rose"
-        ? "text-rose-400"
-        : "text-zinc-100";
+    accent === "emerald" ? "text-emerald-400" :
+    accent === "rose" ? "text-rose-400" :
+    "text-zinc-100";
   return (
     <div className="rounded-lg border border-zinc-800 bg-zinc-900/40 px-4 py-3">
-      <div className="text-xs uppercase tracking-wide text-zinc-500">
-        {label}
-      </div>
+      <div className="text-xs uppercase tracking-wide text-zinc-500">{label}</div>
       <div className={`mt-1 font-mono text-lg ${color}`}>{value}</div>
     </div>
   );
