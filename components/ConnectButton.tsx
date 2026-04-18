@@ -1,8 +1,10 @@
 "use client";
 
-import { useAccount, useBalance, useConnect, useDisconnect, useChainId, useSwitchChain } from "wagmi";
+import { useAccount, useBalance, useConnect, useDisconnect, useChainId, useSwitchChain, useReadContract, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
 import { useState, useEffect } from "react";
+import { parseEther } from "viem";
 import { liteforge, ADMIN_WALLET } from "@/lib/wagmi";
+import { addresses, erc20Abi } from "@/lib/contracts";
 import { fmtZkLTC, fmtAddress } from "@/lib/format";
 import Link from "next/link";
 
@@ -13,6 +15,16 @@ export function ConnectButton() {
   const chainId = useChainId();
   const { switchChain } = useSwitchChain();
   const { data: balance } = useBalance({ address });
+  const { data: tokenBalance } = useReadContract({
+    address: addresses.collateral,
+    abi: erc20Abi,
+    functionName: "balanceOf",
+    args: address ? [address] : undefined,
+    query: { enabled: Boolean(address) },
+  });
+  const { writeContract: mint, data: mintTx, isPending: minting } = useWriteContract();
+  const { isLoading: mintWaiting } = useWaitForTransactionReceipt({ hash: mintTx });
+
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
 
@@ -21,6 +33,18 @@ export function ConnectButton() {
 
   const wrongChain = isConnected && chainId !== liteforge.id;
   const isAdmin = isConnected && address?.toLowerCase() === ADMIN_WALLET;
+  const tokenBalBig = (tokenBalance as bigint) ?? 0n;
+  const needsTokens = tokenBalBig < parseEther("1");
+
+  const handleClaim = () => {
+    if (!address) return;
+    mint({
+      address: addresses.collateral,
+      abi: erc20Abi,
+      functionName: "mint",
+      args: [address, parseEther("100")],
+    });
+  };
 
   if (wrongChain) {
     return (
@@ -58,12 +82,31 @@ export function ConnectButton() {
                 <div className="mt-1 break-all font-mono text-xs text-ink-900 tabular">{address}</div>
               </div>
               <div className="border-b border-ink-100 px-4 py-3">
-                <div className="text-[10px] font-semibold uppercase tracking-widest text-ink-500">Balance</div>
-                <div className="mt-1 flex items-baseline gap-1.5">
-                  <span className="font-display text-2xl font-semibold text-ink-pure tabular">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-[10px] font-semibold uppercase tracking-widest text-ink-500">zkLTC Balance</div>
+                    <div className="mt-1 flex items-baseline gap-1.5">
+                      <span className="font-display text-2xl font-semibold text-ink-pure tabular">
+                        {fmtZkLTC(tokenBalBig, 2)}
+                      </span>
+                      <span className="text-xs font-medium text-ink-500">zkLTC</span>
+                    </div>
+                  </div>
+                  {needsTokens && (
+                    <button
+                      onClick={handleClaim}
+                      disabled={minting || mintWaiting}
+                      className="btn-ink rounded-md px-3 py-1.5 text-[11px] font-semibold"
+                    >
+                      {mintWaiting ? "Claiming..." : minting ? "Waiting..." : "+100 Claim"}
+                    </button>
+                  )}
+                </div>
+                <div className="mt-2 flex items-center justify-between text-[10px] text-ink-400">
+                  <span>Gas (native)</span>
+                  <span className="font-mono tabular">
                     {balance ? fmtZkLTC(balance.value, 4) : "0.0000"}
                   </span>
-                  <span className="text-xs font-medium text-ink-500">zkLTC</span>
                 </div>
               </div>
               {isAdmin && (

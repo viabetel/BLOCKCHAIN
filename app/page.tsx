@@ -8,6 +8,7 @@ import { MarketCard } from "@/components/MarketCard";
 import { ConnectButton } from "@/components/ConnectButton";
 import { Logo, Wordmark } from "@/components/Logo";
 import { TickerBar } from "@/components/TickerBar";
+import { FaucetCard } from "@/components/FaucetCard";
 import { fmtZkLTC, inferCategory } from "@/lib/format";
 
 const CATEGORIES = ["All", "Crypto", "Ecosystem", "Launch", "Policy", "General"] as const;
@@ -155,6 +156,9 @@ export default function HomePage() {
 
       {/* Grid */}
       <section className="mx-auto max-w-[1400px] px-6 py-8 lg:px-8">
+        <div className="mb-6">
+          <FaucetCard />
+        </div>
         {count === 0 ? <EmptyState /> : filtered.length === 0 ? <NoResults /> : (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {filtered.map((m, i) => (
