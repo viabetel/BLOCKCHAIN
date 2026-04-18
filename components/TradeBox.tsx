@@ -1,12 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   useAccount,
   useReadContract,
   useWriteContract,
   useWaitForTransactionReceipt,
-  useReadContracts,
 } from "wagmi";
 import { parseEther, formatEther } from "viem";
 import { addresses, marketAbi, erc20Abi } from "@/lib/contracts";
@@ -16,21 +15,18 @@ type Side = "YES" | "NO";
 export function TradeBox({
   market,
   resolved,
+  yesPct,
 }: {
   market: `0x${string}`;
   resolved: boolean;
+  yesPct: number;
 }) {
   const { address: user } = useAccount();
   const [side, setSide] = useState<Side>("YES");
   const [amount, setAmount] = useState("");
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
 
-  const { data: prices } = useReadContracts({
-    contracts: [
-      { address: market, abi: marketAbi, functionName: "yesPrice" },
-    ],
-  });
-  const yesPrice = (prices?.[0]?.result as bigint) ?? 0n;
-  const yesPct = Number(yesPrice) / 1e16;
   const currentPrice = side === "YES" ? yesPct : 100 - yesPct;
 
   const { data: allowance, refetch: refetchAllowance } = useReadContract({
@@ -66,33 +62,32 @@ export function TradeBox({
   });
 
   const { writeContract, data: txHash, isPending, reset } = useWriteContract();
-  const { isLoading: waiting, isSuccess } = useWaitForTransactionReceipt({
-    hash: txHash,
-  });
+  const { isLoading: waiting, isSuccess } = useWaitForTransactionReceipt({ hash: txHash });
 
-  // Refetch everything after a successful tx
-  if (isSuccess && txHash) {
-    refetchAllowance();
-    refetchYes();
-    refetchNo();
-    setTimeout(() => {
-      reset();
-      setAmount("");
-    }, 1000);
-  }
+  useEffect(() => {
+    if (isSuccess && txHash) {
+      refetchAllowance();
+      refetchYes();
+      refetchNo();
+      const t = setTimeout(() => {
+        reset();
+        setAmount("");
+      }, 1200);
+      return () => clearTimeout(t);
+    }
+  }, [isSuccess, txHash, refetchAllowance, refetchYes, refetchNo, reset]);
 
   const parsedAmount = amount ? parseEther(amount) : 0n;
-  const needsApproval =
-    user && parsedAmount > 0n && (allowance ?? 0n) < parsedAmount;
+  const needsApproval = user && parsedAmount > 0n && (allowance ?? 0n) < parsedAmount;
   const balanceBig = (balance as bigint) ?? 0n;
   const insufficient = parsedAmount > balanceBig;
 
-  // Estimated tokens received (naive estimate: amount / price)
-  // Real FPMM gives a bit more due to AMM curve, but this is close
   const estTokens =
     parsedAmount > 0n && currentPrice > 0
       ? Number(formatEther(parsedAmount)) / (currentPrice / 100)
       : 0;
+  const maxProfit = Math.max(0, estTokens - Number(amount || 0));
+  const returnPct = Number(amount || 0) > 0 ? (maxProfit / Number(amount)) * 100 : 0;
 
   const handleApprove = () => {
     writeContract({
@@ -121,15 +116,22 @@ export function TradeBox({
     });
   };
 
+  if (!mounted) {
+    return <div className="h-[420px] rounded-2xl border border-ink-200 bg-paper-pure" />;
+  }
+
   if (!user) {
     return (
-      <div className="card rounded-2xl p-6">
-        <div className="mb-3 text-[10px] uppercase tracking-[0.2em] text-silver-500">
-          Position & Trade
+      <div className="rounded-2xl border border-ink-200 bg-paper-pure p-6">
+        <div className="text-[10px] font-semibold uppercase tracking-[0.15em] text-ink-500">
+          Trade
         </div>
-        <div className="rounded-xl border border-silver-800 bg-ink-100/50 p-8 text-center">
-          <p className="text-sm text-silver-300">
-            Connect a wallet to trade this market.
+        <div className="mt-4 rounded-xl border-2 border-dashed border-ink-200 bg-paper-off p-8 text-center">
+          <p className="text-sm font-medium text-ink-pure">
+            Connect wallet to trade
+          </p>
+          <p className="mt-1 text-xs text-ink-500">
+            You need zkLTC on LiteForge testnet
           </p>
         </div>
       </div>
@@ -138,65 +140,63 @@ export function TradeBox({
 
   if (resolved) {
     return (
-      <div className="card rounded-2xl p-6">
-        <div className="mb-4 text-[10px] uppercase tracking-[0.2em] text-silver-500">
-          Your Position
+      <div className="rounded-2xl border border-ink-200 bg-paper-pure p-6">
+        <div className="text-[10px] font-semibold uppercase tracking-[0.15em] text-ink-500">
+          Your position
         </div>
-        <div className="space-y-3">
-          <PositionRow
-            label="YES tokens"
-            amount={(yesBal as bigint) ?? 0n}
-            color="bull"
-          />
-          <PositionRow
-            label="NO tokens"
-            amount={(noBal as bigint) ?? 0n}
-            color="bear"
-          />
+        <div className="mt-4 space-y-2.5">
+          <PositionRow label="YES tokens" amount={(yesBal as bigint) ?? 0n} color="bull" />
+          <PositionRow label="NO tokens" amount={(noBal as bigint) ?? 0n} color="bear" />
         </div>
         <button
           onClick={handleRedeem}
           disabled={isPending || waiting}
-          className="btn-primary mt-6 w-full rounded-lg px-4 py-3 text-sm"
+          className="btn-ink mt-5 w-full rounded-lg px-4 py-3 text-sm"
         >
-          {waiting ? "Confirming…" : isPending ? "Waiting for wallet…" : "Redeem winnings"}
+          {waiting ? "Confirming..." : isPending ? "Approve in wallet..." : "Redeem winnings"}
         </button>
       </div>
     );
   }
 
   return (
-    <div className="card rounded-2xl p-6">
-      {/* Side selector */}
-      <div className="mb-4 text-[10px] uppercase tracking-[0.2em] text-silver-500">
-        Place Order
+    <div className="rounded-2xl border border-ink-200 bg-paper-pure p-6">
+      <div className="flex items-center justify-between">
+        <div className="text-[10px] font-semibold uppercase tracking-[0.15em] text-ink-500">
+          Place trade
+        </div>
+        <div className="font-mono text-[10px] font-medium uppercase tracking-widest text-ink-400">
+          FPMM
+        </div>
       </div>
-      <div className="grid grid-cols-2 gap-2 rounded-lg bg-ink-200 p-1">
-        <SideToggle
+
+      {/* Side selector - Polymarket style */}
+      <div className="mt-4 grid grid-cols-2 gap-2">
+        <SideButton
           active={side === "YES"}
           onClick={() => setSide("YES")}
-          label="YES"
+          label="Buy YES"
           price={yesPct}
           color="bull"
         />
-        <SideToggle
+        <SideButton
           active={side === "NO"}
           onClick={() => setSide("NO")}
-          label="NO"
+          label="Buy NO"
           price={100 - yesPct}
           color="bear"
         />
       </div>
 
-      {/* Amount input */}
+      {/* Amount */}
       <div className="mt-5">
         <div className="mb-2 flex items-center justify-between">
-          <label className="text-[10px] uppercase tracking-[0.2em] text-silver-500">
+          <label className="text-[10px] font-semibold uppercase tracking-[0.15em] text-ink-500">
             Amount
           </label>
-          <span className="text-[11px] text-silver-400">
+          <span className="text-[11px] text-ink-500">
             Balance:{" "}
-            <span className="font-mono text-silver-300 tabular">
+            <span className="font-mono font-semibold text-ink-800 tabular">
               {Number(formatEther(balanceBig)).toFixed(4)}
             </span>{" "}
             zkLTC
@@ -207,28 +207,23 @@ export function TradeBox({
             type="text"
             inputMode="decimal"
             value={amount}
-            onChange={(e) =>
-              setAmount(e.target.value.replace(/[^0-9.]/g, ""))
-            }
+            onChange={(e) => setAmount(e.target.value.replace(/[^0-9.]/g, ""))}
             placeholder="0.00"
-            className="w-full rounded-lg border border-silver-800 bg-ink-50 px-4 py-4 pr-20 font-mono text-2xl text-silver-50 tabular placeholder:text-silver-700 focus:border-silver-600 focus:outline-none"
+            className="w-full rounded-xl border border-ink-200 bg-paper-off px-4 py-4 pr-20 font-display text-3xl font-semibold text-ink-pure tabular placeholder:text-ink-300 focus:border-ink-pure focus:bg-paper-pure focus:outline-none"
           />
-          <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-xs text-silver-500">
+          <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 font-mono text-xs font-semibold text-ink-500">
             zkLTC
           </span>
         </div>
 
-        {/* Quick amounts */}
         <div className="mt-2 grid grid-cols-4 gap-1.5">
           {[0.25, 0.5, 0.75, 1].map((frac) => (
             <button
               key={frac}
               onClick={() =>
-                setAmount(
-                  formatEther((balanceBig * BigInt(Math.floor(frac * 100))) / 100n)
-                )
+                setAmount(formatEther((balanceBig * BigInt(Math.floor(frac * 100))) / 100n))
               }
-              className="rounded-md border border-silver-800 bg-ink-100 py-1.5 text-[11px] text-silver-400 transition hover:border-silver-600 hover:text-silver-100"
+              className="rounded-md border border-ink-200 bg-paper-off py-1.5 text-[11px] font-semibold text-ink-700 transition hover:border-ink-pure hover:bg-paper-pure"
             >
               {frac === 1 ? "MAX" : `${Math.round(frac * 100)}%`}
             </button>
@@ -236,26 +231,27 @@ export function TradeBox({
         </div>
       </div>
 
-      {/* Receipt preview */}
+      {/* Trade preview */}
       {parsedAmount > 0n && !insufficient && (
-        <div className="mt-4 space-y-1.5 rounded-lg border border-silver-800 bg-ink-100/50 p-3 text-[11px]">
+        <div className="mt-4 rounded-xl border border-ink-200 bg-paper-off p-4">
           <Row
-            label={`Avg price (~${currentPrice.toFixed(1)}¢)`}
-            value={`${amount} zkLTC`}
+            label={`Avg price`}
+            value={`${currentPrice.toFixed(1)}¢`}
           />
           <Row
-            label={`Est. ${side} tokens`}
+            label={`${side} shares`}
             value={estTokens.toFixed(4)}
-            accent
           />
+          <div className="my-2 divider-dashed" />
           <Row
-            label="Potential payout"
+            label="Payout if wins"
             value={`${estTokens.toFixed(4)} zkLTC`}
-            accent
+            bold
           />
           <Row
             label="Max profit"
-            value={`${Math.max(0, estTokens - Number(amount)).toFixed(4)} zkLTC`}
+            value={`+${maxProfit.toFixed(4)} zkLTC (${returnPct.toFixed(0)}%)`}
+            accent="bull"
           />
         </div>
       )}
@@ -263,53 +259,43 @@ export function TradeBox({
       {/* CTA */}
       <button
         onClick={needsApproval ? handleApprove : handleBuy}
-        disabled={
-          !parsedAmount || insufficient || isPending || waiting
-        }
-        className={`mt-5 w-full rounded-lg px-4 py-3.5 text-sm font-medium transition ${
-          side === "YES" && !needsApproval
-            ? "bg-accent-bull text-ink-0 hover:bg-accent-bull/90"
-            : side === "NO" && !needsApproval
-              ? "bg-accent-bear text-white hover:bg-accent-bear/90"
-              : "btn-primary"
+        disabled={!parsedAmount || insufficient || isPending || waiting}
+        className={`mt-5 w-full rounded-xl px-4 py-4 text-sm font-semibold transition ${
+          needsApproval
+            ? "btn-ink"
+            : side === "YES"
+              ? "btn-bull"
+              : "btn-bear"
         } disabled:cursor-not-allowed disabled:opacity-40`}
       >
         {waiting
-          ? "Confirming on-chain…"
+          ? "Confirming onchain..."
           : isPending
-            ? "Waiting for wallet…"
+            ? "Approve in wallet..."
             : insufficient
               ? "Insufficient balance"
               : needsApproval
-                ? "Approve zkLTC"
+                ? "Approve zkLTC to trade"
                 : parsedAmount === 0n
                   ? "Enter amount"
-                  : `Buy ${side} — ${amount} zkLTC`}
+                  : `Buy ${side} ${amount} zkLTC`}
       </button>
 
-      {/* Position footer */}
-      <div className="mt-5 border-t border-silver-800/60 pt-4">
-        <div className="mb-2 text-[10px] uppercase tracking-[0.2em] text-silver-500">
-          Your Position
+      {/* Position summary */}
+      <div className="mt-5 border-t border-ink-100 pt-4">
+        <div className="mb-2.5 text-[10px] font-semibold uppercase tracking-[0.15em] text-ink-500">
+          Your position
         </div>
-        <div className="grid grid-cols-2 gap-3 text-xs">
-          <PositionMini
-            label="YES"
-            amount={(yesBal as bigint) ?? 0n}
-            color="bull"
-          />
-          <PositionMini
-            label="NO"
-            amount={(noBal as bigint) ?? 0n}
-            color="bear"
-          />
+        <div className="grid grid-cols-2 gap-2">
+          <MiniPosition label="YES" amount={(yesBal as bigint) ?? 0n} color="bull" />
+          <MiniPosition label="NO" amount={(noBal as bigint) ?? 0n} color="bear" />
         </div>
       </div>
     </div>
   );
 }
 
-function SideToggle({
+function SideButton({
   active,
   onClick,
   label,
@@ -322,35 +308,28 @@ function SideToggle({
   price: number;
   color: "bull" | "bear";
 }) {
-  const accentBg =
-    color === "bull" ? "bg-accent-bull/15" : "bg-accent-bear/15";
-  const accentText =
-    color === "bull" ? "text-accent-bull" : "text-accent-bear";
-  const accentBorder =
-    color === "bull" ? "border-accent-bull/40" : "border-accent-bear/40";
+  const bg = color === "bull" ? "bg-bull" : "bg-bear";
+  const activeText = "text-paper-pure";
+  const inactiveHover =
+    color === "bull"
+      ? "hover:border-bull hover:text-bull"
+      : "hover:border-bear hover:text-bear";
 
   return (
     <button
       onClick={onClick}
-      className={`flex flex-col items-start rounded-md px-4 py-3 transition ${
+      className={`flex flex-col items-start gap-1 rounded-xl border p-4 transition ${
         active
-          ? `${accentBg} border ${accentBorder}`
-          : "hover:bg-ink-100 border border-transparent"
+          ? `${bg} border-transparent ${activeText}`
+          : `border-ink-200 bg-paper-pure text-ink-700 ${inactiveHover}`
       }`}
     >
-      <span
-        className={`font-mono text-xs font-medium tracking-widest ${
-          active ? accentText : "text-silver-500"
-        }`}
-      >
+      <span className="text-xs font-semibold uppercase tracking-wider">
         {label}
       </span>
-      <span
-        className={`mt-1 font-mono text-base tabular ${
-          active ? "text-silver-50" : "text-silver-400"
-        }`}
-      >
-        {price.toFixed(1)}¢
+      <span className={`font-display text-2xl font-bold tracking-tighter tabular ${active ? activeText : "text-ink-pure"}`}>
+        {price.toFixed(0)}
+        <span className={`text-base ${active ? activeText : "text-ink-500"}`}>¢</span>
       </span>
     </button>
   );
@@ -360,17 +339,19 @@ function Row({
   label,
   value,
   accent,
+  bold,
 }: {
   label: string;
   value: string;
-  accent?: boolean;
+  accent?: "bull";
+  bold?: boolean;
 }) {
+  const colorClass =
+    accent === "bull" ? "text-bull" : bold ? "text-ink-pure" : "text-ink-800";
   return (
-    <div className="flex items-center justify-between">
-      <span className="text-silver-500">{label}</span>
-      <span
-        className={`font-mono tabular ${accent ? "text-silver-50" : "text-silver-300"}`}
-      >
+    <div className="flex items-center justify-between py-1 text-xs">
+      <span className="text-ink-500">{label}</span>
+      <span className={`font-mono font-semibold tabular ${colorClass}`}>
         {value}
       </span>
     </div>
@@ -386,21 +367,21 @@ function PositionRow({
   amount: bigint;
   color: "bull" | "bear";
 }) {
-  const accent =
-    color === "bull" ? "text-accent-bull" : "text-accent-bear";
+  const dotColor = color === "bull" ? "bg-bull" : "bg-bear";
   return (
-    <div className="flex items-baseline justify-between rounded-lg border border-silver-800/60 bg-ink-100/50 px-4 py-3">
-      <span className={`font-mono text-xs tracking-widest ${accent}`}>
+    <div className="flex items-center justify-between rounded-xl border border-ink-200 bg-paper-off px-4 py-3">
+      <span className="flex items-center gap-2 text-xs font-semibold text-ink-800">
+        <span className={`h-1.5 w-1.5 rounded-full ${dotColor}`} />
         {label}
       </span>
-      <span className="font-mono text-lg text-silver-100 tabular">
+      <span className="font-mono text-base font-semibold text-ink-pure tabular">
         {Number(formatEther(amount)).toFixed(4)}
       </span>
     </div>
   );
 }
 
-function PositionMini({
+function MiniPosition({
   label,
   amount,
   color,
@@ -409,16 +390,13 @@ function PositionMini({
   amount: bigint;
   color: "bull" | "bear";
 }) {
-  const accent =
-    color === "bull" ? "text-accent-bull" : "text-accent-bear";
+  const colorText = color === "bull" ? "text-bull" : "text-bear";
   return (
-    <div className="rounded-md border border-silver-800/60 bg-ink-100/40 px-3 py-2">
-      <span
-        className={`block font-mono text-[10px] tracking-widest ${accent}`}
-      >
+    <div className="rounded-lg border border-ink-200 bg-paper-off px-3 py-2.5">
+      <span className={`block text-[10px] font-semibold uppercase tracking-widest ${colorText}`}>
         {label}
       </span>
-      <span className="mt-0.5 block font-mono text-sm text-silver-100 tabular">
+      <span className="mt-0.5 block font-mono text-sm font-semibold text-ink-pure tabular">
         {Number(formatEther(amount)).toFixed(4)}
       </span>
     </div>

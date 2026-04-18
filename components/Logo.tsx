@@ -1,4 +1,4 @@
-export function Logo({ className = "h-6 w-6" }: { className?: string }) {
+export function Logo({ className = "h-7 w-7" }: { className?: string }) {
   return (
     <svg
       viewBox="0 0 32 32"
@@ -7,30 +7,22 @@ export function Logo({ className = "h-6 w-6" }: { className?: string }) {
       className={className}
       aria-hidden
     >
-      <defs>
-        <linearGradient id="silverGrad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#f6f6f7" />
-          <stop offset="50%" stopColor="#adaeb6" />
-          <stop offset="100%" stopColor="#e9e9ec" />
-        </linearGradient>
-        <linearGradient id="silverGradDark" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#82848e" />
-          <stop offset="100%" stopColor="#38383d" />
-        </linearGradient>
-      </defs>
+      <rect x="1" y="1" width="30" height="30" rx="8" fill="#0a0a0a" />
       <path
-        d="M16 2 L28 9 L28 23 L16 30 L4 23 L4 9 Z"
-        stroke="url(#silverGrad)"
-        strokeWidth="1.25"
-        fill="url(#silverGradDark)"
-        fillOpacity="0.2"
+        d="M10 12 Q10 9 13 9 L19 9 Q22 9 22 12 Q22 14.5 19 14.5 L13 14.5 Q10 14.5 10 17 Q10 19.5 13 19.5 L19 19.5 Q22 19.5 22 22.5 Q22 25 19 25 L13 25 Q10 25 10 22.5"
+        stroke="#ffffff"
+        strokeWidth="2.2"
+        strokeLinecap="round"
+        fill="none"
       />
-      <path
-        d="M16 8 L22 11.5 L22 20.5 L16 24 L10 20.5 L10 11.5 Z"
-        fill="url(#silverGrad)"
-        fillOpacity="0.9"
-      />
-      <circle cx="16" cy="16" r="1.5" fill="#0a0a0b" />
     </svg>
+  );
+}
+
+export function Wordmark({ className = "" }: { className?: string }) {
+  return (
+    <span className={`font-display font-bold tracking-tighter ${className}`}>
+      Silvercast
+    </span>
   );
 }

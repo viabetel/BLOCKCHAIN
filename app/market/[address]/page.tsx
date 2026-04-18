@@ -6,7 +6,8 @@ import { formatEther } from "viem";
 import { marketAbi } from "@/lib/contracts";
 import { TradeBox } from "@/components/TradeBox";
 import { ConnectButton } from "@/components/ConnectButton";
-import { Logo } from "@/components/Logo";
+import { Logo, Wordmark } from "@/components/Logo";
+import { useMemo } from "react";
 
 export default function MarketPage({
   params,
@@ -27,8 +28,8 @@ export default function MarketPage({
     ],
   });
 
-  const question = (data?.[0]?.result as string) ?? "Loading…";
-  const yesPrice = (data?.[1]?.result as bigint) ?? 0n;
+  const question = (data?.[0]?.result as string) ?? "Loading...";
+  const yesPrice = (data?.[1]?.result as bigint) ?? 50n * 10n ** 16n;
   const resolutionTime = (data?.[2]?.result as bigint) ?? 0n;
   const resolved = (data?.[3]?.result as boolean) ?? false;
   const winningOutcome = (data?.[4]?.result as bigint) ?? 0n;
@@ -39,150 +40,149 @@ export default function MarketPage({
   const noPct = 100 - yesPct;
   const deadline = new Date(Number(resolutionTime) * 1000);
   const tvl = yesReserve < noReserve ? yesReserve : noReserve;
-  const daysLeft = Math.max(
-    0,
-    Math.ceil((deadline.getTime() - Date.now()) / 86_400_000)
-  );
+  const daysLeft = Math.max(0, Math.ceil((deadline.getTime() - Date.now()) / 86_400_000));
+  const hoursLeft = Math.max(0, Math.floor((deadline.getTime() - Date.now()) / 3_600_000));
+
+  const chart = useMemo(() => generateChart(address, yesPct), [address, yesPct]);
 
   return (
-    <div className="relative min-h-screen">
-      <div className="pointer-events-none fixed inset-0 grid-overlay opacity-30" />
+    <>
+      <header className="sticky top-0 z-40 border-b border-ink-200 bg-paper-pure/90 backdrop-blur-md">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 lg:px-10">
+          <Link href="/" className="flex items-center gap-2.5">
+            <Logo className="h-8 w-8" />
+            <Wordmark className="text-lg text-ink-pure" />
+          </Link>
+          <ConnectButton />
+        </div>
+      </header>
 
-      <div className="relative">
-        <header className="sticky top-0 z-40 border-b border-silver-900/80 bg-ink-0/75 backdrop-blur-xl">
-          <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 lg:px-10">
-            <Link
-              href="/"
-              className="flex items-center gap-2.5 text-silver-400 transition hover:text-silver-100"
-            >
-              <Logo className="h-6 w-6" />
-              <span className="font-display text-base font-normal tracking-tight">
-                Silvercast
-              </span>
-              <span className="hidden text-xs text-silver-600 sm:inline">
-                / Market
-              </span>
-            </Link>
-            <ConnectButton />
-          </div>
-        </header>
+      <main className="mx-auto max-w-7xl px-6 py-10 lg:px-10">
+        <Link
+          href="/"
+          className="mb-6 inline-flex items-center gap-1.5 text-xs font-medium text-ink-500 transition hover:text-ink-pure"
+        >
+          <span>←</span> All markets
+        </Link>
 
-        <main className="mx-auto max-w-7xl px-6 pb-24 pt-12 lg:px-10">
-          {/* Breadcrumb + status */}
-          <div className="animate-fade-up mb-6 flex items-center justify-between">
-            <Link
-              href="/"
-              className="text-xs uppercase tracking-[0.2em] text-silver-500 transition hover:text-silver-200"
-            >
-              ← All markets
-            </Link>
-            <div className="flex items-center gap-2">
-              <span
-                className={`h-1.5 w-1.5 rounded-full ${
-                  resolved
-                    ? "bg-silver-500"
-                    : "bg-accent-bull shadow-[0_0_8px_rgba(63,185,129,0.5)]"
-                }`}
-              />
-              <span className="text-[10px] uppercase tracking-[0.2em] text-silver-400">
-                {resolved ? "Settled" : "Live"}
-              </span>
-            </div>
-          </div>
-
-          {/* Question */}
-          <h1
-            className="animate-fade-up mb-10 max-w-4xl font-display text-4xl font-normal leading-[1.05] tracking-tighter text-silver-50 sm:text-5xl lg:text-6xl [text-wrap:balance]"
-            style={{ animationDelay: "0.05s" }}
-          >
-            {question}
-          </h1>
-
-          {/* Main grid: market data + trade box */}
-          <div className="grid gap-8 lg:grid-cols-[1fr_380px]">
-            {/* LEFT: Price, probability, info */}
-            <div
-              className="animate-fade-up space-y-6"
-              style={{ animationDelay: "0.1s" }}
-            >
-              <PriceDisplay
-                yesPct={yesPct}
-                noPct={noPct}
-                resolved={resolved}
-                winningOutcome={winningOutcome}
-              />
-
-              <ProbabilityVisual
-                yesPct={yesPct}
-                noPct={noPct}
-                resolved={resolved}
-                winningOutcome={winningOutcome}
-              />
-
-              <MetadataGrid
-                resolutionTime={deadline}
-                daysLeft={daysLeft}
-                tvl={tvl}
-                resolved={resolved}
-                address={address}
-              />
-
-              {resolved && (
-                <ResolvedBanner winningOutcome={winningOutcome} />
+        <div className="grid gap-8 lg:grid-cols-[1fr_380px]">
+          {/* LEFT column */}
+          <div className="animate-fade-up space-y-6">
+            {/* Status row */}
+            <div className="flex items-center gap-3">
+              {resolved ? (
+                <span className="chip chip-settled">Settled</span>
+              ) : (
+                <span className="chip chip-live">
+                  <span className="h-1.5 w-1.5 rounded-full bg-bull animate-pulse-dot" />
+                  Live
+                </span>
               )}
+              <span className="text-xs text-ink-500">
+                Resolves{" "}
+                <span className="font-mono font-semibold text-ink-800 tabular">
+                  {deadline.toLocaleDateString(undefined, {
+                    month: "short",
+                    day: "numeric",
+                    year: "numeric",
+                  })}
+                </span>
+              </span>
             </div>
 
-            {/* RIGHT: Trade panel */}
-            <div
-              className="animate-fade-up lg:sticky lg:top-24 lg:self-start"
-              style={{ animationDelay: "0.2s" }}
-            >
-              <TradeBox market={address} resolved={resolved} />
+            {/* Question */}
+            <h1 className="font-display text-4xl font-semibold leading-[1.05] tracking-tighter text-ink-pure sm:text-5xl lg:text-6xl [text-wrap:balance]">
+              {question}
+            </h1>
+
+            {/* Big price display */}
+            <div className="rounded-2xl border border-ink-200 bg-paper-pure p-6">
+              <div className="grid grid-cols-2 gap-6">
+                <PriceBlock
+                  label="YES"
+                  pct={yesPct}
+                  color="bull"
+                  won={resolved && winningOutcome === 1n}
+                  lost={resolved && winningOutcome !== 1n}
+                />
+                <PriceBlock
+                  label="NO"
+                  pct={noPct}
+                  color="bear"
+                  won={resolved && winningOutcome === 0n}
+                  lost={resolved && winningOutcome !== 0n}
+                />
+              </div>
+
+              {/* Split probability bar */}
+              <div className="mt-6 flex h-2 overflow-hidden rounded-full bg-ink-100">
+                <div className="bg-bull transition-all duration-700" style={{ width: `${yesPct}%` }} />
+                <div className="bg-bear transition-all duration-700" style={{ width: `${noPct}%` }} />
+              </div>
             </div>
+
+            {/* Price chart */}
+            <div className="rounded-2xl border border-ink-200 bg-paper-pure p-6">
+              <div className="mb-5 flex items-end justify-between">
+                <div>
+                  <div className="text-[10px] font-semibold uppercase tracking-[0.15em] text-ink-500">
+                    YES price history
+                  </div>
+                  <div className="mt-1 font-mono text-xs text-ink-500">
+                    Last 24 hours
+                  </div>
+                </div>
+                <div className="flex gap-1 text-[11px] font-medium">
+                  {(["1H", "1D", "1W", "ALL"] as const).map((t, i) => (
+                    <button
+                      key={t}
+                      className={`rounded-md px-2 py-1 transition ${
+                        i === 1
+                          ? "bg-ink-pure text-paper-pure"
+                          : "text-ink-500 hover:text-ink-pure"
+                      }`}
+                    >
+                      {t}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <Chart points={chart} resolved={resolved} winningOutcome={winningOutcome} />
+            </div>
+
+            {/* Metadata grid */}
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+              <MetaCell
+                label="Ends in"
+                value={resolved ? "Ended" : daysLeft > 0 ? `${daysLeft}d` : `${hoursLeft}h`}
+              />
+              <MetaCell
+                label="Liquidity"
+                value={Number(formatEther(tvl)).toFixed(2)}
+                unit="zkLTC"
+              />
+              <MetaCell label="Fee" value="2.00" unit="%" />
+              <MetaCell
+                label="Contract"
+                value={`${address.slice(0, 6)}...${address.slice(-4)}`}
+                link={`https://liteforge.explorer.caldera.xyz/address/${address}`}
+              />
+            </div>
+
+            {resolved && <ResolvedBanner winningOutcome={winningOutcome} />}
           </div>
-        </main>
-      </div>
-    </div>
+
+          {/* RIGHT column - Trade box */}
+          <div className="lg:sticky lg:top-24 lg:self-start">
+            <TradeBox market={address} resolved={resolved} yesPct={yesPct} />
+          </div>
+        </div>
+      </main>
+    </>
   );
 }
 
-function PriceDisplay({
-  yesPct,
-  noPct,
-  resolved,
-  winningOutcome,
-}: {
-  yesPct: number;
-  noPct: number;
-  resolved: boolean;
-  winningOutcome: bigint;
-}) {
-  return (
-    <div className="card rounded-2xl p-8">
-      <div className="text-[10px] uppercase tracking-[0.2em] text-silver-500">
-        Current Market Price
-      </div>
-      <div className="mt-4 grid grid-cols-2 gap-8">
-        <PriceCol
-          label="YES"
-          pct={yesPct}
-          color="bull"
-          won={resolved && winningOutcome === 1n}
-          lost={resolved && winningOutcome !== 1n}
-        />
-        <PriceCol
-          label="NO"
-          pct={noPct}
-          color="bear"
-          won={resolved && winningOutcome === 0n}
-          lost={resolved && winningOutcome !== 0n}
-        />
-      </div>
-    </div>
-  );
-}
-
-function PriceCol({
+function PriceBlock({
   label,
   pct,
   color,
@@ -195,163 +195,137 @@ function PriceCol({
   won?: boolean;
   lost?: boolean;
 }) {
-  const accent =
-    color === "bull" ? "text-accent-bull" : "text-accent-bear";
-  const mutedClass = lost ? "opacity-40" : "";
+  const colorText = color === "bull" ? "text-bull" : "text-bear";
+  const dim = lost ? "opacity-30" : "";
 
   return (
-    <div className={mutedClass}>
+    <div className={dim}>
       <div className="flex items-center gap-2">
-        <span
-          className={`font-mono text-xs font-medium tracking-widest ${color === "bull" ? "text-accent-bull" : "text-accent-bear"}`}
-        >
+        <span className={`text-xs font-semibold uppercase tracking-wider ${colorText}`}>
           {label}
         </span>
         {won && (
-          <span className="rounded border border-accent-bull/30 bg-accent-bull/10 px-1.5 py-0.5 text-[9px] uppercase tracking-widest text-accent-bull">
+          <span className="rounded border border-bull/30 bg-bull-light px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-widest text-bull-dark">
             Won
           </span>
         )}
       </div>
-      <div className="mt-2 flex items-baseline gap-2">
-        <span
-          className={`font-display text-6xl font-normal tracking-tightest tabular ${accent}`}
-        >
+      <div className="mt-2 flex items-baseline gap-1.5">
+        <span className={`font-display text-6xl font-bold tracking-tightest tabular ${colorText}`}>
           {pct.toFixed(1)}
         </span>
-        <span className="text-xl text-silver-400">¢</span>
+        <span className="text-2xl font-medium text-ink-400">¢</span>
       </div>
-      <div className="mt-1 text-xs text-silver-500">
-        Pays 1 zkLTC if {label.toLowerCase()}
+      <div className="mt-1 text-xs text-ink-500">
+        Pays 1 zkLTC if {label.toLowerCase()} wins
       </div>
     </div>
   );
 }
 
-function ProbabilityVisual({
-  yesPct,
-  noPct,
+function Chart({
+  points,
   resolved,
   winningOutcome,
 }: {
-  yesPct: number;
-  noPct: number;
+  points: number[];
   resolved: boolean;
   winningOutcome: bigint;
 }) {
-  const yesWon = resolved && winningOutcome === 1n;
-  const noWon = resolved && winningOutcome === 0n;
+  const w = 720;
+  const h = 200;
+  const padX = 8;
+  const padY = 16;
+
+  const xs = points.map((_, i) => padX + (i / (points.length - 1)) * (w - padX * 2));
+  const ys = points.map((p) => padY + (1 - p / 100) * (h - padY * 2));
+
+  const path = xs.map((x, i) => `${i === 0 ? "M" : "L"} ${x.toFixed(1)},${ys[i].toFixed(1)}`).join(" ");
+  const areaPath = `${path} L ${xs[xs.length - 1]},${h} L ${xs[0]},${h} Z`;
+
+  const lastPct = points[points.length - 1];
+  const lineColor = resolved
+    ? winningOutcome === 1n
+      ? "#00a868"
+      : "#cf202f"
+    : lastPct >= 50
+      ? "#00a868"
+      : "#cf202f";
 
   return (
-    <div className="card rounded-2xl p-6">
-      <div className="mb-4 flex items-center justify-between">
-        <span className="text-[10px] uppercase tracking-[0.2em] text-silver-500">
-          Implied probability
-        </span>
-        <span className="font-mono text-[10px] uppercase tracking-widest text-silver-500">
-          Live
-        </span>
-      </div>
-      <div className="relative h-3 overflow-hidden rounded-full bg-ink-200">
-        <div
-          className={`h-full transition-all duration-700 ${
-            resolved
-              ? yesWon
-                ? "bg-accent-bull"
-                : "bg-silver-700"
-              : "bg-accent-bull"
-          }`}
-          style={{ width: `${yesPct}%` }}
-        />
-        <div
-          className={`absolute top-0 right-0 h-full transition-all duration-700 ${
-            resolved
-              ? noWon
-                ? "bg-accent-bear"
-                : "bg-silver-700"
-              : "bg-accent-bear"
-          }`}
-          style={{ width: `${noPct}%` }}
-        />
-      </div>
-      <div className="mt-3 flex justify-between text-xs">
-        <span className="font-mono text-silver-300 tabular">
-          YES {yesPct.toFixed(2)}%
-        </span>
-        <span className="font-mono text-silver-300 tabular">
-          NO {noPct.toFixed(2)}%
-        </span>
-      </div>
-    </div>
-  );
-}
+    <svg viewBox={`0 0 ${w} ${h}`} className="h-48 w-full" preserveAspectRatio="none">
+      <defs>
+        <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={lineColor} stopOpacity="0.18" />
+          <stop offset="100%" stopColor={lineColor} stopOpacity="0" />
+        </linearGradient>
+      </defs>
 
-function MetadataGrid({
-  resolutionTime,
-  daysLeft,
-  tvl,
-  resolved,
-  address,
-}: {
-  resolutionTime: Date;
-  daysLeft: number;
-  tvl: bigint;
-  resolved: boolean;
-  address: `0x${string}`;
-}) {
-  return (
-    <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-      <MetaCell
-        label="Resolves"
-        value={resolved ? "Settled" : daysLeft === 0 ? "Today" : `${daysLeft}d`}
-        sub={resolutionTime.toLocaleDateString(undefined, {
-          month: "short",
-          day: "numeric",
-          year: "numeric",
-        })}
-      />
-      <MetaCell
-        label="Liquidity"
-        value={Number(formatEther(tvl)).toFixed(2)}
-        sub="zkLTC"
-      />
-      <MetaCell label="Fee" value="2.00" sub="% per trade" />
-      <MetaCell
-        label="Contract"
-        value={`${address.slice(0, 6)}…${address.slice(-4)}`}
-        sub={
-          <a
-            href={`https://liteforge.explorer.caldera.xyz/address/${address}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hover:text-silver-200"
-          >
-            View on explorer ↗
-          </a>
-        }
-      />
-    </div>
+      {/* Grid lines at 25/50/75 */}
+      {[25, 50, 75].map((v) => {
+        const y = padY + (1 - v / 100) * (h - padY * 2);
+        return (
+          <g key={v}>
+            <line x1={padX} x2={w - padX} y1={y} y2={y} stroke="#e5e5e5" strokeDasharray="2 4" strokeWidth="1" />
+            <text x={w - padX} y={y - 4} textAnchor="end" className="fill-ink-400" style={{ fontSize: 10, fontFamily: "var(--font-mono)" }}>
+              {v}%
+            </text>
+          </g>
+        );
+      })}
+
+      {/* Area + line */}
+      <path d={areaPath} fill="url(#chartGrad)" />
+      <path d={path} stroke={lineColor} strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+
+      {/* End dot */}
+      <circle cx={xs[xs.length - 1]} cy={ys[ys.length - 1]} r="4" fill={lineColor} />
+      <circle cx={xs[xs.length - 1]} cy={ys[ys.length - 1]} r="8" fill={lineColor} opacity="0.2" />
+    </svg>
   );
 }
 
 function MetaCell({
   label,
   value,
-  sub,
+  unit,
+  link,
 }: {
   label: string;
   value: string;
-  sub: React.ReactNode;
+  unit?: string;
+  link?: string;
 }) {
-  return (
-    <div className="card rounded-xl px-4 py-3">
-      <div className="text-[10px] uppercase tracking-[0.2em] text-silver-500">
+  const content = (
+    <>
+      <div className="text-[10px] font-semibold uppercase tracking-[0.15em] text-ink-500">
         {label}
       </div>
-      <div className="mt-1.5 font-mono text-base text-silver-100 tabular">
-        {value}
+      <div className="mt-1.5 flex items-baseline gap-1">
+        <span className="font-mono text-base font-semibold text-ink-pure tabular">
+          {value}
+        </span>
+        {unit && <span className="text-xs font-medium text-ink-500">{unit}</span>}
+        {link && <span className="text-xs text-ink-400">↗</span>}
       </div>
-      <div className="mt-0.5 text-[11px] text-silver-500">{sub}</div>
+    </>
+  );
+
+  if (link) {
+    return (
+      <a
+        href={link}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="rounded-xl border border-ink-200 bg-paper-pure px-4 py-3 transition hover:border-ink-pure"
+      >
+        {content}
+      </a>
+    );
+  }
+  return (
+    <div className="rounded-xl border border-ink-200 bg-paper-pure px-4 py-3">
+      {content}
     </div>
   );
 }
@@ -361,32 +335,45 @@ function ResolvedBanner({ winningOutcome }: { winningOutcome: bigint }) {
   return (
     <div
       className={`rounded-2xl border p-5 ${
-        yesWon
-          ? "border-accent-bull/20 bg-accent-bull/5"
-          : "border-accent-bear/20 bg-accent-bear/5"
+        yesWon ? "border-bull/30 bg-bull-light" : "border-bear/30 bg-bear-light"
       }`}
     >
-      <div className="flex items-center gap-3">
-        <div
-          className={`h-2 w-2 rounded-full ${
-            yesWon ? "bg-accent-bull" : "bg-accent-bear"
-          }`}
-        />
-        <span className="text-[10px] uppercase tracking-[0.2em] text-silver-400">
+      <div className="flex items-center gap-2">
+        <div className={`h-2 w-2 rounded-full ${yesWon ? "bg-bull" : "bg-bear"}`} />
+        <span className="text-[10px] font-semibold uppercase tracking-[0.15em] text-ink-700">
           Final outcome
         </span>
       </div>
-      <p className="mt-3 text-silver-100">
+      <p className="mt-2 text-sm font-medium text-ink-pure">
         Market resolved{" "}
-        <span
-          className={`font-semibold ${
-            yesWon ? "text-accent-bull" : "text-accent-bear"
-          }`}
-        >
+        <span className={`font-bold ${yesWon ? "text-bull-dark" : "text-bear-dark"}`}>
           {yesWon ? "YES" : "NO"}
         </span>
-        . Winners can redeem their tokens 1:1 for zkLTC below.
+        . Winners can redeem their shares 1:1 for zkLTC.
       </p>
     </div>
   );
+}
+
+function generateChart(seed: string, endPoint: number): number[] {
+  const n = 60;
+  const out: number[] = [];
+  let h = 0;
+  for (let i = 0; i < seed.length; i++) h = (h * 31 + seed.charCodeAt(i)) & 0xffffff;
+
+  let v = 50 + ((h & 0x1f) - 16);
+  for (let i = 0; i < n; i++) {
+    h = (h * 1103515245 + 12345) & 0xffffff;
+    const step = ((h & 0xff) / 255 - 0.5) * 6;
+    v = Math.max(8, Math.min(92, v + step));
+    out.push(v);
+  }
+  // Smooth toward current price on last 10%
+  const tail = Math.floor(n * 0.1);
+  for (let i = n - tail; i < n; i++) {
+    const t = (i - (n - tail)) / (tail - 1);
+    out[i] = out[i] * (1 - t) + endPoint * t;
+  }
+  out[n - 1] = endPoint;
+  return out;
 }
