@@ -2,21 +2,17 @@
 
 import { useReadContract, useReadContracts } from "wagmi";
 import { addresses, factoryAbi, marketAbi } from "@/lib/contracts";
+import { fmtPct } from "@/lib/format";
 
 export function TickerBar() {
   const { data: length } = useReadContract({
-    address: addresses.factory,
-    abi: factoryAbi,
-    functionName: "marketsLength",
+    address: addresses.factory, abi: factoryAbi, functionName: "marketsLength",
   });
   const count = Number(length ?? 0n);
 
   const { data: marketAddresses } = useReadContracts({
     contracts: Array.from({ length: count }).map((_, i) => ({
-      address: addresses.factory,
-      abi: factoryAbi,
-      functionName: "allMarkets",
-      args: [BigInt(i)],
+      address: addresses.factory, abi: factoryAbi, functionName: "allMarkets", args: [BigInt(i)],
     })),
     query: { enabled: count > 0 },
   });
@@ -42,12 +38,7 @@ export function TickerBar() {
     }
   }
 
-  // Fallback placeholders so the bar is never empty
-  const displayItems = items.length > 0 ? items : [
-    { question: "Loading markets...", pct: 50 },
-  ];
-
-  // Duplicate for seamless loop
+  const displayItems = items.length > 0 ? items : [{ question: "No active markets", pct: 50 }];
   const loop = [...displayItems, ...displayItems, ...displayItems, ...displayItems];
 
   return (
@@ -55,14 +46,10 @@ export function TickerBar() {
       <div className="flex animate-ticker whitespace-nowrap">
         {loop.map((item, i) => (
           <div key={i} className="flex items-center gap-3 px-6">
-            <span className="text-[10px] font-medium uppercase tracking-widest text-ink-500">
-              Market
-            </span>
-            <span className="text-sm text-paper-pure truncate max-w-[280px]">
-              {item.question}
-            </span>
+            <span className="text-[10px] font-semibold uppercase tracking-widest text-ink-500">Market</span>
+            <span className="max-w-[280px] truncate text-sm text-paper-pure">{item.question}</span>
             <span className={`font-mono text-sm font-semibold tabular ${item.pct >= 50 ? "text-bull" : "text-bear"}`}>
-              YES {item.pct.toFixed(1)}%
+              YES {fmtPct(item.pct)}%
             </span>
             <span className="text-ink-700">•</span>
           </div>
