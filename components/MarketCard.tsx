@@ -31,25 +31,40 @@ export function MarketCard({ address }: { address: `0x${string}` }) {
   const deadline = new Date(Number(resolutionTime) * 1000);
   const sparkline = useMemo(() => generateSparkline(address, yesPct), [address, yesPct]);
   const category = useMemo(() => inferCategory(question), [question]);
+  const icon = categoryIcon(category);
 
   return (
     <div className="card-paper group relative flex h-full flex-col overflow-hidden rounded-xl p-4">
-      {/* Top: category + status */}
-      <div className="mb-3 flex items-center justify-between">
-        <span className="chip chip-cat">{category}</span>
-        {resolved ? (
-          <span className="chip chip-settled">Settled</span>
-        ) : (
-          <span className="chip chip-live">
-            <span className="h-1 w-1 animate-pulse-dot rounded-full bg-bull" />
-            Live
-          </span>
-        )}
+      {/* Top: icon + category + status */}
+      <div className="mb-3 flex items-start justify-between">
+        <div className="flex items-center gap-2.5">
+          <div className={`flex h-9 w-9 items-center justify-center rounded-lg ${icon.bg} text-[15px]`}>
+            <span className={icon.color}>{icon.label}</span>
+          </div>
+          <div>
+            <div className="text-[10px] font-semibold uppercase tracking-widest text-ink-500">
+              {category}
+            </div>
+            <div className="mt-0.5 flex items-center gap-1.5 text-[10px] text-ink-500">
+              {resolved ? (
+                <>
+                  <span className="h-1 w-1 rounded-full bg-ink-400" />
+                  <span>Settled</span>
+                </>
+              ) : (
+                <>
+                  <span className="h-1 w-1 animate-pulse-dot rounded-full bg-bull" />
+                  <span>Live · {fmtTimeLeft(deadline)}</span>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
       </div>
 
-      {/* Question + sparkline row */}
+      {/* Question + sparkline */}
       <Link href={`/market/${address}`} className="mb-4 flex items-start gap-3">
-        <h3 className="flex-1 font-display text-[15px] font-semibold leading-[1.3] tracking-tight text-ink-pure min-h-[56px] [text-wrap:balance]">
+        <h3 className="flex-1 font-display text-[15px] font-semibold leading-[1.25] tracking-tight text-ink-pure min-h-[56px] [text-wrap:balance]">
           {question}
         </h3>
         <div className="h-12 w-20 shrink-0">
@@ -57,13 +72,13 @@ export function MarketCard({ address }: { address: `0x${string}` }) {
         </div>
       </Link>
 
-      {/* Price split */}
-      <div className="mb-4 flex h-1.5 overflow-hidden rounded-full bg-ink-100">
+      {/* Probability split */}
+      <div className="mb-3 flex h-1.5 overflow-hidden rounded-full bg-ink-100">
         <div className="bg-bull transition-all duration-700" style={{ width: `${yesPct}%` }} />
         <div className="bg-bear transition-all duration-700" style={{ width: `${noPct}%` }} />
       </div>
 
-      {/* Inline buy buttons */}
+      {/* Buy buttons */}
       <div className="mb-3 grid grid-cols-2 gap-1.5">
         <Link href={`/market/${address}?side=YES`}
           className="group/btn flex items-center justify-between rounded-lg border border-ink-200 bg-paper-pure px-3 py-2 transition hover:border-bull hover:bg-bull hover:text-white">
@@ -85,22 +100,42 @@ export function MarketCard({ address }: { address: `0x${string}` }) {
         </Link>
       </div>
 
-      {/* Footer metadata */}
+      {/* Footer: volume */}
       <div className="mt-auto flex items-center justify-between border-t border-ink-100 pt-3 text-[11px]">
-        <span className="text-ink-500">
+        <span className="flex items-center gap-1 text-ink-500">
+          <svg viewBox="0 0 14 14" className="h-3 w-3" fill="none">
+            <path d="M2 11h10M2 11V5m0 6h4V7H2m10 4V3h-4v8M6 7v4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+          </svg>
           Vol <span className="font-mono font-semibold text-ink-800 tabular">{fmtZkLTC(tvl)}</span>
         </span>
-        <span className="text-ink-500">
-          Ends <span className="font-mono font-semibold text-ink-800 tabular">{resolved ? "—" : fmtTimeLeft(deadline)}</span>
-        </span>
+        <Link href={`/market/${address}`} className="font-semibold text-ink-500 opacity-0 transition group-hover:text-ink-pure group-hover:opacity-100">
+          Trade →
+        </Link>
       </div>
     </div>
   );
 }
 
+function categoryIcon(cat: string) {
+  switch (cat) {
+    case "Crypto":
+      return { label: "₿", bg: "bg-amber-100", color: "text-amber-700 font-bold" };
+    case "Launch":
+      return { label: "▲", bg: "bg-blue-100", color: "text-blue-700 font-bold" };
+    case "Policy":
+      return { label: "§", bg: "bg-violet-100", color: "text-violet-700 font-bold" };
+    case "Ecosystem":
+      return { label: "◇", bg: "bg-emerald-100", color: "text-emerald-700 font-bold" };
+    default:
+      return { label: "●", bg: "bg-ink-100", color: "text-ink-700" };
+  }
+}
+
 function Sparkline({ points, color }: { points: number[]; color: string }) {
-  const w = 80; const h = 48;
-  const max = Math.max(...points); const min = Math.min(...points);
+  const w = 80;
+  const h = 48;
+  const max = Math.max(...points);
+  const min = Math.min(...points);
   const range = max - min || 1;
   const pathPoints = points.map((p, i) => {
     const x = (i / (points.length - 1)) * w;

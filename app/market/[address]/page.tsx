@@ -1,19 +1,24 @@
 "use client";
 
-import { useReadContracts } from "wagmi";
+import { useReadContracts, usePublicClient } from "wagmi";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { marketAbi } from "@/lib/contracts";
 import { TradeBox } from "@/components/TradeBox";
 import { ConnectButton } from "@/components/ConnectButton";
 import { Logo, Wordmark } from "@/components/Logo";
-import { fmtPct, fmtZkLTC, fmtTimeLeft, fmtAddress } from "@/lib/format";
+import { PriceChart } from "@/components/PriceChart";
+import { ActivityFeed } from "@/components/ActivityFeed";
+import { fmtPct, fmtZkLTC, fmtTimeLeft, fmtAddress, inferCategory } from "@/lib/format";
+
+type Tab = "Overview" | "Activity" | "Holders" | "Rules";
 
 export default function MarketPage({ params }: { params: { address: string } }) {
   const address = params.address as `0x${string}`;
   const searchParams = useSearchParams();
   const initialSide = searchParams.get("side") === "NO" ? "NO" : "YES";
+  const [tab, setTab] = useState<Tab>("Overview");
 
   const { data } = useReadContracts({
     contracts: [
@@ -25,6 +30,7 @@ export default function MarketPage({ params }: { params: { address: string } }) 
       { address, abi: marketAbi, functionName: "yesReserve" },
       { address, abi: marketAbi, functionName: "noReserve" },
       { address, abi: marketAbi, functionName: "oracle" },
+      { address, abi: marketAbi, functionName: "totalLiquidity" },
     ],
   });
 
@@ -41,8 +47,9 @@ export default function MarketPage({ params }: { params: { address: string } }) 
   const noPct = 100 - yesPct;
   const deadline = new Date(Number(resolutionTime) * 1000);
   const tvl = yesReserve < noReserve ? yesReserve : noReserve;
+  const category = useMemo(() => inferCategory(question), [question]);
 
-  const chart = useMemo(() => generateChart(address, yesPct), [address, yesPct]);
+  const TABS: Tab[] = ["Overview", "Activity", "Holders", "Rules"];
 
   return (
     <>
@@ -57,14 +64,19 @@ export default function MarketPage({ params }: { params: { address: string } }) 
       </header>
 
       <main className="mx-auto max-w-[1400px] px-6 py-6 lg:px-8">
-        <Link href="/" className="mb-4 inline-flex items-center gap-1.5 text-xs font-medium text-ink-500 transition hover:text-ink-pure">
-          <span>←</span> All markets
-        </Link>
+        {/* Breadcrumb */}
+        <div className="mb-3 flex items-center gap-2 text-[11px] font-medium text-ink-500">
+          <Link href="/" className="transition hover:text-ink-pure">Silvercast</Link>
+          <span>/</span>
+          <span>{category}</span>
+          <span>/</span>
+          <span className="font-mono tabular text-ink-700">{fmtAddress(address)}</span>
+        </div>
 
-        <div className="grid gap-6 lg:grid-cols-[1fr_400px]">
-          {/* LEFT */}
-          <div className="animate-fade-up space-y-5">
-            <div className="flex items-center gap-2">
+        {/* Title row */}
+        <div className="mb-5 flex flex-wrap items-start justify-between gap-4">
+          <div className="flex-1 min-w-0">
+            <div className="mb-2 flex items-center gap-2">
               {resolved ? (
                 <span className="chip chip-settled">Settled</span>
               ) : (
@@ -78,70 +90,89 @@ export default function MarketPage({ params }: { params: { address: string } }) 
                 </span> · <span className="font-mono font-semibold text-ink-800 tabular">{fmtTimeLeft(deadline)}</span>
               </span>
             </div>
-
             <h1 className="font-display text-3xl font-semibold leading-[1.1] tracking-tighter text-ink-pure sm:text-4xl [text-wrap:balance]">
               {question}
             </h1>
-
-            {/* Price display */}
-            <div className="rounded-xl border border-ink-200 bg-paper-pure p-5">
-              <div className="grid grid-cols-2 gap-6">
-                <PriceBlock label="YES" pct={yesPct} color="bull"
-                  won={resolved && winningOutcome === 1n} lost={resolved && winningOutcome !== 1n} />
-                <PriceBlock label="NO" pct={noPct} color="bear"
-                  won={resolved && winningOutcome === 0n} lost={resolved && winningOutcome !== 0n} />
-              </div>
-              <div className="mt-5 flex h-2 overflow-hidden rounded-full bg-ink-100">
-                <div className="bg-bull transition-all duration-700" style={{ width: `${yesPct}%` }} />
-                <div className="bg-bear transition-all duration-700" style={{ width: `${noPct}%` }} />
-              </div>
+            <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-1.5 text-xs">
+              <Metric label="Vol" value={`${fmtZkLTC(tvl)} zkLTC`} />
+              <Metric label="Liquidity" value={`${fmtZkLTC(tvl)} zkLTC`} />
+              <Metric label="Fee" value="2.00%" />
             </div>
+          </div>
+        </div>
 
-            {/* Chart */}
-            <div className="rounded-xl border border-ink-200 bg-paper-pure p-5">
-              <div className="mb-4 flex items-end justify-between">
-                <div>
-                  <div className="text-[10px] font-semibold uppercase tracking-[0.15em] text-ink-500">YES price</div>
-                  <div className="mt-0.5 font-mono text-xs text-ink-500">Last 24h</div>
+        <div className="grid gap-6 lg:grid-cols-[1fr_400px]">
+          {/* LEFT column */}
+          <div className="animate-fade-up space-y-5">
+            {/* BIG CHART + price */}
+            <div className="rounded-xl border border-ink-200 bg-paper-pure">
+              {/* Price header */}
+              <div className="border-b border-ink-100 p-5">
+                <div className="flex items-end justify-between gap-6">
+                  <div className="flex gap-6">
+                    <PriceLabel label="YES" pct={yesPct} color="bull"
+                      won={resolved && winningOutcome === 1n}
+                      lost={resolved && winningOutcome !== 1n} />
+                    <PriceLabel label="NO" pct={noPct} color="bear"
+                      won={resolved && winningOutcome === 0n}
+                      lost={resolved && winningOutcome !== 0n} />
+                  </div>
+                  <div className="flex gap-1 text-[11px] font-semibold">
+                    {["1H", "1D", "1W", "ALL"].map((t, i) => (
+                      <button key={t} className={`rounded-md px-2.5 py-1 transition ${
+                        i === 1 ? "bg-ink-pure text-paper-pure" : "text-ink-500 hover:text-ink-pure"
+                      }`}>{t}</button>
+                    ))}
+                  </div>
                 </div>
-                <div className="flex gap-1 text-[11px] font-medium">
-                  {["1H", "1D", "1W", "ALL"].map((t, i) => (
-                    <button key={t} className={`rounded-md px-2 py-1 transition ${
-                      i === 1 ? "bg-ink-pure text-paper-pure" : "text-ink-500 hover:text-ink-pure"
-                    }`}>{t}</button>
-                  ))}
-                </div>
               </div>
-              <Chart points={chart} resolved={resolved} winningOutcome={winningOutcome} />
-            </div>
 
-            {/* Metadata */}
-            <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-              <MetaCell label="Ends in" value={resolved ? "Ended" : fmtTimeLeft(deadline)} />
-              <MetaCell label="Liquidity" value={fmtZkLTC(tvl)} unit="zkLTC" />
-              <MetaCell label="Fee" value="2.00" unit="%" />
-              <MetaCell label="Contract" value={fmtAddress(address)}
-                link={`https://liteforge.explorer.caldera.xyz/address/${address}`} />
-            </div>
-
-            {/* Resolution details */}
-            <div className="rounded-xl border border-ink-200 bg-paper-pure p-5">
-              <div className="mb-3 text-[10px] font-semibold uppercase tracking-[0.15em] text-ink-500">
-                Resolution Details
-              </div>
-              <div className="grid gap-3 text-xs sm:grid-cols-2">
-                <InfoRow label="Oracle" value={fmtAddress(oracle)}
-                  link={`https://liteforge.explorer.caldera.xyz/address/${oracle}`} />
-                <InfoRow label="Resolution time" value={deadline.toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" })} />
-                <InfoRow label="Market type" value="Binary FPMM" />
-                <InfoRow label="Settlement asset" value="zkLTC" />
+              {/* Chart */}
+              <div className="p-5">
+                <PriceChart
+                  seed={address}
+                  yesPct={yesPct}
+                  resolved={resolved}
+                  winningOutcome={winningOutcome}
+                />
               </div>
             </div>
 
-            {resolved && <ResolvedBanner winningOutcome={winningOutcome} />}
+            {/* Tabs */}
+            <div className="rounded-xl border border-ink-200 bg-paper-pure">
+              <div className="flex items-center border-b border-ink-200 px-4">
+                {TABS.map((t) => (
+                  <button key={t} onClick={() => setTab(t)}
+                    className={`tab-btn ${tab === t ? "active" : ""}`}>
+                    {t}
+                  </button>
+                ))}
+              </div>
+
+              <div className="p-5">
+                {tab === "Overview" && (
+                  <OverviewTab
+                    question={question} deadline={deadline} oracle={oracle}
+                    tvl={tvl} address={address} resolved={resolved}
+                    winningOutcome={winningOutcome}
+                  />
+                )}
+                {tab === "Activity" && (
+                  <ActivityFeed market={address} />
+                )}
+                {tab === "Holders" && (
+                  <HoldersTab market={address} />
+                )}
+                {tab === "Rules" && (
+                  <RulesTab
+                    question={question} oracle={oracle} deadline={deadline} address={address}
+                  />
+                )}
+              </div>
+            </div>
           </div>
 
-          {/* RIGHT */}
+          {/* RIGHT column */}
           <div className="lg:sticky lg:top-20 lg:self-start">
             <TradeBox market={address} resolved={resolved} yesPct={yesPct} initialSide={initialSide} />
           </div>
@@ -151,65 +182,231 @@ export default function MarketPage({ params }: { params: { address: string } }) 
   );
 }
 
-function PriceBlock({ label, pct, color, won, lost }: {
+function Metric({ label, value }: { label: string; value: string }) {
+  return (
+    <span className="flex items-baseline gap-1">
+      <span className="text-ink-500">{label}</span>
+      <span className="font-mono font-semibold text-ink-pure tabular">{value}</span>
+    </span>
+  );
+}
+
+function PriceLabel({ label, pct, color, won, lost }: {
   label: string; pct: number; color: "bull" | "bear"; won?: boolean; lost?: boolean;
 }) {
   const ct = color === "bull" ? "text-bull" : "text-bear";
-  const dim = lost ? "opacity-30" : "";
+  const dim = lost ? "opacity-25" : "";
   return (
     <div className={dim}>
-      <div className="flex items-center gap-2">
-        <span className={`text-xs font-semibold uppercase tracking-wider ${ct}`}>{label}</span>
+      <div className="flex items-center gap-1.5">
+        <span className={`text-[11px] font-semibold uppercase tracking-widest ${ct}`}>{label}</span>
         {won && <span className="rounded border border-bull/30 bg-bull-light px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-widest text-bull-dark">Won</span>}
       </div>
-      <div className="mt-2 flex items-baseline gap-1.5">
-        <span className={`font-display text-5xl font-bold tracking-tightest tabular ${ct}`}>{fmtPct(pct)}</span>
-        <span className="text-xl font-medium text-ink-400">¢</span>
+      <div className="mt-1 flex items-baseline gap-0.5">
+        <span className={`font-display text-4xl font-bold tracking-tightest tabular ${ct}`}>
+          {fmtPct(pct)}
+        </span>
+        <span className="text-lg font-medium text-ink-400">¢</span>
       </div>
-      <div className="mt-1 text-xs text-ink-500">Pays 1 zkLTC if {label.toLowerCase()} wins</div>
     </div>
   );
 }
 
-function Chart({ points, resolved, winningOutcome }: { points: number[]; resolved: boolean; winningOutcome: bigint }) {
-  const w = 720; const h = 200; const padX = 8; const padY = 16;
-  const xs = points.map((_, i) => padX + (i / (points.length - 1)) * (w - padX * 2));
-  const ys = points.map((p) => padY + (1 - p / 100) * (h - padY * 2));
-  const path = xs.map((x, i) => `${i === 0 ? "M" : "L"} ${x.toFixed(1)},${ys[i].toFixed(1)}`).join(" ");
-  const areaPath = `${path} L ${xs[xs.length - 1]},${h} L ${xs[0]},${h} Z`;
-  const lastPct = points[points.length - 1];
-  const lineColor = resolved ? (winningOutcome === 1n ? "#00a868" : "#cf202f") : lastPct >= 50 ? "#00a868" : "#cf202f";
+function OverviewTab({ question, deadline, oracle, tvl, address, resolved, winningOutcome }: {
+  question: string; deadline: Date; oracle: string; tvl: bigint;
+  address: `0x${string}`; resolved: boolean; winningOutcome: bigint;
+}) {
+  return (
+    <div className="space-y-5">
+      {resolved && (
+        <div className={`rounded-lg border p-4 ${winningOutcome === 1n ? "border-bull/30 bg-bull-light" : "border-bear/30 bg-bear-light"}`}>
+          <div className="flex items-center gap-2">
+            <div className={`h-2 w-2 rounded-full ${winningOutcome === 1n ? "bg-bull" : "bg-bear"}`} />
+            <span className="text-[10px] font-semibold uppercase tracking-widest text-ink-700">Final outcome</span>
+          </div>
+          <p className="mt-2 text-sm font-medium text-ink-pure">
+            Market resolved <span className={`font-bold ${winningOutcome === 1n ? "text-bull-dark" : "text-bear-dark"}`}>
+              {winningOutcome === 1n ? "YES" : "NO"}
+            </span>. Winners can redeem shares 1:1 for zkLTC.
+          </p>
+        </div>
+      )}
+
+      <div>
+        <h3 className="mb-2 text-[10px] font-semibold uppercase tracking-widest text-ink-500">
+          Market Description
+        </h3>
+        <p className="text-sm leading-relaxed text-ink-700">
+          {question} This market resolves YES if the condition stated in the question is met at
+          or before the resolution time. Otherwise, it resolves NO. Both YES and NO outcomes are
+          tradable as outcome shares priced between 0 and 1 zkLTC.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <MetaCell label="Ends" value={fmtTimeLeft(deadline)} />
+        <MetaCell label="Liquidity" value={fmtZkLTC(tvl)} unit="zkLTC" />
+        <MetaCell label="Fee" value="2.00" unit="%" />
+        <MetaCell label="Contract" value={fmtAddress(address)}
+          link={`https://liteforge.explorer.caldera.xyz/address/${address}`} />
+      </div>
+
+      <div>
+        <h3 className="mb-2 text-[10px] font-semibold uppercase tracking-widest text-ink-500">
+          Resolution
+        </h3>
+        <div className="grid gap-2 rounded-lg bg-paper-off p-4 text-xs sm:grid-cols-2">
+          <InfoRow label="Oracle" value={fmtAddress(oracle)}
+            link={`https://liteforge.explorer.caldera.xyz/address/${oracle}`} />
+          <InfoRow label="Resolution time" value={deadline.toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" })} />
+          <InfoRow label="Market type" value="Binary FPMM" />
+          <InfoRow label="Settlement asset" value="zkLTC" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function HoldersTab({ market }: { market: `0x${string}` }) {
+  const client = usePublicClient();
+  const [holders, setHolders] = useState<{ addr: string; yes: bigint; no: bigint; lp: bigint }[] | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!client) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        // Pull unique addresses from all historical Trade + LiquidityAdded events
+        const latest = await client.getBlockNumber();
+        const from = latest > 100_000n ? latest - 100_000n : 0n;
+        const logs = await client.getLogs({
+          address: market,
+          fromBlock: from,
+          toBlock: latest,
+        });
+
+        const uniq = new Set<string>();
+        for (const log of logs) {
+          if (log.topics[1]) {
+            const addr = "0x" + log.topics[1].slice(26);
+            uniq.add(addr.toLowerCase());
+          }
+        }
+
+        if (uniq.size === 0) {
+          if (!cancelled) { setHolders([]); setLoading(false); }
+          return;
+        }
+
+        // Read YES/NO/LP balance for each
+        const addrs = [...uniq].slice(0, 25) as `0x${string}`[];
+        const calls = addrs.flatMap((a) => [
+          { address: market, abi: marketAbi, functionName: "yesBalance" as const, args: [a] },
+          { address: market, abi: marketAbi, functionName: "noBalance" as const, args: [a] },
+          { address: market, abi: marketAbi, functionName: "liquidity" as const, args: [a] },
+        ]);
+        const results = await client.multicall({ contracts: calls });
+
+        const out: { addr: string; yes: bigint; no: bigint; lp: bigint }[] = [];
+        for (let i = 0; i < addrs.length; i++) {
+          const yes = (results[i * 3]?.result as bigint) ?? 0n;
+          const no = (results[i * 3 + 1]?.result as bigint) ?? 0n;
+          const lp = (results[i * 3 + 2]?.result as bigint) ?? 0n;
+          if (yes > 0n || no > 0n || lp > 0n) {
+            out.push({ addr: addrs[i], yes, no, lp });
+          }
+        }
+        out.sort((a, b) => {
+          const aT = a.yes + a.no + a.lp;
+          const bT = b.yes + b.no + b.lp;
+          return bT > aT ? 1 : -1;
+        });
+        if (!cancelled) { setHolders(out); setLoading(false); }
+      } catch (e) {
+        if (!cancelled) { setHolders([]); setLoading(false); }
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [client, market]);
+
+  if (loading) {
+    return <div className="py-6 text-center text-sm text-ink-500">Loading holders...</div>;
+  }
+  if (!holders || holders.length === 0) {
+    return <div className="py-6 text-center text-sm text-ink-500">No holders yet.</div>;
+  }
 
   return (
-    <svg viewBox={`0 0 ${w} ${h}`} className="h-48 w-full" preserveAspectRatio="none">
-      <defs>
-        <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor={lineColor} stopOpacity="0.18" />
-          <stop offset="100%" stopColor={lineColor} stopOpacity="0" />
-        </linearGradient>
-      </defs>
-      {[25, 50, 75].map((v) => {
-        const y = padY + (1 - v / 100) * (h - padY * 2);
-        return (
-          <g key={v}>
-            <line x1={padX} x2={w - padX} y1={y} y2={y} stroke="#e5e5e5" strokeDasharray="2 4" strokeWidth="1" />
-            <text x={w - padX} y={y - 4} textAnchor="end" fill="#a3a3a3" style={{ fontSize: 10, fontFamily: "var(--font-mono)" }}>{v}%</text>
-          </g>
-        );
-      })}
-      <path d={areaPath} fill="url(#chartGrad)" />
-      <path d={path} stroke={lineColor} strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-      <circle cx={xs[xs.length - 1]} cy={ys[ys.length - 1]} r="4" fill={lineColor} />
-      <circle cx={xs[xs.length - 1]} cy={ys[ys.length - 1]} r="8" fill={lineColor} opacity="0.2" />
-    </svg>
+    <div>
+      <div className="mb-3 grid grid-cols-[1fr_80px_80px_80px] gap-2 border-b border-ink-100 pb-2 text-[10px] font-semibold uppercase tracking-widest text-ink-500">
+        <span>Address</span>
+        <span className="text-right">YES</span>
+        <span className="text-right">NO</span>
+        <span className="text-right">LP</span>
+      </div>
+      <div className="divide-y divide-ink-100">
+        {holders.slice(0, 10).map((h) => (
+          <div key={h.addr} className="grid grid-cols-[1fr_80px_80px_80px] gap-2 py-2.5 text-xs">
+            <a href={`https://liteforge.explorer.caldera.xyz/address/${h.addr}`}
+              target="_blank" rel="noopener noreferrer"
+              className="font-mono font-semibold text-ink-pure tabular hover:text-brand">
+              {fmtAddress(h.addr)}
+            </a>
+            <span className="text-right font-mono tabular text-bull">{fmtZkLTC(h.yes)}</span>
+            <span className="text-right font-mono tabular text-bear">{fmtZkLTC(h.no)}</span>
+            <span className="text-right font-mono tabular text-brand">{fmtZkLTC(h.lp)}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function RulesTab({ question, oracle, deadline, address }: {
+  question: string; oracle: string; deadline: Date; address: `0x${string}`;
+}) {
+  return (
+    <div className="space-y-4 text-sm">
+      <div>
+        <h4 className="mb-1 text-[10px] font-semibold uppercase tracking-widest text-ink-500">
+          Question
+        </h4>
+        <p className="text-ink-pure">{question}</p>
+      </div>
+      <div>
+        <h4 className="mb-1 text-[10px] font-semibold uppercase tracking-widest text-ink-500">
+          Resolution Criteria
+        </h4>
+        <p className="leading-relaxed text-ink-700">
+          This market resolves YES if the condition in the question is verifiably true at or
+          before the resolution time. Otherwise, it resolves NO. The oracle address listed below
+          is responsible for posting the final outcome on-chain after the resolution time has passed.
+        </p>
+      </div>
+      <div className="grid gap-3 sm:grid-cols-2">
+        <InfoLine label="Oracle" value={fmtAddress(oracle)}
+          link={`https://liteforge.explorer.caldera.xyz/address/${oracle}`} />
+        <InfoLine label="Resolution time"
+          value={deadline.toLocaleString("en-US", { dateStyle: "full", timeStyle: "short" })} />
+        <InfoLine label="Market address" value={fmtAddress(address)}
+          link={`https://liteforge.explorer.caldera.xyz/address/${address}`} />
+        <InfoLine label="Settlement asset" value="zkLTC (MockZkLTC on LiteForge)" />
+      </div>
+      <div className="rounded-lg border border-ink-200 bg-paper-off p-3 text-xs text-ink-600">
+        <strong className="text-ink-pure">Testnet notice:</strong> This market runs on LiteForge
+        testnet with a manually-resolved oracle. In production (mainnet), oracles will be
+        replaced by UMA's Optimistic Oracle for decentralized resolution.
+      </div>
+    </div>
   );
 }
 
 function MetaCell({ label, value, unit, link }: { label: string; value: string; unit?: string; link?: string }) {
   const inner = (
     <>
-      <div className="text-[10px] font-semibold uppercase tracking-[0.15em] text-ink-500">{label}</div>
-      <div className="mt-1.5 flex items-baseline gap-1">
+      <div className="text-[10px] font-semibold uppercase tracking-widest text-ink-500">{label}</div>
+      <div className="mt-1 flex items-baseline gap-1">
         <span className="font-mono text-base font-semibold text-ink-pure tabular">{value}</span>
         {unit && <span className="text-xs font-medium text-ink-500">{unit}</span>}
         {link && <span className="text-xs text-ink-400">↗</span>}
@@ -219,15 +416,15 @@ function MetaCell({ label, value, unit, link }: { label: string; value: string; 
   if (link) {
     return (
       <a href={link} target="_blank" rel="noopener noreferrer"
-        className="rounded-xl border border-ink-200 bg-paper-pure px-4 py-3 transition hover:border-ink-pure">{inner}</a>
+        className="rounded-lg border border-ink-200 bg-paper-off px-3 py-2.5 transition hover:border-ink-pure hover:bg-paper-pure">{inner}</a>
     );
   }
-  return <div className="rounded-xl border border-ink-200 bg-paper-pure px-4 py-3">{inner}</div>;
+  return <div className="rounded-lg border border-ink-200 bg-paper-off px-3 py-2.5">{inner}</div>;
 }
 
 function InfoRow({ label, value, link }: { label: string; value: string; link?: string }) {
   return (
-    <div className="flex items-center justify-between border-b border-ink-100 pb-2 last:border-b-0 last:pb-0">
+    <div className="flex items-center justify-between">
       <span className="text-ink-500">{label}</span>
       {link ? (
         <a href={link} target="_blank" rel="noopener noreferrer" className="font-mono font-semibold text-ink-pure tabular hover:text-brand">
@@ -240,39 +437,17 @@ function InfoRow({ label, value, link }: { label: string; value: string; link?: 
   );
 }
 
-function ResolvedBanner({ winningOutcome }: { winningOutcome: bigint }) {
-  const yesWon = winningOutcome === 1n;
+function InfoLine({ label, value, link }: { label: string; value: string; link?: string }) {
   return (
-    <div className={`rounded-xl border p-5 ${yesWon ? "border-bull/30 bg-bull-light" : "border-bear/30 bg-bear-light"}`}>
-      <div className="flex items-center gap-2">
-        <div className={`h-2 w-2 rounded-full ${yesWon ? "bg-bull" : "bg-bear"}`} />
-        <span className="text-[10px] font-semibold uppercase tracking-[0.15em] text-ink-700">Final outcome</span>
-      </div>
-      <p className="mt-2 text-sm font-medium text-ink-pure">
-        Market resolved <span className={`font-bold ${yesWon ? "text-bull-dark" : "text-bear-dark"}`}>
-          {yesWon ? "YES" : "NO"}
-        </span>. Winners can redeem shares 1:1 for zkLTC.
-      </p>
+    <div className="rounded-lg border border-ink-200 bg-paper-off p-3">
+      <div className="text-[10px] font-semibold uppercase tracking-widest text-ink-500">{label}</div>
+      {link ? (
+        <a href={link} target="_blank" rel="noopener noreferrer" className="mt-1 block font-mono text-sm font-semibold text-ink-pure tabular hover:text-brand">
+          {value} ↗
+        </a>
+      ) : (
+        <div className="mt-1 font-mono text-sm font-semibold text-ink-pure tabular">{value}</div>
+      )}
     </div>
   );
-}
-
-function generateChart(seed: string, endPoint: number): number[] {
-  const n = 60; const out: number[] = [];
-  let h = 0;
-  for (let i = 0; i < seed.length; i++) h = (h * 31 + seed.charCodeAt(i)) & 0xffffff;
-  let v = 50 + ((h & 0x1f) - 16);
-  for (let i = 0; i < n; i++) {
-    h = (h * 1103515245 + 12345) & 0xffffff;
-    const step = ((h & 0xff) / 255 - 0.5) * 6;
-    v = Math.max(8, Math.min(92, v + step));
-    out.push(v);
-  }
-  const tail = Math.floor(n * 0.1);
-  for (let i = n - tail; i < n; i++) {
-    const t = (i - (n - tail)) / (tail - 1);
-    out[i] = out[i] * (1 - t) + endPoint * t;
-  }
-  out[n - 1] = endPoint;
-  return out;
 }

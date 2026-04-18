@@ -10,6 +10,7 @@ import { Logo, Wordmark } from "@/components/Logo";
 import { TickerBar } from "@/components/TickerBar";
 import { FaucetCard } from "@/components/FaucetCard";
 import { fmtZkLTC, inferCategory } from "@/lib/format";
+import { useHiddenMarkets } from "@/lib/useHiddenMarkets";
 
 const CATEGORIES = ["All", "Crypto", "Ecosystem", "Launch", "Policy", "General"] as const;
 const SORT_OPTIONS = ["Trending", "Volume", "Ending Soon", "Newest"] as const;
@@ -18,6 +19,7 @@ export default function HomePage() {
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState<string>("All");
   const [sort, setSort] = useState<string>("Trending");
+  const { isHidden, mounted: hiddenMounted } = useHiddenMarkets();
 
   const { data: length } = useReadContract({
     address: addresses.factory, abi: factoryAbi, functionName: "marketsLength",
@@ -67,6 +69,8 @@ export default function HomePage() {
 
   const filtered = useMemo(() => {
     let list = [...marketInfo];
+    // Exclude hidden markets
+    if (hiddenMounted) list = list.filter((m) => !isHidden(m.address));
     if (search) list = list.filter((m) => m.question.toLowerCase().includes(search.toLowerCase()));
     if (category !== "All") list = list.filter((m) => m.category === category);
 
@@ -85,7 +89,7 @@ export default function HomePage() {
         });
     }
     return list;
-  }, [marketInfo, search, category, sort]);
+  }, [marketInfo, search, category, sort, hiddenMounted, isHidden]);
 
   return (
     <>

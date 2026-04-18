@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
 import { parseEther, formatEther } from "viem";
 import { addresses, marketAbi, erc20Abi } from "@/lib/contracts";
-import { fmtPct, fmtZkLTC, fmtTokens } from "@/lib/format";
+import { fmtPct, fmtZkLTC, fmtTokens, fmtCompact } from "@/lib/format";
 
 type Side = "YES" | "NO";
 type Tab = "Buy" | "Sell" | "Liquidity";
@@ -196,16 +196,16 @@ export function TradeBox({
         {parsedAmount > 0n && !insufficient && tab === "Buy" && (
           <PreviewBox rows={[
             ["Avg price", `${fmtPct(currentPrice)}¢`],
-            [`${side} shares`, estTokens.toFixed(4)],
-            ["Payout if wins", `${estTokens.toFixed(4)} zkLTC`, true],
-            ["Max profit", `+${(estTokens - Number(amount || 0)).toFixed(4)} zkLTC`, false, "bull"],
+            [`${side} shares`, fmtCompact(estTokens, { maxDecimals: 4 })],
+            ["Payout if wins", `${fmtCompact(estTokens, { maxDecimals: 4 })} zkLTC`, true],
+            ["Max profit", `+${fmtCompact(Math.max(0, estTokens - Number(amount || 0)), { maxDecimals: 4 })} zkLTC`, false, "bull"],
           ]} />
         )}
         {parsedAmount > 0n && !insufficient && tab === "Sell" && (
           <PreviewBox rows={[
             ["Selling", `${amount} ${side} shares`],
             ["Avg price", `${fmtPct(currentPrice)}¢`],
-            ["You receive", `~${estProceeds.toFixed(4)} zkLTC`, true],
+            ["You receive", `~${fmtCompact(estProceeds, { maxDecimals: 4 })} zkLTC`, true],
           ]} />
         )}
         {parsedAmount > 0n && !insufficient && tab === "Liquidity" && (
