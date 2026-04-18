@@ -44,23 +44,23 @@ export default function AdminPage() {
     <>
       <Header />
       <main className="mx-auto max-w-[1400px] px-6 py-8 lg:px-8">
-        <Link href="/" className="mb-4 inline-flex items-center gap-1.5 text-xs font-medium text-ink-500 transition hover:text-ink-pure">
+        <Link href="/" className="mb-4 inline-flex items-center gap-1.5 text-xs font-medium text-text-muted transition hover:text-text-primary">
           <span>←</span> Back to markets
         </Link>
 
         <div className="mb-6 flex items-baseline gap-3">
-          <h1 className="font-display text-3xl font-semibold tracking-tighter text-ink-pure">Admin Panel</h1>
+          <h1 className="font-display text-3xl font-semibold tracking-tighter text-text-primary">Admin Panel</h1>
           <span className="chip chip-cat">Private</span>
         </div>
 
         {!isConnected ? (
-          <div className="rounded-xl border border-ink-200 bg-paper-pure p-5">
-            <p className="text-sm text-ink-600">Connect your wallet to continue.</p>
+          <div className="rounded-xl border border-space-border bg-space p-5">
+            <p className="text-sm text-text-secondary">Connect your wallet to continue.</p>
           </div>
         ) : !isAdmin ? (
-          <div className="rounded-xl border border-ink-200 bg-paper-pure p-5">
-            <p className="font-semibold text-bear">Access denied</p>
-            <p className="mt-1 text-sm text-ink-600">
+          <div className="rounded-xl border border-space-border bg-space p-5">
+            <p className="font-semibold text-red-400">Access denied</p>
+            <p className="mt-1 text-sm text-text-secondary">
               Only the admin wallet can access this page. Connected: <span className="font-mono">{fmtAddress(address ?? "")}</span>
             </p>
           </div>
@@ -81,11 +81,11 @@ export default function AdminPage() {
 
 function Header() {
   return (
-    <header className="sticky top-0 z-40 border-b border-ink-200 bg-paper-pure/95 backdrop-blur-md">
+    <header className="sticky top-0 z-40 border-b border-space-border bg-space/95 backdrop-blur-xl">
       <div className="mx-auto flex max-w-[1400px] items-center justify-between px-6 py-3 lg:px-8">
         <Link href="/" className="flex items-center gap-2.5">
           <Logo className="h-8 w-8" />
-          <Wordmark className="text-lg text-ink-pure" />
+          <Wordmark className="text-lg text-text-primary" />
         </Link>
         <ConnectButton />
       </div>
@@ -95,11 +95,11 @@ function Header() {
 
 function Card({ title, subtitle, accent, children }: { title?: string; subtitle?: string; accent?: boolean; children: React.ReactNode }) {
   return (
-    <div className={`rounded-xl border p-5 ${accent ? "border-brand bg-brand/5" : "border-ink-200 bg-paper-pure"}`}>
+    <div className={`rounded-xl border p-5 ${accent ? "border-brand bg-brand/5" : "border-space-border bg-space"}`}>
       {title && (
         <div className="mb-4">
-          <h2 className="font-display text-lg font-semibold text-ink-pure">{title}</h2>
-          {subtitle && <p className="mt-0.5 text-xs text-ink-500">{subtitle}</p>}
+          <h2 className="font-display text-lg font-semibold text-text-primary">{title}</h2>
+          {subtitle && <p className="mt-0.5 text-xs text-text-muted">{subtitle}</p>}
         </div>
       )}
       {children}
@@ -152,17 +152,17 @@ function SeedMarketsCard() {
   return (
     <Card title="Seed 7 default markets" subtitle="One click, creates all 7 preset markets in English" accent>
       <div className="space-y-3">
-        <div className="max-h-56 space-y-1.5 overflow-y-auto rounded-lg border border-ink-200 bg-paper-pure p-3">
+        <div className="max-h-56 space-y-1.5 overflow-y-auto rounded-lg border border-space-border bg-space p-3">
           {SEED_MARKETS.map((m, i) => (
             <div key={i} className="flex items-center gap-2 text-xs">
               <span className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-semibold ${
-                i < completed ? "bg-bull text-white" :
-                i === currentIdx ? "bg-ink-pure text-white animate-pulse" :
-                "bg-ink-100 text-ink-500"
+                i < completed ? "bg-lime-500 text-white" :
+                i === currentIdx ? "bg-space-elevated text-white animate-pulse" :
+                "bg-space-elevated text-text-muted"
               }`}>
                 {i < completed ? "✓" : i + 1}
               </span>
-              <span className={`truncate ${i < completed ? "text-ink-500 line-through" : "text-ink-800"}`}>
+              <span className={`truncate ${i < completed ? "text-text-muted line-through" : "text-text-secondary"}`}>
                 {m.q}
               </span>
             </div>
@@ -175,10 +175,10 @@ function SeedMarketsCard() {
            completed === SEED_MARKETS.length ? `Seeded ${completed} markets ✓` :
            "Seed All 7 Markets"}
         </button>
-        <p className="text-[11px] text-ink-500">
+        <p className="text-[11px] text-text-muted">
           You will need to confirm one transaction per market (7 total). Each costs ~0.005 $LIME gas.
         </p>
-        {error && <p className="text-[11px] text-bear">Error: {error.message.slice(0, 120)}</p>}
+        {error && <p className="text-[11px] text-red-400">Error: {error.message.slice(0, 120)}</p>}
       </div>
     </Card>
   );
@@ -213,23 +213,23 @@ function CreateMarketCard() {
       <div className="space-y-3">
         <textarea value={question} onChange={(e) => setQuestion(e.target.value)}
           placeholder="Will [event] happen by [date]?" rows={3}
-          className="w-full rounded-lg border border-ink-200 bg-paper-off px-3 py-2.5 text-sm text-ink-pure placeholder:text-ink-400 focus:border-ink-pure focus:bg-paper-pure focus:outline-none" />
+          className="w-full rounded-lg border border-space-border bg-space-deep px-3 py-2.5 text-sm text-text-primary placeholder:text-text-muted focus:border-lime-500/50 focus:bg-space focus:outline-none" />
 
         <select onChange={(e) => setQuestion(e.target.value)} defaultValue=""
-          className="w-full rounded-lg border border-ink-200 bg-paper-off px-3 py-2 text-sm text-ink-pure focus:border-ink-pure focus:outline-none">
+          className="w-full rounded-lg border border-space-border bg-space-deep px-3 py-2 text-sm text-text-primary focus:border-lime-500/50 focus:outline-none">
           <option value="">Or pick a preset...</option>
           {PRESET_QUESTIONS.map((q) => <option key={q} value={q}>{q.slice(0, 70)}...</option>)}
         </select>
 
         <div>
-          <label className="mb-1.5 block text-[10px] font-semibold uppercase tracking-widest text-ink-500">Duration</label>
+          <label className="mb-1.5 block text-[10px] font-semibold uppercase tracking-widest text-text-muted">Duration</label>
           <div className="grid grid-cols-5 gap-1.5">
             {DURATION_PRESETS.map((d) => (
               <button key={d.label} onClick={() => setDuration(d.seconds)}
                 className={`rounded-md border py-2 text-xs font-semibold transition ${
                   duration === d.seconds
-                    ? "border-ink-pure bg-ink-pure text-paper-pure"
-                    : "border-ink-200 bg-paper-off text-ink-700 hover:border-ink-pure"
+                    ? "border-lime-500 bg-space-elevated text-space-deep"
+                    : "border-space-border bg-space-deep text-text-secondary hover:border-lime-500/40"
                 }`}>{d.label}</button>
             ))}
           </div>
@@ -270,13 +270,13 @@ function MintTokensCard() {
       <div className="space-y-3">
         <input type="text" value={recipient} onChange={(e) => setRecipient(e.target.value)}
           placeholder={address ? `${fmtAddress(address)} (you)` : "0x..."}
-          className="w-full rounded-lg border border-ink-200 bg-paper-off px-3 py-2.5 font-mono text-sm text-ink-pure placeholder:text-ink-400 focus:border-ink-pure focus:outline-none" />
+          className="w-full rounded-lg border border-space-border bg-space-deep px-3 py-2.5 font-mono text-sm text-text-primary placeholder:text-text-muted focus:border-lime-500/50 focus:outline-none" />
         <input type="text" value={amount} onChange={(e) => setAmount(e.target.value.replace(/[^0-9.]/g, ""))}
-          className="w-full rounded-lg border border-ink-200 bg-paper-off px-3 py-2.5 font-mono text-sm text-ink-pure focus:border-ink-pure focus:outline-none" />
+          className="w-full rounded-lg border border-space-border bg-space-deep px-3 py-2.5 font-mono text-sm text-text-primary focus:border-lime-500/50 focus:outline-none" />
         <div className="flex gap-1.5">
           {["100", "1000", "10000"].map((v) => (
             <button key={v} onClick={() => setAmount(v)}
-              className="flex-1 rounded-md border border-ink-200 bg-paper-off py-1.5 text-[11px] font-semibold text-ink-700 hover:border-ink-pure">
+              className="flex-1 rounded-md border border-space-border bg-space-deep py-1.5 text-[11px] font-semibold text-text-secondary hover:border-lime-500/40">
               {v}
             </button>
           ))}
@@ -310,9 +310,9 @@ function ManageMarketsCard() {
   return (
     <Card title="Manage markets" subtitle="Resolve, hide, or archive markets">
       {markets.length === 0 ? (
-        <p className="text-sm text-ink-500">No markets yet.</p>
+        <p className="text-sm text-text-muted">No markets yet.</p>
       ) : (
-        <div className="divide-y divide-ink-100">
+        <div className="divide-y divide-space-border">
           {markets.map((addr) => <ManageRow key={addr} address={addr} />)}
         </div>
       )}
@@ -352,11 +352,11 @@ function ManageRow({ address }: { address: `0x${string}` }) {
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
           {hidden && <span className="chip chip-cat">Hidden</span>}
-          <p className="truncate text-sm font-semibold text-ink-pure">{question}</p>
+          <p className="truncate text-sm font-semibold text-text-primary">{question}</p>
         </div>
-        <p className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-ink-500">
+        <p className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-text-muted">
           <a href={`https://liteforge.explorer.caldera.xyz/address/${address}`}
-            target="_blank" rel="noopener noreferrer" className="font-mono tabular hover:text-brand">
+            target="_blank" rel="noopener noreferrer" className="font-mono tabular hover:text-lime-300">
             {fmtAddress(address)}
           </a>
           <span>·</span>
@@ -380,7 +380,7 @@ function ManageRow({ address }: { address: `0x${string}` }) {
         ) : null}
         <button
           onClick={() => (hidden ? unhide(address) : hide(address))}
-          className="rounded-md border border-ink-300 bg-paper-pure px-2.5 py-1.5 text-[11px] font-semibold text-ink-600 transition hover:border-ink-pure hover:text-ink-pure">
+          className="rounded-md border border-space-border bg-space px-2.5 py-1.5 text-[11px] font-semibold text-text-secondary transition hover:border-lime-500/40 hover:text-text-primary">
           {hidden ? "Show" : "Hide"}
         </button>
       </div>

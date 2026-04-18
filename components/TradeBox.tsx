@@ -61,11 +61,8 @@ export function TradeBox({
   const yesBalBig = (yesBal as bigint) ?? 0n;
   const noBalBig = (noBal as bigint) ?? 0n;
   const liqBalBig = (liqBal as bigint) ?? 0n;
-
   const sideBal = side === "YES" ? yesBalBig : noBalBig;
-
-  // Context-dependent limits
-  const maxForTab = tab === "Sell" ? sideBal : tab === "Liquidity" ? balanceBig : balanceBig;
+  const maxForTab = tab === "Sell" ? sideBal : balanceBig;
   const insufficient = parsedAmount > maxForTab;
   const needsApproval = tab === "Buy" && user && parsedAmount > 0n && (allowance ?? 0n) < parsedAmount;
   const needsApprovalLiq = tab === "Liquidity" && user && parsedAmount > 0n && (allowance ?? 0n) < parsedAmount;
@@ -95,15 +92,15 @@ export function TradeBox({
     address: market, abi: marketAbi, functionName: "redeem", args: [],
   });
 
-  if (!mounted) return <div className="h-[500px] rounded-xl border border-ink-200 bg-paper-pure" />;
+  if (!mounted) return <div className="h-[500px] rounded-2xl border border-space-border bg-space-surface" />;
 
   if (!user) {
     return (
-      <div className="rounded-xl border border-ink-200 bg-paper-pure p-5">
-        <div className="text-[10px] font-semibold uppercase tracking-[0.15em] text-ink-500">Trade</div>
-        <div className="mt-4 rounded-lg border-2 border-dashed border-ink-200 bg-paper-off p-8 text-center">
-          <p className="text-sm font-semibold text-ink-pure">Connect wallet to trade</p>
-          <p className="mt-1 text-xs text-ink-500">You need $LIME on LiteForge testnet</p>
+      <div className="card-glass rounded-2xl p-5">
+        <div className="text-[10px] font-semibold uppercase tracking-[0.15em] text-text-muted">Trade</div>
+        <div className="mt-4 rounded-xl border-2 border-dashed border-space-border bg-space-deep/50 p-8 text-center">
+          <p className="text-sm font-semibold text-text-primary">Connect wallet to trade</p>
+          <p className="mt-1 text-xs text-text-muted">You need $LIME on LiteForge testnet</p>
         </div>
       </div>
     );
@@ -111,15 +108,15 @@ export function TradeBox({
 
   if (resolved) {
     return (
-      <div className="rounded-xl border border-ink-200 bg-paper-pure p-5">
-        <div className="text-[10px] font-semibold uppercase tracking-[0.15em] text-ink-500">Your Position</div>
+      <div className="card-glass rounded-2xl p-5">
+        <div className="text-[10px] font-semibold uppercase tracking-[0.15em] text-text-muted">Your Position</div>
         <div className="mt-4 space-y-2">
           <PositionRow label="YES shares" amount={yesBalBig} color="bull" />
           <PositionRow label="NO shares" amount={noBalBig} color="bear" />
           {liqBalBig > 0n && <PositionRow label="LP shares" amount={liqBalBig} color="brand" />}
         </div>
         <button onClick={redeem} disabled={isPending || waiting}
-          className="btn-ink mt-4 w-full rounded-lg px-4 py-3 text-sm">
+          className="btn-lime mt-4 w-full rounded-lg px-4 py-3 text-sm">
           {waiting ? "Confirming..." : isPending ? "Approve in wallet..." : "Redeem winnings"}
         </button>
       </div>
@@ -129,20 +126,19 @@ export function TradeBox({
   const tabButtons: Tab[] = ["Buy", "Sell", "Liquidity"];
 
   return (
-    <div className="rounded-xl border border-ink-200 bg-paper-pure">
+    <div className="card-glass rounded-2xl">
       {/* Tabs */}
-      <div className="flex items-center border-b border-ink-200 px-4">
+      <div className="flex items-center border-b border-space-border px-4">
         {tabButtons.map((t) => (
           <button key={t} onClick={() => { setTab(t); setAmount(""); }}
             className={`tab-btn ${tab === t ? "active" : ""}`}>
             {t}
           </button>
         ))}
-        <span className="ml-auto font-mono text-[10px] font-medium uppercase tracking-widest text-ink-400">FPMM</span>
+        <span className="ml-auto font-mono text-[10px] font-medium uppercase tracking-widest text-text-muted">FPMM</span>
       </div>
 
       <div className="p-5">
-        {/* Side selector — shown on Buy and Sell */}
         {(tab === "Buy" || tab === "Sell") && (
           <div className="mb-4 grid grid-cols-2 gap-2">
             <SideButton active={side === "YES"} onClick={() => setSide("YES")} label={`${tab} YES`} price={yesPct} color="bull" />
@@ -150,23 +146,21 @@ export function TradeBox({
           </div>
         )}
 
-        {/* Info box for Liquidity */}
         {tab === "Liquidity" && (
-          <div className="mb-4 rounded-lg border border-brand/20 bg-brand/5 p-3 text-xs text-ink-700">
-            <div className="font-semibold text-brand">Provide liquidity</div>
+          <div className="mb-4 rounded-xl border border-lime-500/20 bg-lime-500/5 p-3 text-xs text-text-secondary">
+            <div className="font-semibold text-lime-300">Provide liquidity</div>
             <p className="mt-1 leading-relaxed">
               Deposit $LIME to earn a share of trading fees. Your LP position settles against the winning side at resolution.
             </p>
           </div>
         )}
 
-        {/* Amount */}
         <div>
           <div className="mb-2 flex items-center justify-between">
-            <label className="text-[10px] font-semibold uppercase tracking-[0.15em] text-ink-500">Amount</label>
-            <span className="text-[11px] text-ink-500">
-              {tab === "Sell" ? `${side} shares:` : tab === "Liquidity" ? "Balance:" : "Balance:"}{" "}
-              <span className="font-mono font-semibold text-ink-800 tabular">
+            <label className="text-[10px] font-semibold uppercase tracking-[0.15em] text-text-muted">Amount</label>
+            <span className="text-[11px] text-text-muted">
+              {tab === "Sell" ? `${side} shares:` : "Balance:"}{" "}
+              <span className="font-mono font-semibold text-text-secondary tabular">
                 {fmtTokens(maxForTab)}
               </span>{" "}
               {tab === "Sell" ? "" : "$LIME"}
@@ -176,8 +170,8 @@ export function TradeBox({
             <input type="text" inputMode="decimal" value={amount}
               onChange={(e) => setAmount(e.target.value.replace(/[^0-9.]/g, ""))}
               placeholder="0.00"
-              className="w-full rounded-lg border border-ink-200 bg-paper-off px-4 py-3 pr-20 font-display text-2xl font-semibold text-ink-pure tabular placeholder:text-ink-300 focus:border-ink-pure focus:bg-paper-pure focus:outline-none" />
-            <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 font-mono text-xs font-semibold text-ink-500">
+              className="w-full rounded-xl border border-space-border bg-space-deep/50 px-4 py-3 pr-20 font-display text-2xl font-semibold text-text-primary tabular placeholder:text-text-muted focus:border-lime-500/50 focus:outline-none focus:ring-2 focus:ring-lime-500/15" />
+            <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 font-mono text-xs font-semibold text-text-muted">
               {tab === "Sell" ? side : "$LIME"}
             </span>
           </div>
@@ -185,7 +179,7 @@ export function TradeBox({
             {[0.25, 0.5, 0.75, 1].map((frac) => (
               <button key={frac}
                 onClick={() => setAmount(formatEther((maxForTab * BigInt(Math.floor(frac * 100))) / 100n))}
-                className="rounded-md border border-ink-200 bg-paper-off py-1.5 text-[11px] font-semibold text-ink-700 transition hover:border-ink-pure">
+                className="rounded-md border border-space-border bg-space-surface py-1.5 text-[11px] font-semibold text-text-secondary transition hover:border-lime-500/40 hover:text-lime-300">
                 {frac === 1 ? "MAX" : `${Math.round(frac * 100)}%`}
               </button>
             ))}
@@ -216,7 +210,6 @@ export function TradeBox({
           ]} />
         )}
 
-        {/* CTA */}
         <button
           onClick={() => {
             if (tab === "Buy") { (needsApproval ? approve : buy)(); }
@@ -224,12 +217,12 @@ export function TradeBox({
             else { (needsApprovalLiq ? approve : addLiq)(); }
           }}
           disabled={!parsedAmount || insufficient || isPending || waiting}
-          className={`mt-4 w-full rounded-lg px-4 py-3.5 text-sm font-semibold transition ${
+          className={`mt-4 w-full rounded-xl px-4 py-3.5 text-sm font-semibold transition ${
             tab === "Buy" && !needsApproval && side === "YES" ? "btn-bull" :
             tab === "Buy" && !needsApproval && side === "NO" ? "btn-bear" :
             tab === "Sell" ? "btn-ink" :
-            tab === "Liquidity" && !needsApprovalLiq ? "btn-ink" :
-            "btn-ink"
+            tab === "Liquidity" && !needsApprovalLiq ? "btn-lime" :
+            "btn-lime"
           } disabled:cursor-not-allowed disabled:opacity-40`}>
           {waiting ? "Confirming onchain..." :
            isPending ? "Approve in wallet..." :
@@ -244,14 +237,13 @@ export function TradeBox({
 
         {tab === "Liquidity" && liqBalBig > 0n && (
           <button onClick={removeLiq} disabled={isPending || waiting}
-            className="mt-2 w-full rounded-lg border border-ink-300 bg-paper-pure px-4 py-2.5 text-xs font-semibold text-ink-700 transition hover:border-ink-pure">
+            className="mt-2 w-full rounded-lg border border-space-border bg-space-surface px-4 py-2.5 text-xs font-semibold text-text-secondary transition hover:border-space-border-hover hover:text-text-primary">
             Remove all LP ({fmtTokens(liqBalBig)})
           </button>
         )}
 
-        {/* Position strip */}
-        <div className="mt-5 border-t border-ink-100 pt-4">
-          <div className="mb-2.5 text-[10px] font-semibold uppercase tracking-[0.15em] text-ink-500">Your Position</div>
+        <div className="mt-5 border-t border-space-border pt-4">
+          <div className="mb-2.5 text-[10px] font-semibold uppercase tracking-[0.15em] text-text-muted">Your Position</div>
           <div className="grid grid-cols-3 gap-2">
             <MiniPos label="YES" amount={yesBalBig} color="bull" />
             <MiniPos label="NO" amount={noBalBig} color="bear" />
@@ -266,16 +258,18 @@ export function TradeBox({
 function SideButton({ active, onClick, label, price, color }: {
   active: boolean; onClick: () => void; label: string; price: number; color: "bull" | "bear";
 }) {
-  const bg = color === "bull" ? "bg-bull" : "bg-bear";
-  const hover = color === "bull" ? "hover:border-bull hover:text-bull" : "hover:border-bear hover:text-bear";
+  const bg = color === "bull"
+    ? "bg-gradient-to-br from-lime-500 to-lime-600 border-lime-400/40"
+    : "bg-gradient-to-br from-red-500 to-red-600 border-red-400/40";
+  const hover = color === "bull" ? "hover:border-lime-500/40 hover:bg-lime-500/10" : "hover:border-red-500/40 hover:bg-red-500/10";
   return (
     <button onClick={onClick}
-      className={`flex flex-col items-start gap-0.5 rounded-lg border p-3 transition ${
-        active ? `${bg} border-transparent text-white` : `border-ink-200 bg-paper-pure text-ink-700 ${hover}`
+      className={`flex flex-col items-start gap-0.5 rounded-xl border p-3 transition ${
+        active ? `${bg} text-white shadow-lg` : `border-space-border bg-space-surface text-text-secondary ${hover}`
       }`}>
       <span className="text-[11px] font-semibold uppercase tracking-wider">{label}</span>
-      <span className={`font-display text-xl font-bold tracking-tighter tabular ${active ? "text-white" : "text-ink-pure"}`}>
-        {fmtPct(price, 0)}<span className={`text-sm ${active ? "text-white" : "text-ink-500"}`}>¢</span>
+      <span className={`font-display text-xl font-bold tracking-tighter tabular ${active ? "text-white" : "text-text-primary"}`}>
+        {fmtPct(price, 0)}<span className={`text-sm ${active ? "text-white/80" : "text-text-muted"}`}>¢</span>
       </span>
     </button>
   );
@@ -283,12 +277,12 @@ function SideButton({ active, onClick, label, price, color }: {
 
 function PreviewBox({ rows }: { rows: Array<[string, string, boolean?, string?]> }) {
   return (
-    <div className="mt-4 rounded-lg border border-ink-200 bg-paper-off p-3">
+    <div className="mt-4 rounded-xl border border-space-border bg-space-deep/40 p-3">
       {rows.map(([label, value, bold, accent], i) => (
-        <div key={i} className={`flex items-center justify-between py-1 text-xs ${i > 0 && i < rows.length - 1 ? "" : ""}`}>
-          <span className="text-ink-500">{label}</span>
+        <div key={i} className="flex items-center justify-between py-1 text-xs">
+          <span className="text-text-muted">{label}</span>
           <span className={`font-mono font-semibold tabular ${
-            accent === "bull" ? "text-bull" : bold ? "text-ink-pure" : "text-ink-800"
+            accent === "bull" ? "text-lime-300" : bold ? "text-text-primary" : "text-text-secondary"
           }`}>{value}</span>
         </div>
       ))}
@@ -297,23 +291,23 @@ function PreviewBox({ rows }: { rows: Array<[string, string, boolean?, string?]>
 }
 
 function PositionRow({ label, amount, color }: { label: string; amount: bigint; color: "bull" | "bear" | "brand" }) {
-  const dot = color === "bull" ? "bg-bull" : color === "bear" ? "bg-bear" : "bg-brand";
+  const dot = color === "bull" ? "bg-lime-400" : color === "bear" ? "bg-red-400" : "bg-lime-500";
   return (
-    <div className="flex items-center justify-between rounded-lg border border-ink-200 bg-paper-off px-4 py-3">
-      <span className="flex items-center gap-2 text-xs font-semibold text-ink-800">
+    <div className="flex items-center justify-between rounded-xl border border-space-border bg-space-deep/40 px-4 py-3">
+      <span className="flex items-center gap-2 text-xs font-semibold text-text-secondary">
         <span className={`h-1.5 w-1.5 rounded-full ${dot}`} />{label}
       </span>
-      <span className="font-mono text-base font-semibold text-ink-pure tabular">{fmtTokens(amount)}</span>
+      <span className="font-mono text-base font-semibold text-text-primary tabular">{fmtTokens(amount)}</span>
     </div>
   );
 }
 
 function MiniPos({ label, amount, color }: { label: string; amount: bigint; color: "bull" | "bear" | "brand" }) {
-  const ct = color === "bull" ? "text-bull" : color === "bear" ? "text-bear" : "text-brand";
+  const ct = color === "bull" ? "text-lime-300" : color === "bear" ? "text-red-400" : "text-lime-400";
   return (
-    <div className="rounded-md border border-ink-200 bg-paper-off px-2.5 py-2">
+    <div className="rounded-lg border border-space-border bg-space-deep/40 px-2.5 py-2">
       <span className={`block text-[10px] font-semibold uppercase tracking-widest ${ct}`}>{label}</span>
-      <span className="mt-0.5 block font-mono text-sm font-semibold text-ink-pure tabular">{fmtTokens(amount)}</span>
+      <span className="mt-0.5 block font-mono text-sm font-semibold text-text-primary tabular">{fmtTokens(amount)}</span>
     </div>
   );
 }

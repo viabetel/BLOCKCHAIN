@@ -54,11 +54,11 @@ export default function MarketPage({ params }: { params: { address: string } }) 
 
   return (
     <>
-      <header className="sticky top-0 z-40 border-b border-ink-200 bg-paper-pure/95 backdrop-blur-md">
+      <header className="sticky top-0 z-40 border-b border-space-border bg-space/95 backdrop-blur-xl">
         <div className="mx-auto flex max-w-[1400px] items-center justify-between px-6 py-3 lg:px-8">
           <Link href="/" className="flex items-center gap-2.5">
             <Logo className="h-8 w-8" />
-            <Wordmark className="text-lg text-ink-pure" />
+            <Wordmark className="text-lg text-text-primary" />
           </Link>
           <ConnectButton />
         </div>
@@ -66,12 +66,12 @@ export default function MarketPage({ params }: { params: { address: string } }) 
 
       <main className="mx-auto max-w-[1400px] px-6 py-6 lg:px-8">
         {/* Breadcrumb */}
-        <div className="mb-3 flex items-center gap-2 text-[11px] font-medium text-ink-500">
-          <Link href="/" className="transition hover:text-ink-pure">Limero</Link>
+        <div className="mb-3 flex items-center gap-2 text-[11px] font-medium text-text-muted">
+          <Link href="/" className="transition hover:text-text-primary">Limero</Link>
           <span>/</span>
           <span>{category}</span>
           <span>/</span>
-          <span className="font-mono tabular text-ink-700">{fmtAddress(address)}</span>
+          <span className="font-mono tabular text-text-secondary">{fmtAddress(address)}</span>
         </div>
 
         {/* Title row */}
@@ -82,16 +82,16 @@ export default function MarketPage({ params }: { params: { address: string } }) 
                 <span className="chip chip-settled">Settled</span>
               ) : (
                 <span className="chip chip-live">
-                  <span className="h-1 w-1 animate-pulse-dot rounded-full bg-bull" />Live
+                  <span className="h-1 w-1 animate-pulse-dot rounded-full bg-lime-500" />Live
                 </span>
               )}
-              <span className="text-xs text-ink-500">
-                Resolves <span className="font-mono font-semibold text-ink-800 tabular">
+              <span className="text-xs text-text-muted">
+                Resolves <span className="font-mono font-semibold text-text-secondary tabular">
                   {deadline.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
-                </span> · <span className="font-mono font-semibold text-ink-800 tabular">{fmtTimeLeft(deadline)}</span>
+                </span> · <span className="font-mono font-semibold text-text-secondary tabular">{fmtTimeLeft(deadline)}</span>
               </span>
             </div>
-            <h1 className="font-display text-3xl font-semibold leading-[1.1] tracking-tighter text-ink-pure sm:text-4xl [text-wrap:balance]">
+            <h1 className="font-display text-3xl font-semibold leading-[1.1] tracking-tighter text-text-primary sm:text-4xl [text-wrap:balance]">
               {question}
             </h1>
             <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-1.5 text-xs">
@@ -109,9 +109,9 @@ export default function MarketPage({ params }: { params: { address: string } }) 
           {/* LEFT column */}
           <div className="animate-fade-up space-y-5">
             {/* BIG CHART + price */}
-            <div className="rounded-xl border border-ink-200 bg-paper-pure">
+            <div className="rounded-xl border border-space-border bg-space">
               {/* Price header */}
-              <div className="border-b border-ink-100 p-5">
+              <div className="border-b border-space-border p-5">
                 <div className="flex items-end justify-between gap-6">
                   <div className="flex gap-6">
                     <PriceLabel label="YES" pct={yesPct} color="bull"
@@ -124,7 +124,7 @@ export default function MarketPage({ params }: { params: { address: string } }) 
                   <div className="flex gap-1 text-[11px] font-semibold">
                     {["1H", "1D", "1W", "ALL"].map((t, i) => (
                       <button key={t} className={`rounded-md px-2.5 py-1 transition ${
-                        i === 1 ? "bg-ink-pure text-paper-pure" : "text-ink-500 hover:text-ink-pure"
+                        i === 1 ? "bg-space-elevated text-space-deep" : "text-text-muted hover:text-text-primary"
                       }`}>{t}</button>
                     ))}
                   </div>
@@ -143,8 +143,8 @@ export default function MarketPage({ params }: { params: { address: string } }) 
             </div>
 
             {/* Tabs */}
-            <div className="rounded-xl border border-ink-200 bg-paper-pure">
-              <div className="flex items-center border-b border-ink-200 px-4">
+            <div className="rounded-xl border border-space-border bg-space">
+              <div className="flex items-center border-b border-space-border px-4">
                 {TABS.map((t) => (
                   <button key={t} onClick={() => setTab(t)}
                     className={`tab-btn ${tab === t ? "active" : ""}`}>
@@ -189,8 +189,8 @@ export default function MarketPage({ params }: { params: { address: string } }) 
 function Metric({ label, value }: { label: string; value: string }) {
   return (
     <span className="flex items-baseline gap-1">
-      <span className="text-ink-500">{label}</span>
-      <span className="font-mono font-semibold text-ink-pure tabular">{value}</span>
+      <span className="text-text-muted">{label}</span>
+      <span className="font-mono font-semibold text-text-primary tabular">{value}</span>
     </span>
   );
 }
@@ -198,19 +198,19 @@ function Metric({ label, value }: { label: string; value: string }) {
 function PriceLabel({ label, pct, color, won, lost }: {
   label: string; pct: number; color: "bull" | "bear"; won?: boolean; lost?: boolean;
 }) {
-  const ct = color === "bull" ? "text-bull" : "text-bear";
+  const ct = color === "bull" ? "text-lime-400" : "text-red-400";
   const dim = lost ? "opacity-25" : "";
   return (
     <div className={dim}>
       <div className="flex items-center gap-1.5">
         <span className={`text-[11px] font-semibold uppercase tracking-widest ${ct}`}>{label}</span>
-        {won && <span className="rounded border border-bull/30 bg-bull-light px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-widest text-bull-dark">Won</span>}
+        {won && <span className="rounded border border-lime-500/30 bg-lime-500/10 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-widest text-lime-300">Won</span>}
       </div>
       <div className="mt-1 flex items-baseline gap-0.5">
         <span className={`font-display text-4xl font-bold tracking-tightest tabular ${ct}`}>
           {fmtPct(pct)}
         </span>
-        <span className="text-lg font-medium text-ink-400">¢</span>
+        <span className="text-lg font-medium text-text-muted">¢</span>
       </div>
     </div>
   );
@@ -223,13 +223,13 @@ function OverviewTab({ question, deadline, oracle, tvl, address, resolved, winni
   return (
     <div className="space-y-5">
       {resolved && (
-        <div className={`rounded-lg border p-4 ${winningOutcome === 1n ? "border-bull/30 bg-bull-light" : "border-bear/30 bg-bear-light"}`}>
+        <div className={`rounded-lg border p-4 ${winningOutcome === 1n ? "border-lime-500/30 bg-lime-500/10" : "border-red-500/30 bg-red-500/10"}`}>
           <div className="flex items-center gap-2">
-            <div className={`h-2 w-2 rounded-full ${winningOutcome === 1n ? "bg-bull" : "bg-bear"}`} />
-            <span className="text-[10px] font-semibold uppercase tracking-widest text-ink-700">Final outcome</span>
+            <div className={`h-2 w-2 rounded-full ${winningOutcome === 1n ? "bg-lime-500" : "bg-red-500"}`} />
+            <span className="text-[10px] font-semibold uppercase tracking-widest text-text-secondary">Final outcome</span>
           </div>
-          <p className="mt-2 text-sm font-medium text-ink-pure">
-            Market resolved <span className={`font-bold ${winningOutcome === 1n ? "text-bull-dark" : "text-bear-dark"}`}>
+          <p className="mt-2 text-sm font-medium text-text-primary">
+            Market resolved <span className={`font-bold ${winningOutcome === 1n ? "text-lime-300" : "text-red-300"}`}>
               {winningOutcome === 1n ? "YES" : "NO"}
             </span>. Winners can redeem shares 1:1 for $LIME.
           </p>
@@ -237,10 +237,10 @@ function OverviewTab({ question, deadline, oracle, tvl, address, resolved, winni
       )}
 
       <div>
-        <h3 className="mb-2 text-[10px] font-semibold uppercase tracking-widest text-ink-500">
+        <h3 className="mb-2 text-[10px] font-semibold uppercase tracking-widest text-text-muted">
           Market Description
         </h3>
-        <p className="text-sm leading-relaxed text-ink-700">
+        <p className="text-sm leading-relaxed text-text-secondary">
           {question} This market resolves YES if the condition stated in the question is met at
           or before the resolution time. Otherwise, it resolves NO. Both YES and NO outcomes are
           tradable as outcome shares priced between 0 and 1 $LIME.
@@ -256,10 +256,10 @@ function OverviewTab({ question, deadline, oracle, tvl, address, resolved, winni
       </div>
 
       <div>
-        <h3 className="mb-2 text-[10px] font-semibold uppercase tracking-widest text-ink-500">
+        <h3 className="mb-2 text-[10px] font-semibold uppercase tracking-widest text-text-muted">
           Resolution
         </h3>
-        <div className="grid gap-2 rounded-lg bg-paper-off p-4 text-xs sm:grid-cols-2">
+        <div className="grid gap-2 rounded-lg bg-space-deep p-4 text-xs sm:grid-cols-2">
           <InfoRow label="Oracle" value={fmtAddress(oracle)}
             link={`https://liteforge.explorer.caldera.xyz/address/${oracle}`} />
           <InfoRow label="Resolution time" value={deadline.toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" })} />
@@ -335,31 +335,31 @@ function HoldersTab({ market }: { market: `0x${string}` }) {
   }, [client, market]);
 
   if (loading) {
-    return <div className="py-6 text-center text-sm text-ink-500">Loading holders...</div>;
+    return <div className="py-6 text-center text-sm text-text-muted">Loading holders...</div>;
   }
   if (!holders || holders.length === 0) {
-    return <div className="py-6 text-center text-sm text-ink-500">No holders yet.</div>;
+    return <div className="py-6 text-center text-sm text-text-muted">No holders yet.</div>;
   }
 
   return (
     <div>
-      <div className="mb-3 grid grid-cols-[1fr_80px_80px_80px] gap-2 border-b border-ink-100 pb-2 text-[10px] font-semibold uppercase tracking-widest text-ink-500">
+      <div className="mb-3 grid grid-cols-[1fr_80px_80px_80px] gap-2 border-b border-space-border pb-2 text-[10px] font-semibold uppercase tracking-widest text-text-muted">
         <span>Address</span>
         <span className="text-right">YES</span>
         <span className="text-right">NO</span>
         <span className="text-right">LP</span>
       </div>
-      <div className="divide-y divide-ink-100">
+      <div className="divide-y divide-space-border">
         {holders.slice(0, 10).map((h) => (
           <div key={h.addr} className="grid grid-cols-[1fr_80px_80px_80px] gap-2 py-2.5 text-xs">
             <a href={`https://liteforge.explorer.caldera.xyz/address/${h.addr}`}
               target="_blank" rel="noopener noreferrer"
-              className="font-mono font-semibold text-ink-pure tabular hover:text-brand">
+              className="font-mono font-semibold text-text-primary tabular hover:text-lime-300">
               {fmtAddress(h.addr)}
             </a>
-            <span className="text-right font-mono tabular text-bull">{fmtZkLTC(h.yes)}</span>
-            <span className="text-right font-mono tabular text-bear">{fmtZkLTC(h.no)}</span>
-            <span className="text-right font-mono tabular text-brand">{fmtZkLTC(h.lp)}</span>
+            <span className="text-right font-mono tabular text-lime-400">{fmtZkLTC(h.yes)}</span>
+            <span className="text-right font-mono tabular text-red-400">{fmtZkLTC(h.no)}</span>
+            <span className="text-right font-mono tabular text-lime-300">{fmtZkLTC(h.lp)}</span>
           </div>
         ))}
       </div>
@@ -373,16 +373,16 @@ function RulesTab({ question, oracle, deadline, address }: {
   return (
     <div className="space-y-4 text-sm">
       <div>
-        <h4 className="mb-1 text-[10px] font-semibold uppercase tracking-widest text-ink-500">
+        <h4 className="mb-1 text-[10px] font-semibold uppercase tracking-widest text-text-muted">
           Question
         </h4>
-        <p className="text-ink-pure">{question}</p>
+        <p className="text-text-primary">{question}</p>
       </div>
       <div>
-        <h4 className="mb-1 text-[10px] font-semibold uppercase tracking-widest text-ink-500">
+        <h4 className="mb-1 text-[10px] font-semibold uppercase tracking-widest text-text-muted">
           Resolution Criteria
         </h4>
-        <p className="leading-relaxed text-ink-700">
+        <p className="leading-relaxed text-text-secondary">
           This market resolves YES if the condition in the question is verifiably true at or
           before the resolution time. Otherwise, it resolves NO. The oracle address listed below
           is responsible for posting the final outcome on-chain after the resolution time has passed.
@@ -397,8 +397,8 @@ function RulesTab({ question, oracle, deadline, address }: {
           link={`https://liteforge.explorer.caldera.xyz/address/${address}`} />
         <InfoLine label="Settlement asset" value="$LIME (MockZkLTC on LiteForge)" />
       </div>
-      <div className="rounded-lg border border-ink-200 bg-paper-off p-3 text-xs text-ink-600">
-        <strong className="text-ink-pure">Testnet notice:</strong> This market runs on LiteForge
+      <div className="rounded-lg border border-space-border bg-space-deep p-3 text-xs text-text-secondary">
+        <strong className="text-text-primary">Testnet notice:</strong> This market runs on LiteForge
         testnet with a manually-resolved oracle. In production (mainnet), oracles will be
         replaced by UMA's Optimistic Oracle for decentralized resolution.
       </div>
@@ -409,33 +409,33 @@ function RulesTab({ question, oracle, deadline, address }: {
 function MetaCell({ label, value, unit, link }: { label: string; value: string; unit?: string; link?: string }) {
   const inner = (
     <>
-      <div className="text-[10px] font-semibold uppercase tracking-widest text-ink-500">{label}</div>
+      <div className="text-[10px] font-semibold uppercase tracking-widest text-text-muted">{label}</div>
       <div className="mt-1 flex items-baseline gap-1">
-        <span className="font-mono text-base font-semibold text-ink-pure tabular">{value}</span>
-        {unit && <span className="text-xs font-medium text-ink-500">{unit}</span>}
-        {link && <span className="text-xs text-ink-400">↗</span>}
+        <span className="font-mono text-base font-semibold text-text-primary tabular">{value}</span>
+        {unit && <span className="text-xs font-medium text-text-muted">{unit}</span>}
+        {link && <span className="text-xs text-text-muted">↗</span>}
       </div>
     </>
   );
   if (link) {
     return (
       <a href={link} target="_blank" rel="noopener noreferrer"
-        className="rounded-lg border border-ink-200 bg-paper-off px-3 py-2.5 transition hover:border-ink-pure hover:bg-paper-pure">{inner}</a>
+        className="rounded-lg border border-space-border bg-space-deep px-3 py-2.5 transition hover:border-lime-500/40 hover:bg-space">{inner}</a>
     );
   }
-  return <div className="rounded-lg border border-ink-200 bg-paper-off px-3 py-2.5">{inner}</div>;
+  return <div className="rounded-lg border border-space-border bg-space-deep px-3 py-2.5">{inner}</div>;
 }
 
 function InfoRow({ label, value, link }: { label: string; value: string; link?: string }) {
   return (
     <div className="flex items-center justify-between">
-      <span className="text-ink-500">{label}</span>
+      <span className="text-text-muted">{label}</span>
       {link ? (
-        <a href={link} target="_blank" rel="noopener noreferrer" className="font-mono font-semibold text-ink-pure tabular hover:text-brand">
+        <a href={link} target="_blank" rel="noopener noreferrer" className="font-mono font-semibold text-text-primary tabular hover:text-lime-300">
           {value} ↗
         </a>
       ) : (
-        <span className="font-mono font-semibold text-ink-pure tabular">{value}</span>
+        <span className="font-mono font-semibold text-text-primary tabular">{value}</span>
       )}
     </div>
   );
@@ -443,14 +443,14 @@ function InfoRow({ label, value, link }: { label: string; value: string; link?: 
 
 function InfoLine({ label, value, link }: { label: string; value: string; link?: string }) {
   return (
-    <div className="rounded-lg border border-ink-200 bg-paper-off p-3">
-      <div className="text-[10px] font-semibold uppercase tracking-widest text-ink-500">{label}</div>
+    <div className="rounded-lg border border-space-border bg-space-deep p-3">
+      <div className="text-[10px] font-semibold uppercase tracking-widest text-text-muted">{label}</div>
       {link ? (
-        <a href={link} target="_blank" rel="noopener noreferrer" className="mt-1 block font-mono text-sm font-semibold text-ink-pure tabular hover:text-brand">
+        <a href={link} target="_blank" rel="noopener noreferrer" className="mt-1 block font-mono text-sm font-semibold text-text-primary tabular hover:text-lime-300">
           {value} ↗
         </a>
       ) : (
-        <div className="mt-1 font-mono text-sm font-semibold text-ink-pure tabular">{value}</div>
+        <div className="mt-1 font-mono text-sm font-semibold text-text-primary tabular">{value}</div>
       )}
     </div>
   );

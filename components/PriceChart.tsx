@@ -59,8 +59,8 @@ export function PriceChart({
           return (
             <g key={v}>
               <line x1={padL} x2={w - padR} y1={y} y2={y}
-                stroke="#e5e5e5" strokeDasharray={v === 50 ? "0" : "3 4"} strokeWidth="1" />
-              <text x={w - padR + 8} y={y + 4} fill="#737373"
+                stroke="#1f2937" strokeDasharray={v === 50 ? "0" : "3 4"} strokeWidth="1" />
+              <text x={w - padR + 8} y={y + 4} fill="#9ca3af"
                 style={{ fontSize: 11, fontFamily: "var(--font-mono)", fontVariantNumeric: "tabular-nums" }}>
                 {v}%
               </text>
@@ -103,7 +103,7 @@ export function PriceChart({
 
         {/* X axis dates */}
         {dates.map((d, i) => (
-          <text key={i} x={d.x} y={h + 14} textAnchor="middle" fill="#a3a3a3"
+          <text key={i} x={d.x} y={h + 14} textAnchor="middle" fill="#6b7280"
             style={{ fontSize: 10, fontFamily: "var(--font-mono)" }}>
             {d.label}
           </text>

@@ -86,9 +86,9 @@ export function ActivityFeed({ market }: { market: `0x${string}` }) {
     return () => { cancelled = true; };
   }, [client, market]);
 
-  if (loading) return <div className="py-6 text-center text-sm text-ink-500">Loading activity...</div>;
+  if (loading) return <div className="py-6 text-center text-sm text-text-muted">Loading activity...</div>;
   if (!events || events.length === 0) {
-    return <div className="py-6 text-center text-sm text-ink-500">No activity yet.</div>;
+    return <div className="py-6 text-center text-sm text-text-muted">No activity yet.</div>;
   }
 
   return (
@@ -101,23 +101,23 @@ export function ActivityFeed({ market }: { market: `0x${string}` }) {
 function EventRow({ ev }: { ev: Event }) {
   if (ev.kind === "Trade") {
     const side = ev.outcome === 1 ? "YES" : "NO";
-    const sideColor = ev.outcome === 1 ? "text-bull" : "text-bear";
+    const sideColor = ev.outcome === 1 ? "text-lime-400" : "text-red-400";
     return (
-      <div className="grid grid-cols-[24px_1fr_auto_auto] items-center gap-3 rounded-lg py-2 text-xs hover:bg-paper-off">
-        <div className={`h-1.5 w-1.5 justify-self-center rounded-full ${ev.outcome === 1 ? "bg-bull" : "bg-bear"}`} />
+      <div className="grid grid-cols-[24px_1fr_auto_auto] items-center gap-3 rounded-lg py-2 text-xs hover:bg-space-deep">
+        <div className={`h-1.5 w-1.5 justify-self-center rounded-full ${ev.outcome === 1 ? "bg-lime-500" : "bg-red-500"}`} />
         <div className="flex items-center gap-2 min-w-0">
           <a href={`https://liteforge.explorer.caldera.xyz/address/${ev.user}`}
             target="_blank" rel="noopener noreferrer"
-            className="font-mono font-semibold text-ink-pure tabular hover:text-brand truncate">
+            className="font-mono font-semibold text-text-primary tabular hover:text-lime-300 truncate">
             {fmtAddress(ev.user)}
           </a>
-          <span className="text-ink-500">bought</span>
+          <span className="text-text-muted">bought</span>
           <span className={`font-semibold ${sideColor}`}>{side}</span>
         </div>
-        <span className="font-mono text-ink-600 tabular">
+        <span className="font-mono text-text-secondary tabular">
           {fmtCompact(Number(formatEther(ev.tokens)))} shares
         </span>
-        <span className="font-mono text-ink-pure tabular">
+        <span className="font-mono text-text-primary tabular">
           {fmtZkLTC(ev.collateral)} $LIME
         </span>
       </div>
@@ -125,17 +125,17 @@ function EventRow({ ev }: { ev: Event }) {
   }
   if (ev.kind === "LiquidityAdded") {
     return (
-      <div className="grid grid-cols-[24px_1fr_auto] items-center gap-3 rounded-lg py-2 text-xs hover:bg-paper-off">
+      <div className="grid grid-cols-[24px_1fr_auto] items-center gap-3 rounded-lg py-2 text-xs hover:bg-space-deep">
         <div className="h-1.5 w-1.5 justify-self-center rounded-full bg-brand" />
         <div className="flex items-center gap-2 min-w-0">
           <a href={`https://liteforge.explorer.caldera.xyz/address/${ev.user}`}
             target="_blank" rel="noopener noreferrer"
-            className="font-mono font-semibold text-ink-pure tabular hover:text-brand truncate">
+            className="font-mono font-semibold text-text-primary tabular hover:text-lime-300 truncate">
             {fmtAddress(ev.user)}
           </a>
-          <span className="text-ink-500">added liquidity</span>
+          <span className="text-text-muted">added liquidity</span>
         </div>
-        <span className="font-mono text-ink-pure tabular">
+        <span className="font-mono text-text-primary tabular">
           {fmtZkLTC(ev.collateral)} $LIME
         </span>
       </div>
@@ -143,10 +143,10 @@ function EventRow({ ev }: { ev: Event }) {
   }
   if (ev.kind === "Resolved") {
     return (
-      <div className="flex items-center gap-3 rounded-lg py-2 text-xs hover:bg-paper-off">
-        <div className={`h-1.5 w-1.5 rounded-full ${ev.outcome === 1 ? "bg-bull" : "bg-bear"}`} />
-        <span className="font-semibold text-ink-pure">Market resolved</span>
-        <span className={ev.outcome === 1 ? "text-bull font-semibold" : "text-bear font-semibold"}>
+      <div className="flex items-center gap-3 rounded-lg py-2 text-xs hover:bg-space-deep">
+        <div className={`h-1.5 w-1.5 rounded-full ${ev.outcome === 1 ? "bg-lime-500" : "bg-red-500"}`} />
+        <span className="font-semibold text-text-primary">Market resolved</span>
+        <span className={ev.outcome === 1 ? "text-lime-400 font-semibold" : "text-red-400 font-semibold"}>
           {ev.outcome === 1 ? "YES" : "NO"}
         </span>
       </div>

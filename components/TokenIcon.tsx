@@ -73,7 +73,7 @@ export function TokensFromQuestion({ question, size = 20 }: { question: string; 
       {tokens.map((t) => (
         <div
           key={t}
-          className="flex items-center justify-center rounded-full border-2 border-paper-pure bg-paper-pure"
+          className="flex items-center justify-center rounded-full border-2 border-space-elevated bg-space-elevated"
           style={{ width: size + 4, height: size + 4 }}
         >
           <TokenIcon symbol={t} size={size} />

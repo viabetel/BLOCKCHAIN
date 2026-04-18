@@ -4,10 +4,10 @@ import { useAccount, useReadContract, useWriteContract, useWaitForTransactionRec
 import { parseEther } from "viem";
 import { useEffect, useState } from "react";
 import { addresses, erc20Abi } from "@/lib/contracts";
-import { fmtZkLTC, fmtZkLTCExact } from "@/lib/format";
+import { fmtZkLTCExact } from "@/lib/format";
 
 const CLAIM_AMOUNT = parseEther("100");
-const COOLDOWN_SECONDS = 60 * 60; // 1 hour
+const COOLDOWN_SECONDS = 60 * 60;
 const STORAGE_KEY = "limero:lastFaucetClaim";
 
 export function FaucetCard() {
@@ -17,7 +17,6 @@ export function FaucetCard() {
 
   useEffect(() => setMounted(true), []);
 
-  // Cooldown ticker
   useEffect(() => {
     if (!mounted || !address) return;
     const check = () => {
@@ -67,27 +66,27 @@ export function FaucetCard() {
   const cooldownFmt = formatCooldown(cooldownLeft);
 
   return (
-    <div className="overflow-hidden rounded-xl border border-ink-200 bg-paper-pure">
+    <div className="card-glass overflow-hidden rounded-2xl">
       <div className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-start gap-4">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-lime-300 to-lime-500 shadow-sm ring-1 ring-lime-600/20">
-            <span className="text-2xl">🍋</span>
+          <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-lime-300 to-lime-600 shadow-lime-md">
+            <span className="text-3xl drop-shadow-sm">🍋</span>
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h3 className="font-display text-lg font-semibold tracking-tight text-ink-pure">
+              <h3 className="font-display text-lg font-semibold tracking-tight text-text-primary">
                 Testnet Faucet
               </h3>
-              <span className="chip chip-cat">Free</span>
+              <span className="chip chip-featured">Free</span>
             </div>
-            <p className="mt-1 max-w-md text-sm text-ink-600">
-              Claim <span className="font-mono font-semibold text-ink-pure">100 $LIME</span> to trade on Limero.
+            <p className="mt-1 max-w-md text-sm text-text-secondary">
+              Claim <span className="font-mono font-semibold text-lime-300">100 $LIME</span> to trade on Limero.
               Testnet tokens only, no real value. Cooldown: 1 hour per wallet.
             </p>
             {isConnected && (
-              <p className="mt-1.5 text-xs text-ink-500">
+              <p className="mt-1.5 text-xs text-text-muted">
                 Your balance:{" "}
-                <span className="font-mono font-semibold text-ink-800 tabular">
+                <span className="font-mono font-semibold text-text-secondary tabular">
                   {fmtZkLTCExact(balanceBig)}
                 </span>{" "}
                 $LIME
@@ -98,20 +97,20 @@ export function FaucetCard() {
 
         <div className="flex flex-col items-stretch gap-2 sm:items-end">
           {!isConnected ? (
-            <p className="text-xs text-ink-500">Connect wallet to claim</p>
+            <p className="text-xs text-text-muted">Connect wallet to claim</p>
           ) : isSuccess ? (
-            <button disabled className="btn-bull rounded-lg px-5 py-2.5 text-sm">
+            <button disabled className="btn-lime rounded-lg px-5 py-2.5 text-sm">
               +100 $LIME claimed ✓
             </button>
           ) : onCooldown ? (
-            <button disabled className="cursor-not-allowed rounded-lg border border-ink-200 bg-paper-off px-5 py-2.5 text-sm font-semibold text-ink-500">
+            <button disabled className="cursor-not-allowed rounded-lg border border-space-border bg-space-surface px-5 py-2.5 text-sm font-semibold text-text-muted">
               Next claim in {cooldownFmt}
             </button>
           ) : (
             <button
               onClick={claim}
               disabled={isPending || waiting}
-              className="btn-ink rounded-lg px-5 py-2.5 text-sm"
+              className="btn-lime rounded-lg px-5 py-2.5 text-sm"
             >
               {waiting ? "Confirming..." : isPending ? "Approve in wallet..." : "Claim 100 $LIME"}
             </button>
@@ -120,7 +119,7 @@ export function FaucetCard() {
             href="https://liteforge.hub.caldera.xyz"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-[11px] text-ink-500 transition hover:text-ink-pure sm:text-right"
+            className="text-[11px] text-text-muted transition hover:text-lime-300 sm:text-right"
           >
             Need gas? Get native zkLTC →
           </a>

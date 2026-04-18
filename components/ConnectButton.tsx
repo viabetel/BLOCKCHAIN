@@ -29,7 +29,7 @@ export function ConnectButton() {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => setMounted(true), []);
-  if (!mounted) return <div className="h-9 w-36" />;
+  if (!mounted) return <div className="h-10 w-36" />;
 
   const wrongChain = isConnected && chainId !== liteforge.id;
   const isAdmin = isConnected && address?.toLowerCase() === ADMIN_WALLET;
@@ -49,7 +49,7 @@ export function ConnectButton() {
   if (wrongChain) {
     return (
       <button onClick={() => switchChain({ chainId: liteforge.id })}
-        className="btn-bear flex items-center gap-2 rounded-lg px-4 py-2 text-sm">
+        className="btn-bear flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm">
         <span className="h-1.5 w-1.5 animate-pulse-dot rounded-full bg-white" />
         Switch Network
       </button>
@@ -60,15 +60,15 @@ export function ConnectButton() {
     return (
       <div className="relative flex items-center gap-2">
         {isAdmin && (
-          <Link href="/admin" className="hidden rounded-md border border-ink-pure bg-paper-pure px-3 py-2 text-xs font-semibold uppercase tracking-wider text-ink-pure transition hover:bg-ink-pure hover:text-paper-pure md:inline-block">
+          <Link href="/admin" className="hidden rounded-lg border border-space-border bg-space-surface px-3 py-2 text-xs font-semibold uppercase tracking-wider text-text-secondary transition hover:border-lime-500 hover:text-lime-300 md:inline-block">
             Admin
           </Link>
         )}
         <button onClick={() => setOpen(!open)}
-          className="flex items-center gap-2.5 rounded-lg border border-ink-200 bg-paper-pure px-3 py-2 text-sm transition hover:border-ink-pure">
-          <span className="h-2 w-2 rounded-full bg-bull shadow-[0_0_0_3px_rgba(0,168,104,0.15)]" />
-          <span className="font-mono text-xs font-medium text-ink-900 tabular">{fmtAddress(address)}</span>
-          <svg className="h-3 w-3 text-ink-500" viewBox="0 0 12 12" fill="none">
+          className="flex items-center gap-2.5 rounded-lg border border-space-border bg-space-surface px-3 py-2 text-sm transition hover:border-space-border-hover">
+          <span className="h-2 w-2 rounded-full bg-lime-400 shadow-[0_0_0_3px_rgba(132,204,22,0.2)]" />
+          <span className="font-mono text-xs font-medium text-text-primary tabular">{fmtAddress(address)}</span>
+          <svg className="h-3 w-3 text-text-muted" viewBox="0 0 12 12" fill="none">
             <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </button>
@@ -76,33 +76,33 @@ export function ConnectButton() {
         {open && (
           <>
             <div className="fixed inset-0 z-10" onClick={() => setOpen(false)} />
-            <div className="absolute right-0 top-full z-20 mt-2 w-72 animate-fade-up overflow-hidden rounded-xl border border-ink-200 bg-paper-pure shadow-xl">
-              <div className="border-b border-ink-100 bg-paper-off px-4 py-3">
-                <div className="text-[10px] font-semibold uppercase tracking-widest text-ink-500">Wallet</div>
-                <div className="mt-1 break-all font-mono text-xs text-ink-900 tabular">{address}</div>
+            <div className="absolute right-0 top-full z-20 mt-2 w-80 animate-fade-up overflow-hidden rounded-xl border border-space-border bg-space-elevated shadow-2xl">
+              <div className="border-b border-space-border bg-space-surface px-4 py-3">
+                <div className="text-[10px] font-semibold uppercase tracking-widest text-text-muted">Wallet</div>
+                <div className="mt-1 break-all font-mono text-xs text-text-primary tabular">{address}</div>
               </div>
-              <div className="border-b border-ink-100 px-4 py-3">
+              <div className="border-b border-space-border px-4 py-3">
                 <div className="flex items-center justify-between">
                   <div>
-                    <div className="text-[10px] font-semibold uppercase tracking-widest text-ink-500">$LIME Balance</div>
+                    <div className="text-[10px] font-semibold uppercase tracking-widest text-text-muted">$LIME Balance</div>
                     <div className="mt-1 flex items-baseline gap-1.5">
-                      <span className="font-display text-2xl font-semibold text-ink-pure tabular">
+                      <span className="font-display text-2xl font-semibold text-text-primary tabular">
                         {fmtZkLTCExact(tokenBalBig)}
                       </span>
-                      <span className="text-xs font-medium text-ink-500">$LIME</span>
+                      <span className="text-xs font-medium text-text-muted">$LIME</span>
                     </div>
                   </div>
                   {needsTokens && (
                     <button
                       onClick={handleClaim}
                       disabled={minting || mintWaiting}
-                      className="btn-ink rounded-md px-3 py-1.5 text-[11px] font-semibold"
+                      className="btn-lime rounded-md px-3 py-1.5 text-[11px]"
                     >
                       {mintWaiting ? "Claiming..." : minting ? "Waiting..." : "+100 Claim"}
                     </button>
                   )}
                 </div>
-                <div className="mt-2 flex items-center justify-between text-[10px] text-ink-400">
+                <div className="mt-2 flex items-center justify-between text-[10px] text-text-muted">
                   <span>Gas (native)</span>
                   <span className="font-mono tabular">
                     {balance ? fmtZkLTCExact(balance.value) : "0.0000"}
@@ -111,12 +111,12 @@ export function ConnectButton() {
               </div>
               {isAdmin && (
                 <Link href="/admin" onClick={() => setOpen(false)}
-                  className="block border-b border-ink-100 px-4 py-2.5 text-sm font-semibold text-brand transition hover:bg-paper-off">
+                  className="block border-b border-space-border px-4 py-2.5 text-sm font-semibold text-lime-300 transition hover:bg-space-surface">
                   Admin Panel →
                 </Link>
               )}
               <button onClick={() => { disconnect(); setOpen(false); }}
-                className="w-full bg-paper-off px-4 py-3 text-left text-sm font-medium text-bear transition hover:bg-bear-light">
+                className="w-full bg-space-surface px-4 py-3 text-left text-sm font-medium text-bear transition hover:bg-red-950/30">
                 Disconnect
               </button>
             </div>
@@ -129,7 +129,7 @@ export function ConnectButton() {
   const connector = connectors[0];
   return (
     <button onClick={() => connector && connect({ connector })} disabled={isPending || !connector}
-      className="btn-ink rounded-lg px-4 py-2 text-sm">
+      className="btn-lime rounded-lg px-5 py-2.5 text-sm">
       {isPending ? "Connecting..." : "Connect Wallet"}
     </button>
   );

@@ -42,16 +42,16 @@ export function TickerBar() {
   const loop = [...displayItems, ...displayItems, ...displayItems, ...displayItems];
 
   return (
-    <div className="overflow-hidden border-y border-ink-pure bg-ink-pure py-2.5">
+    <div className="overflow-hidden border-y border-space-border bg-space-deep py-2.5">
       <div className="flex animate-ticker whitespace-nowrap">
         {loop.map((item, i) => (
           <div key={i} className="flex items-center gap-3 px-6">
-            <span className="text-[10px] font-semibold uppercase tracking-widest text-ink-500">Market</span>
-            <span className="max-w-[280px] truncate text-sm text-paper-pure">{item.question}</span>
-            <span className={`font-mono text-sm font-semibold tabular ${item.pct >= 50 ? "text-bull" : "text-bear"}`}>
+            <span className="text-[10px] font-semibold uppercase tracking-widest text-text-muted">Market</span>
+            <span className="max-w-[280px] truncate text-sm text-text-primary">{item.question}</span>
+            <span className={`font-mono text-sm font-semibold tabular ${item.pct >= 50 ? "text-lime-300" : "text-red-400"}`}>
               YES {fmtPct(item.pct)}%
             </span>
-            <span className="text-ink-700">•</span>
+            <span className="text-space-border">•</span>
           </div>
         ))}
       </div>
