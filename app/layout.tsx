@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Fraunces, Geist, JetBrains_Mono } from "next/font/google";
+import { Fraunces, Inter, JetBrains_Mono } from "next/font/google";
 import { Providers } from "@/components/Providers";
 import "./globals.css";
 
@@ -10,7 +10,7 @@ const fraunces = Fraunces({
   axes: ["opsz", "SOFT"],
 });
 
-const geist = Geist({
+const inter = Inter({
   subsets: ["latin"],
   variable: "--font-sans",
   display: "swap",
@@ -36,7 +36,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${fraunces.variable} ${geist.variable} ${jetbrains.variable}`}
+      className={`${fraunces.variable} ${inter.variable} ${jetbrains.variable}`}
     >
       <body className="min-h-screen bg-ink-0 font-sans text-silver-100 antialiased">
         <Providers>{children}</Providers>
