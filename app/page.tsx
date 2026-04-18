@@ -9,6 +9,7 @@ import { ConnectButton } from "@/components/ConnectButton";
 import { Logo, Wordmark } from "@/components/Logo";
 import { TickerBar } from "@/components/TickerBar";
 import { FaucetCard } from "@/components/FaucetCard";
+import { PartnerTicker } from "@/components/PartnerTicker";
 import { fmtZkLTC, inferCategory } from "@/lib/format";
 import { useHiddenMarkets } from "@/lib/useHiddenMarkets";
 
@@ -174,6 +175,7 @@ export default function HomePage() {
         )}
       </section>
 
+      <PartnerTicker />
       <Footer />
     </>
   );

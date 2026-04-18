@@ -4,7 +4,7 @@ import { useAccount, useReadContract, useWriteContract, useWaitForTransactionRec
 import { parseEther } from "viem";
 import { useEffect, useState } from "react";
 import { addresses, erc20Abi } from "@/lib/contracts";
-import { fmtZkLTC } from "@/lib/format";
+import { fmtZkLTC, fmtZkLTCExact } from "@/lib/format";
 
 const CLAIM_AMOUNT = parseEther("100");
 const COOLDOWN_SECONDS = 60 * 60; // 1 hour
@@ -94,7 +94,7 @@ export function FaucetCard() {
               <p className="mt-1.5 text-xs text-ink-500">
                 Your balance:{" "}
                 <span className="font-mono font-semibold text-ink-800 tabular">
-                  {fmtZkLTC(balanceBig, 2)}
+                  {fmtZkLTCExact(balanceBig)}
                 </span>{" "}
                 zkLTC
               </p>

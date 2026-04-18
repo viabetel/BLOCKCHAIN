@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import { parseEther } from "viem";
 import { liteforge, ADMIN_WALLET } from "@/lib/wagmi";
 import { addresses, erc20Abi } from "@/lib/contracts";
-import { fmtZkLTC, fmtAddress } from "@/lib/format";
+import { fmtZkLTC, fmtZkLTCExact, fmtAddress } from "@/lib/format";
 import Link from "next/link";
 
 export function ConnectButton() {
@@ -87,7 +87,7 @@ export function ConnectButton() {
                     <div className="text-[10px] font-semibold uppercase tracking-widest text-ink-500">zkLTC Balance</div>
                     <div className="mt-1 flex items-baseline gap-1.5">
                       <span className="font-display text-2xl font-semibold text-ink-pure tabular">
-                        {fmtZkLTC(tokenBalBig, 2)}
+                        {fmtZkLTCExact(tokenBalBig)}
                       </span>
                       <span className="text-xs font-medium text-ink-500">zkLTC</span>
                     </div>
@@ -105,7 +105,7 @@ export function ConnectButton() {
                 <div className="mt-2 flex items-center justify-between text-[10px] text-ink-400">
                   <span>Gas (native)</span>
                   <span className="font-mono tabular">
-                    {balance ? fmtZkLTC(balance.value, 4) : "0.0000"}
+                    {balance ? fmtZkLTCExact(balance.value) : "0.0000"}
                   </span>
                 </div>
               </div>

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useMemo } from "react";
 import { marketAbi } from "@/lib/contracts";
 import { fmtPct, fmtZkLTC, fmtTimeLeft, inferCategory } from "@/lib/format";
+import { TokensFromQuestion } from "@/components/TokenIcon";
 
 export function MarketCard({ address }: { address: `0x${string}` }) {
   const { data } = useReadContracts({
@@ -35,11 +36,16 @@ export function MarketCard({ address }: { address: `0x${string}` }) {
 
   return (
     <div className="card-paper group relative flex h-full flex-col overflow-hidden rounded-xl p-4">
-      {/* Top: icon + category + status */}
+      {/* Top: real token icons + category + status */}
       <div className="mb-3 flex items-start justify-between">
         <div className="flex items-center gap-2.5">
-          <div className={`flex h-9 w-9 items-center justify-center rounded-lg ${icon.bg} text-[15px]`}>
-            <span className={icon.color}>{icon.label}</span>
+          <div className="flex h-9 items-center">
+            <TokensFromQuestion question={question} size={22} />
+            {/* Fallback when no tokens detected */}
+            <span className={`ml-0 flex h-8 w-8 items-center justify-center rounded-full text-[14px] ${icon.bg} ${icon.color}`}
+              style={{ display: /ltc|btc|eth|bitcoin|ethereum|litecoin|usdc|usdt|sol/i.test(question) ? "none" : "flex" }}>
+              {icon.label}
+            </span>
           </div>
           <div>
             <div className="text-[10px] font-semibold uppercase tracking-widest text-ink-500">

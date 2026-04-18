@@ -11,6 +11,7 @@ import { Logo, Wordmark } from "@/components/Logo";
 import { PriceChart } from "@/components/PriceChart";
 import { ActivityFeed } from "@/components/ActivityFeed";
 import { fmtPct, fmtZkLTC, fmtTimeLeft, fmtAddress, inferCategory } from "@/lib/format";
+import { TokenIcon, TokensFromQuestion } from "@/components/TokenIcon";
 
 type Tab = "Overview" | "Activity" | "Holders" | "Rules";
 
@@ -94,6 +95,9 @@ export default function MarketPage({ params }: { params: { address: string } }) 
               {question}
             </h1>
             <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-1.5 text-xs">
+              <div className="flex items-center gap-2">
+                <TokensFromQuestion question={question} size={18} />
+              </div>
               <Metric label="Vol" value={`${fmtZkLTC(tvl)} zkLTC`} />
               <Metric label="Liquidity" value={`${fmtZkLTC(tvl)} zkLTC`} />
               <Metric label="Fee" value="2.00%" />
