@@ -8,8 +8,8 @@ const sans = Inter({ subsets: ["latin"], variable: "--font-sans", display: "swap
 const mono = IBM_Plex_Mono({ subsets: ["latin"], variable: "--font-mono", display: "swap", weight: ["400", "500", "600"] });
 
 export const metadata: Metadata = {
-  title: "Silvercast | Hard Money Prediction Markets",
-  description: "Trade the future in zkLTC. Prediction markets on LitVM.",
+  title: "Limero | Hard Money Prediction Markets",
+  description: "Trade the future in $LIME. Prediction markets on LitVM.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

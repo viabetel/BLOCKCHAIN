@@ -8,7 +8,7 @@ import { fmtZkLTC, fmtZkLTCExact } from "@/lib/format";
 
 const CLAIM_AMOUNT = parseEther("100");
 const COOLDOWN_SECONDS = 60 * 60; // 1 hour
-const STORAGE_KEY = "silvercast:lastFaucetClaim";
+const STORAGE_KEY = "limero:lastFaucetClaim";
 
 export function FaucetCard() {
   const { address, isConnected } = useAccount();
@@ -70,14 +70,8 @@ export function FaucetCard() {
     <div className="overflow-hidden rounded-xl border border-ink-200 bg-paper-pure">
       <div className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-start gap-4">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-ink-pure">
-            <svg viewBox="0 0 24 24" fill="none" className="h-6 w-6 text-paper-pure">
-              <path
-                d="M12 2L4 9v11a1 1 0 001 1h14a1 1 0 001-1V9l-8-7z"
-                stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round"
-              />
-              <path d="M9 22V12h6v10" stroke="currentColor" strokeWidth="1.8" />
-            </svg>
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-lime-300 to-lime-500 shadow-sm ring-1 ring-lime-600/20">
+            <span className="text-2xl">🍋</span>
           </div>
           <div>
             <div className="flex items-center gap-2">
@@ -87,7 +81,7 @@ export function FaucetCard() {
               <span className="chip chip-cat">Free</span>
             </div>
             <p className="mt-1 max-w-md text-sm text-ink-600">
-              Claim <span className="font-mono font-semibold text-ink-pure">100 zkLTC</span> to trade on Silvercast.
+              Claim <span className="font-mono font-semibold text-ink-pure">100 $LIME</span> to trade on Limero.
               Testnet tokens only, no real value. Cooldown: 1 hour per wallet.
             </p>
             {isConnected && (
@@ -96,7 +90,7 @@ export function FaucetCard() {
                 <span className="font-mono font-semibold text-ink-800 tabular">
                   {fmtZkLTCExact(balanceBig)}
                 </span>{" "}
-                zkLTC
+                $LIME
               </p>
             )}
           </div>
@@ -107,7 +101,7 @@ export function FaucetCard() {
             <p className="text-xs text-ink-500">Connect wallet to claim</p>
           ) : isSuccess ? (
             <button disabled className="btn-bull rounded-lg px-5 py-2.5 text-sm">
-              +100 zkLTC claimed ✓
+              +100 $LIME claimed ✓
             </button>
           ) : onCooldown ? (
             <button disabled className="cursor-not-allowed rounded-lg border border-ink-200 bg-paper-off px-5 py-2.5 text-sm font-semibold text-ink-500">
@@ -119,7 +113,7 @@ export function FaucetCard() {
               disabled={isPending || waiting}
               className="btn-ink rounded-lg px-5 py-2.5 text-sm"
             >
-              {waiting ? "Confirming..." : isPending ? "Approve in wallet..." : "Claim 100 zkLTC"}
+              {waiting ? "Confirming..." : isPending ? "Approve in wallet..." : "Claim 100 $LIME"}
             </button>
           )}
           <a
@@ -128,7 +122,7 @@ export function FaucetCard() {
             rel="noopener noreferrer"
             className="text-[11px] text-ink-500 transition hover:text-ink-pure sm:text-right"
           >
-            Need native zkLTC for gas? →
+            Need gas? Get native zkLTC →
           </a>
         </div>
       </div>

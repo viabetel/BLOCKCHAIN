@@ -103,7 +103,7 @@ export function TradeBox({
         <div className="text-[10px] font-semibold uppercase tracking-[0.15em] text-ink-500">Trade</div>
         <div className="mt-4 rounded-lg border-2 border-dashed border-ink-200 bg-paper-off p-8 text-center">
           <p className="text-sm font-semibold text-ink-pure">Connect wallet to trade</p>
-          <p className="mt-1 text-xs text-ink-500">You need zkLTC on LiteForge testnet</p>
+          <p className="mt-1 text-xs text-ink-500">You need $LIME on LiteForge testnet</p>
         </div>
       </div>
     );
@@ -155,7 +155,7 @@ export function TradeBox({
           <div className="mb-4 rounded-lg border border-brand/20 bg-brand/5 p-3 text-xs text-ink-700">
             <div className="font-semibold text-brand">Provide liquidity</div>
             <p className="mt-1 leading-relaxed">
-              Deposit zkLTC to earn a share of trading fees. Your LP position settles against the winning side at resolution.
+              Deposit $LIME to earn a share of trading fees. Your LP position settles against the winning side at resolution.
             </p>
           </div>
         )}
@@ -169,7 +169,7 @@ export function TradeBox({
               <span className="font-mono font-semibold text-ink-800 tabular">
                 {fmtTokens(maxForTab)}
               </span>{" "}
-              {tab === "Sell" ? "" : "zkLTC"}
+              {tab === "Sell" ? "" : "$LIME"}
             </span>
           </div>
           <div className="relative">
@@ -178,7 +178,7 @@ export function TradeBox({
               placeholder="0.00"
               className="w-full rounded-lg border border-ink-200 bg-paper-off px-4 py-3 pr-20 font-display text-2xl font-semibold text-ink-pure tabular placeholder:text-ink-300 focus:border-ink-pure focus:bg-paper-pure focus:outline-none" />
             <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 font-mono text-xs font-semibold text-ink-500">
-              {tab === "Sell" ? side : "zkLTC"}
+              {tab === "Sell" ? side : "$LIME"}
             </span>
           </div>
           <div className="mt-2 grid grid-cols-4 gap-1.5">
@@ -197,20 +197,20 @@ export function TradeBox({
           <PreviewBox rows={[
             ["Avg price", `${fmtPct(currentPrice)}¢`],
             [`${side} shares`, fmtCompact(estTokens, { maxDecimals: 4 })],
-            ["Payout if wins", `${fmtCompact(estTokens, { maxDecimals: 4 })} zkLTC`, true],
-            ["Max profit", `+${fmtCompact(Math.max(0, estTokens - Number(amount || 0)), { maxDecimals: 4 })} zkLTC`, false, "bull"],
+            ["Payout if wins", `${fmtCompact(estTokens, { maxDecimals: 4 })} $LIME`, true],
+            ["Max profit", `+${fmtCompact(Math.max(0, estTokens - Number(amount || 0)), { maxDecimals: 4 })} $LIME`, false, "bull"],
           ]} />
         )}
         {parsedAmount > 0n && !insufficient && tab === "Sell" && (
           <PreviewBox rows={[
             ["Selling", `${amount} ${side} shares`],
             ["Avg price", `${fmtPct(currentPrice)}¢`],
-            ["You receive", `~${fmtCompact(estProceeds, { maxDecimals: 4 })} zkLTC`, true],
+            ["You receive", `~${fmtCompact(estProceeds, { maxDecimals: 4 })} $LIME`, true],
           ]} />
         )}
         {parsedAmount > 0n && !insufficient && tab === "Liquidity" && (
           <PreviewBox rows={[
-            ["Depositing", `${amount} zkLTC`],
+            ["Depositing", `${amount} $LIME`],
             ["Your LP position", fmtTokens(liqBalBig)],
             ["Fee earnings", "pro-rata from 2% trade fees"],
           ]} />
@@ -235,11 +235,11 @@ export function TradeBox({
            isPending ? "Approve in wallet..." :
            insufficient ? "Insufficient balance" :
            parsedAmount === 0n ? "Enter amount" :
-           tab === "Buy" && needsApproval ? "Approve zkLTC" :
-           tab === "Buy" ? `Buy ${side} — ${amount} zkLTC` :
+           tab === "Buy" && needsApproval ? "Approve $LIME" :
+           tab === "Buy" ? `Buy ${side} — ${amount} $LIME` :
            tab === "Sell" ? `Sell ${amount} ${side}` :
-           tab === "Liquidity" && needsApprovalLiq ? "Approve zkLTC" :
-           `Add ${amount} zkLTC liquidity`}
+           tab === "Liquidity" && needsApprovalLiq ? "Approve $LIME" :
+           `Add ${amount} $LIME liquidity`}
         </button>
 
         {tab === "Liquidity" && liqBalBig > 0n && (

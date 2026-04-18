@@ -84,12 +84,12 @@ export function ConnectButton() {
               <div className="border-b border-ink-100 px-4 py-3">
                 <div className="flex items-center justify-between">
                   <div>
-                    <div className="text-[10px] font-semibold uppercase tracking-widest text-ink-500">zkLTC Balance</div>
+                    <div className="text-[10px] font-semibold uppercase tracking-widest text-ink-500">$LIME Balance</div>
                     <div className="mt-1 flex items-baseline gap-1.5">
                       <span className="font-display text-2xl font-semibold text-ink-pure tabular">
                         {fmtZkLTCExact(tokenBalBig)}
                       </span>
-                      <span className="text-xs font-medium text-ink-500">zkLTC</span>
+                      <span className="text-xs font-medium text-ink-500">$LIME</span>
                     </div>
                   </div>
                   {needsTokens && (

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-const STORAGE_KEY = "silvercast:hiddenMarkets";
+const STORAGE_KEY = "limero:hiddenMarkets";
 
 export function useHiddenMarkets() {
   const [hidden, setHidden] = useState<Set<string>>(new Set());

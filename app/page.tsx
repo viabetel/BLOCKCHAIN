@@ -112,7 +112,7 @@ export default function HomePage() {
               </div>
               <div className="mt-1 flex items-center gap-4 text-xs text-ink-500">
                 <span>
-                  TVL <span className="font-mono font-semibold text-ink-800 tabular">{fmtZkLTC(totalLiquidity)} zkLTC</span>
+                  TVL <span className="font-mono font-semibold text-ink-800 tabular">{fmtZkLTC(totalLiquidity)} $LIME</span>
                 </span>
                 <span className="h-3 w-px bg-ink-300" />
                 <span className="flex items-center gap-1.5">
@@ -242,7 +242,7 @@ function Footer() {
         <div className="flex flex-wrap items-center justify-between gap-4 text-xs text-ink-500">
           <div className="flex items-center gap-2">
             <Logo className="h-5 w-5 opacity-70" />
-            <span>Silvercast v0.4 · Testnet</span>
+            <span>Limero v0.4 · Testnet</span>
           </div>
           <div className="flex items-center gap-5">
             <a href="https://liteforge.explorer.caldera.xyz" target="_blank" rel="noopener noreferrer" className="hover:text-ink-pure">

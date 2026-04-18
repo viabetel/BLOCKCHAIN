@@ -18,7 +18,7 @@
     background: #ffffff;
     color: #0a0a0a;
   }
-  ::selection { background: #1652f0; color: #ffffff; }
+  ::selection { background: #84cc16; color: #0a0a0a; }
 }
 
 @layer components {

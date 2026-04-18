@@ -176,7 +176,7 @@ function SeedMarketsCard() {
            "Seed All 7 Markets"}
         </button>
         <p className="text-[11px] text-ink-500">
-          You will need to confirm one transaction per market (7 total). Each costs ~0.005 zkLTC gas.
+          You will need to confirm one transaction per market (7 total). Each costs ~0.005 $LIME gas.
         </p>
         {error && <p className="text-[11px] text-bear">Error: {error.message.slice(0, 120)}</p>}
       </div>
@@ -266,7 +266,7 @@ function MintTokensCard() {
   };
 
   return (
-    <Card title="Mint test zkLTC" subtitle="MockZkLTC faucet">
+    <Card title="Mint test $LIME" subtitle="MockZkLTC faucet">
       <div className="space-y-3">
         <input type="text" value={recipient} onChange={(e) => setRecipient(e.target.value)}
           placeholder={address ? `${fmtAddress(address)} (you)` : "0x..."}
@@ -283,7 +283,7 @@ function MintTokensCard() {
         </div>
         <button onClick={mint} disabled={!amount || isPending || waiting}
           className="btn-ink w-full rounded-lg px-4 py-3 text-sm">
-          {waiting ? "Confirming..." : isPending ? "Approve..." : isSuccess ? "Minted ✓" : `Mint ${amount} zkLTC`}
+          {waiting ? "Confirming..." : isPending ? "Approve..." : isSuccess ? "Minted ✓" : `Mint ${amount} $LIME`}
         </button>
       </div>
     </Card>

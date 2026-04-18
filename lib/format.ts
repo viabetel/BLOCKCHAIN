@@ -20,7 +20,7 @@ export function fmtCompact(n: number, opts?: { maxDecimals?: number }): string {
 }
 
 /**
- * Format a bigint wei amount as compact zkLTC.
+ * Format a bigint wei amount as compact $LIME.
  */
 export function fmtZkLTC(value: bigint | undefined | null): string {
   if (value == null) return "0";
@@ -28,7 +28,7 @@ export function fmtZkLTC(value: bigint | undefined | null): string {
 }
 
 /**
- * Exact zkLTC balance, up to 4 decimals. Use in balance labels.
+ * Exact $LIME balance, up to 4 decimals. Use in balance labels.
  */
 export function fmtZkLTCExact(value: bigint | undefined | null): string {
   if (value == null) return "0.00";

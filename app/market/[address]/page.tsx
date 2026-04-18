@@ -67,7 +67,7 @@ export default function MarketPage({ params }: { params: { address: string } }) 
       <main className="mx-auto max-w-[1400px] px-6 py-6 lg:px-8">
         {/* Breadcrumb */}
         <div className="mb-3 flex items-center gap-2 text-[11px] font-medium text-ink-500">
-          <Link href="/" className="transition hover:text-ink-pure">Silvercast</Link>
+          <Link href="/" className="transition hover:text-ink-pure">Limero</Link>
           <span>/</span>
           <span>{category}</span>
           <span>/</span>
@@ -98,8 +98,8 @@ export default function MarketPage({ params }: { params: { address: string } }) 
               <div className="flex items-center gap-2">
                 <TokensFromQuestion question={question} size={18} />
               </div>
-              <Metric label="Vol" value={`${fmtZkLTC(tvl)} zkLTC`} />
-              <Metric label="Liquidity" value={`${fmtZkLTC(tvl)} zkLTC`} />
+              <Metric label="Vol" value={`${fmtZkLTC(tvl)} $LIME`} />
+              <Metric label="Liquidity" value={`${fmtZkLTC(tvl)} $LIME`} />
               <Metric label="Fee" value="2.00%" />
             </div>
           </div>
@@ -231,7 +231,7 @@ function OverviewTab({ question, deadline, oracle, tvl, address, resolved, winni
           <p className="mt-2 text-sm font-medium text-ink-pure">
             Market resolved <span className={`font-bold ${winningOutcome === 1n ? "text-bull-dark" : "text-bear-dark"}`}>
               {winningOutcome === 1n ? "YES" : "NO"}
-            </span>. Winners can redeem shares 1:1 for zkLTC.
+            </span>. Winners can redeem shares 1:1 for $LIME.
           </p>
         </div>
       )}
@@ -243,13 +243,13 @@ function OverviewTab({ question, deadline, oracle, tvl, address, resolved, winni
         <p className="text-sm leading-relaxed text-ink-700">
           {question} This market resolves YES if the condition stated in the question is met at
           or before the resolution time. Otherwise, it resolves NO. Both YES and NO outcomes are
-          tradable as outcome shares priced between 0 and 1 zkLTC.
+          tradable as outcome shares priced between 0 and 1 $LIME.
         </p>
       </div>
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <MetaCell label="Ends" value={fmtTimeLeft(deadline)} />
-        <MetaCell label="Liquidity" value={fmtZkLTC(tvl)} unit="zkLTC" />
+        <MetaCell label="Liquidity" value={fmtZkLTC(tvl)} unit="$LIME" />
         <MetaCell label="Fee" value="2.00" unit="%" />
         <MetaCell label="Contract" value={fmtAddress(address)}
           link={`https://liteforge.explorer.caldera.xyz/address/${address}`} />
@@ -264,7 +264,7 @@ function OverviewTab({ question, deadline, oracle, tvl, address, resolved, winni
             link={`https://liteforge.explorer.caldera.xyz/address/${oracle}`} />
           <InfoRow label="Resolution time" value={deadline.toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" })} />
           <InfoRow label="Market type" value="Binary FPMM" />
-          <InfoRow label="Settlement asset" value="zkLTC" />
+          <InfoRow label="Settlement asset" value="$LIME" />
         </div>
       </div>
     </div>
@@ -395,7 +395,7 @@ function RulesTab({ question, oracle, deadline, address }: {
           value={deadline.toLocaleString("en-US", { dateStyle: "full", timeStyle: "short" })} />
         <InfoLine label="Market address" value={fmtAddress(address)}
           link={`https://liteforge.explorer.caldera.xyz/address/${address}`} />
-        <InfoLine label="Settlement asset" value="zkLTC (MockZkLTC on LiteForge)" />
+        <InfoLine label="Settlement asset" value="$LIME (MockZkLTC on LiteForge)" />
       </div>
       <div className="rounded-lg border border-ink-200 bg-paper-off p-3 text-xs text-ink-600">
         <strong className="text-ink-pure">Testnet notice:</strong> This market runs on LiteForge
