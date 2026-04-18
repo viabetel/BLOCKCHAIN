@@ -1,0 +1,22 @@
+# Node
+node_modules
+.next
+out
+build
+dist
+*.log
+
+# Foundry
+contracts/out
+contracts/cache
+contracts/broadcast
+contracts/lib
+
+# Env
+.env
+.env.local
+
+# Editors
+.vscode
+.idea
+.DS_Store
