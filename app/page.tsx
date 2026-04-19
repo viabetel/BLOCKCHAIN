@@ -143,16 +143,18 @@ export default function HomePage() {
    ============================================ */
 function Nav() {
   return (
-    <header className="sticky top-0 z-40 border-b border-space-border bg-space/80 backdrop-blur-xl">
-      <div className="mx-auto flex max-w-[1400px] items-center justify-between px-6 py-3 lg:px-8">
-        <Link href="/" className="flex items-center gap-2.5">
+    <header className="sticky top-0 z-40 border-b border-white/5 bg-space-deep/60 backdrop-blur-2xl">
+      {/* Subtle glow line at bottom */}
+      <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-lime-500/20 to-transparent" />
+      <div className="mx-auto flex max-w-[1400px] items-center justify-between px-6 py-4 lg:px-8">
+        <Link href="/" className="flex items-center gap-3">
           <Logo className="h-8 w-8" />
-          <Wordmark className="text-lg text-text-primary" />
-          <span className="ml-1 rounded border border-lime-500/30 bg-lime-500/10 px-1.5 py-0.5 font-mono text-[9px] font-semibold uppercase tracking-widest text-lime-300">
+          <Wordmark className="text-lg tracking-tighter text-text-primary" />
+          <span className="ml-1 rounded-md border border-lime-500/25 bg-lime-500/5 px-2 py-0.5 font-mono text-[9px] font-semibold uppercase tracking-[0.15em] text-lime-300">
             Testnet
           </span>
         </Link>
-        <nav className="hidden items-center gap-7 md:flex">
+        <nav className="hidden items-center gap-8 md:flex">
           <NavLink href="#markets">Markets</NavLink>
           <NavLink href="#how-it-works">How it works</NavLink>
           <NavLink href="https://liteforge.hub.caldera.xyz" external>Faucet</NavLink>
@@ -167,8 +169,9 @@ function Nav() {
 function NavLink({ href, external, children }: { href: string; external?: boolean; children: React.ReactNode }) {
   return (
     <a href={href} target={external ? "_blank" : undefined} rel={external ? "noopener noreferrer" : undefined}
-      className="text-sm font-medium text-text-secondary transition hover:text-text-primary">
+      className="group relative text-sm font-medium text-text-secondary transition hover:text-lime-200">
       {children}
+      <span className="absolute -bottom-1 left-0 h-px w-0 bg-gradient-to-r from-lime-400 to-transparent transition-all duration-300 group-hover:w-full" />
     </a>
   );
 }
@@ -188,7 +191,7 @@ function FeaturedSection({ markets }: { markets: { address: `0x${string}` }[] })
                 High volume · actively traded
               </span>
             </div>
-            <h2 className="mt-3 font-display text-3xl font-bold tracking-tighter text-text-primary sm:text-4xl">
+            <h2 className="mt-3 headline-display text-text-primary" style={{ fontSize: "clamp(28px, 3.2vw, 44px)" }}>
               Trending markets
             </h2>
           </div>
@@ -232,7 +235,7 @@ function MarketsSection({
         <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
           <div>
             <div className="flex items-baseline gap-3">
-              <h2 className="font-display text-3xl font-bold tracking-tighter text-text-primary sm:text-4xl">
+              <h2 className="headline-display text-text-primary" style={{ fontSize: "clamp(28px, 3.2vw, 44px)" }}>
                 All markets
               </h2>
               <span className="font-mono text-sm text-text-muted tabular">{count} active</span>

@@ -33,16 +33,20 @@ export function MarketCard({ address, featured }: { address: `0x${string}`; feat
   const sparkline = useMemo(() => generateSparkline(address, yesPct), [address, yesPct]);
   const category = useMemo(() => inferCategory(question), [question]);
 
+  // "Hot" when extreme probability OR ending soon
+  const msLeft = deadline.getTime() - Date.now();
+  const isHot = !resolved && (yesPct > 80 || yesPct < 20 || (msLeft > 0 && msLeft < 7 * 86_400_000));
+
   const cardClass = featured ? "card-featured" : "card-glass";
 
   return (
     <div className={`${cardClass} group relative flex h-full flex-col overflow-hidden rounded-2xl p-5`}>
       {/* Top: tokens + category + status */}
-      <div className="mb-4 flex items-start justify-between">
-        <div className="flex items-center gap-3">
+      <div className="mb-4 flex items-start justify-between gap-2">
+        <div className="flex items-center gap-3 min-w-0">
           <TokensFromQuestion question={question} size={24} />
-          <div>
-            <div className="text-[10px] font-semibold uppercase tracking-widest text-text-muted">
+          <div className="min-w-0">
+            <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-text-muted truncate">
               {category}
             </div>
             <div className="mt-0.5 flex items-center gap-1.5 text-[10px] text-text-muted">
@@ -54,18 +58,24 @@ export function MarketCard({ address, featured }: { address: `0x${string}`; feat
               ) : (
                 <>
                   <span className="h-1 w-1 animate-pulse-dot rounded-full bg-lime-400" />
-                  <span>Live · {fmtTimeLeft(deadline)}</span>
+                  <span className="font-mono tabular">{fmtTimeLeft(deadline)}</span>
                 </>
               )}
             </div>
           </div>
         </div>
-        {featured && <span className="chip chip-featured">Featured</span>}
+        <div className="flex flex-col items-end gap-1">
+          {featured && <span className="chip chip-featured">Featured</span>}
+          {isHot && !featured && <span className="chip chip-hot">Hot</span>}
+        </div>
       </div>
 
       {/* Question + sparkline */}
       <Link href={`/market/${address}`} className="mb-4 flex items-start gap-3">
-        <h3 className="flex-1 font-display text-[16px] font-semibold leading-[1.25] tracking-tight text-text-primary min-h-[60px] [text-wrap:balance]">
+        <h3
+          className="flex-1 font-display text-[16px] font-semibold leading-[1.25] text-text-primary min-h-[60px] [text-wrap:balance]"
+          style={{ letterSpacing: "-0.015em" }}
+        >
           {question}
         </h3>
         <div className="h-12 w-20 shrink-0">
@@ -73,43 +83,51 @@ export function MarketCard({ address, featured }: { address: `0x${string}`; feat
         </div>
       </Link>
 
-      {/* Probability split */}
-      <div className="mb-3 flex h-1.5 overflow-hidden rounded-full bg-space-border">
-        <div className="bg-gradient-to-r from-lime-600 to-lime-400 transition-all duration-700" style={{ width: `${yesPct}%` }} />
-        <div className="bg-gradient-to-r from-red-500 to-red-400 transition-all duration-700" style={{ width: `${noPct}%` }} />
+      {/* Probability split — shimmered */}
+      <div className="mb-3">
+        <div className="flex h-2 overflow-hidden rounded-full bg-space-border shadow-inner">
+          <div
+            className={yesPct > 0 ? "prob-bar-yes transition-all duration-700" : ""}
+            style={{ width: `${yesPct}%` }}
+          />
+          <div
+            className={noPct > 0 ? "prob-bar-no transition-all duration-700" : ""}
+            style={{ width: `${noPct}%` }}
+          />
+        </div>
       </div>
 
       {/* Outcome buttons */}
       <div className="mb-3 grid grid-cols-2 gap-1.5">
         <Link href={`/market/${address}?side=YES`}
-          className="group/btn flex items-center justify-between rounded-lg border border-space-border bg-space-surface/50 px-3 py-2 transition hover:border-lime-500/40 hover:bg-lime-500/10">
+          className="group/btn flex items-center justify-between rounded-lg border border-space-border bg-space-surface/40 px-3 py-2 transition hover:border-lime-500/50 hover:bg-lime-500/10 hover:shadow-[0_0_20px_-5px_rgba(132,204,22,0.3)]">
           <span className="text-[11px] font-semibold uppercase tracking-wider text-lime-300">
             Buy Yes
           </span>
-          <span className="font-mono text-sm font-semibold text-text-primary tabular">
+          <span className="font-mono text-sm font-bold text-text-primary tabular">
             {fmtPct(yesPct)}¢
           </span>
         </Link>
         <Link href={`/market/${address}?side=NO`}
-          className="group/btn flex items-center justify-between rounded-lg border border-space-border bg-space-surface/50 px-3 py-2 transition hover:border-red-500/40 hover:bg-red-500/10">
+          className="group/btn flex items-center justify-between rounded-lg border border-space-border bg-space-surface/40 px-3 py-2 transition hover:border-red-500/50 hover:bg-red-500/10 hover:shadow-[0_0_20px_-5px_rgba(239,68,68,0.3)]">
           <span className="text-[11px] font-semibold uppercase tracking-wider text-red-400">
             Buy No
           </span>
-          <span className="font-mono text-sm font-semibold text-text-primary tabular">
+          <span className="font-mono text-sm font-bold text-text-primary tabular">
             {fmtPct(noPct)}¢
           </span>
         </Link>
       </div>
 
-      {/* Footer */}
-      <div className="mt-auto flex items-center justify-between border-t border-space-border pt-3 text-[11px]">
-        <span className="flex items-center gap-1.5 text-text-muted">
+      {/* Footer - terminal style */}
+      <div className="mt-auto flex items-center justify-between border-t border-space-border pt-3">
+        <span className="flex items-center gap-1.5 text-[10px] text-text-muted uppercase tracking-wider">
           <svg viewBox="0 0 14 14" className="h-3 w-3" fill="none">
             <path d="M2 11h10M2 11V5m0 6h4V7H2m10 4V3h-4v8M6 7v4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
           </svg>
-          Vol <span className="font-mono font-semibold text-text-secondary tabular">{fmtZkLTC(tvl)}</span>
+          Vol <span className="font-mono font-semibold text-lime-300 tabular">{fmtZkLTC(tvl)}</span>
         </span>
-        <Link href={`/market/${address}`} className="font-semibold text-text-muted opacity-0 transition group-hover:text-lime-300 group-hover:opacity-100">
+        <Link href={`/market/${address}`} className="text-[10px] font-semibold uppercase tracking-wider text-text-muted opacity-0 transition group-hover:text-lime-300 group-hover:opacity-100">
           Trade →
         </Link>
       </div>
@@ -132,7 +150,7 @@ function Sparkline({ points, color }: { points: number[]; color: string }) {
     <svg viewBox={`0 0 ${w} ${h}`} className="h-full w-full">
       <defs>
         <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor={color} stopOpacity="0.3" />
+          <stop offset="0%" stopColor={color} stopOpacity="0.35" />
           <stop offset="100%" stopColor={color} stopOpacity="0" />
         </linearGradient>
       </defs>

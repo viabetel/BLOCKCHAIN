@@ -1,20 +1,43 @@
 import type { Metadata } from "next";
-import { Space_Grotesk, Inter, IBM_Plex_Mono } from "next/font/google";
+import { Inter_Tight, IBM_Plex_Mono } from "next/font/google";
 import { Providers } from "@/components/Providers";
 import "./globals.css";
 
-const display = Space_Grotesk({ subsets: ["latin"], variable: "--font-display", display: "swap", weight: ["400", "500", "600", "700"] });
-const sans = Inter({ subsets: ["latin"], variable: "--font-sans", display: "swap" });
-const mono = IBM_Plex_Mono({ subsets: ["latin"], variable: "--font-mono", display: "swap", weight: ["400", "500", "600"] });
+// Inter Tight as reliable fallback + backup display font
+const interTight = Inter_Tight({
+  subsets: ["latin"],
+  variable: "--font-sans",
+  display: "swap",
+  weight: ["400", "500", "600", "700", "800"],
+});
+
+const mono = IBM_Plex_Mono({
+  subsets: ["latin"],
+  variable: "--font-mono",
+  display: "swap",
+  weight: ["400", "500", "600"],
+});
 
 export const metadata: Metadata = {
-  title: "Limero | Hard Money Prediction Markets",
-  description: "Trade the future in $LIME. Prediction markets on LitVM.",
+  title: "Limero — Hard Money Prediction Markets",
+  description: "The first binary prediction market native to LitVM. Trade real-world outcomes in $LIME, settled onchain by Litecoin's proof-of-work security.",
+  openGraph: {
+    title: "Limero — Hard Money Prediction Markets",
+    description: "Trade the future in hard money. Binary prediction markets on LitVM.",
+    type: "website",
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${display.variable} ${sans.variable} ${mono.variable}`}>
+    <html lang="en" className={`${interTight.variable} ${mono.variable}`}>
+      <head>
+        {/* Satoshi Variable via Fontshare - same font used by Arbitrum, LayerZero, Monad, Blast */}
+        <link
+          rel="stylesheet"
+          href="https://api.fontshare.com/v2/css?f[]=satoshi@300,400,500,600,700,800,900,1,2&display=swap"
+        />
+      </head>
       <body className="min-h-screen bg-space font-sans text-text-primary antialiased">
         <Providers>{children}</Providers>
       </body>

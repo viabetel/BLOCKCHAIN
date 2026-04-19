@@ -66,63 +66,87 @@ export function FaucetCard() {
   const cooldownFmt = formatCooldown(cooldownLeft);
 
   return (
-    <div className="card-glass overflow-hidden rounded-2xl">
-      <div className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-start gap-4">
-          <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-lime-300 to-lime-600 shadow-lime-md">
-            <span className="text-3xl drop-shadow-sm">🍋</span>
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <h3 className="font-display text-lg font-semibold tracking-tight text-text-primary">
-                Testnet Faucet
-              </h3>
-              <span className="chip chip-featured">Free</span>
-            </div>
-            <p className="mt-1 max-w-md text-sm text-text-secondary">
-              Claim <span className="font-mono font-semibold text-lime-300">100 $LIME</span> to trade on Limero.
-              Testnet tokens only, no real value. Cooldown: 1 hour per wallet.
-            </p>
-            {isConnected && (
-              <p className="mt-1.5 text-xs text-text-muted">
-                Your balance:{" "}
-                <span className="font-mono font-semibold text-text-secondary tabular">
-                  {fmtZkLTCExact(balanceBig)}
-                </span>{" "}
-                $LIME
-              </p>
-            )}
-          </div>
-        </div>
+    <div className="relative overflow-hidden rounded-2xl">
+      {/* Ambient glow backdrop */}
+      <div className="pointer-events-none absolute inset-0">
+        <div className="absolute left-0 top-1/2 h-64 w-64 -translate-y-1/2 rounded-full bg-lime-500/15 blur-3xl" />
+        <div className="absolute right-0 top-1/2 h-64 w-64 -translate-y-1/2 rounded-full bg-lime-500/8 blur-3xl" />
+      </div>
 
-        <div className="flex flex-col items-stretch gap-2 sm:items-end">
-          {!isConnected ? (
-            <p className="text-xs text-text-muted">Connect wallet to claim</p>
-          ) : isSuccess ? (
-            <button disabled className="btn-lime rounded-lg px-5 py-2.5 text-sm">
-              +100 $LIME claimed ✓
-            </button>
-          ) : onCooldown ? (
-            <button disabled className="cursor-not-allowed rounded-lg border border-space-border bg-space-surface px-5 py-2.5 text-sm font-semibold text-text-muted">
-              Next claim in {cooldownFmt}
-            </button>
-          ) : (
-            <button
-              onClick={claim}
-              disabled={isPending || waiting}
-              className="btn-lime rounded-lg px-5 py-2.5 text-sm"
+      {/* Orbit lines as decoration */}
+      <div className="pointer-events-none absolute inset-0 flex items-center">
+        <div className="absolute left-[5%] h-44 w-44 rounded-full border border-lime-500/10" />
+        <div className="absolute left-[2%] h-56 w-56 rounded-full border border-lime-500/5" />
+      </div>
+
+      <div className="card-glass relative rounded-2xl">
+        <div className="flex flex-col gap-5 p-6 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-start gap-5">
+            {/* $LIME token coin */}
+            <div className="relative shrink-0">
+              <div className="absolute inset-0 animate-pulse-glow rounded-full" />
+              <div className="relative flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-lime-300 via-lime-500 to-lime-700 shadow-[0_0_40px_-5px_rgba(132,204,22,0.6)] ring-2 ring-lime-400/40">
+                <span className="text-4xl drop-shadow-lg">🍋</span>
+              </div>
+              {/* Orbiting dot */}
+              <span className="absolute -right-1 -top-1 h-3 w-3 rounded-full bg-lime-300 shadow-[0_0_12px_rgba(190,242,100,0.8)]" />
+            </div>
+
+            <div>
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="terminal-pill">FAUCET · v1</span>
+                <span className="chip chip-featured">Free</span>
+              </div>
+              <h3 className="mt-2 font-display text-2xl font-bold tracking-tighter text-text-primary">
+                Claim your <span className="text-gradient-lime">$LIME</span>
+              </h3>
+              <p className="mt-1.5 max-w-md text-sm leading-relaxed text-text-secondary">
+                One-click drip of <span className="font-mono font-semibold text-lime-300">100 $LIME</span> to
+                start trading predictions. Testnet only, 1-hour cooldown per wallet.
+              </p>
+              {isConnected && (
+                <div className="mt-3 inline-flex items-center gap-2 rounded-lg border border-space-border bg-space-deep/60 px-2.5 py-1.5">
+                  <span className="text-[10px] font-semibold uppercase tracking-wider text-text-muted">Balance</span>
+                  <span className="font-mono text-xs font-bold text-lime-300 tabular">
+                    {fmtZkLTCExact(balanceBig)} $LIME
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="flex flex-col items-stretch gap-2 sm:items-end">
+            {!isConnected ? (
+              <p className="text-xs text-text-muted">Connect wallet to claim</p>
+            ) : isSuccess ? (
+              <button disabled className="btn-lime rounded-xl px-6 py-3.5 text-sm">
+                +100 $LIME claimed ✓
+              </button>
+            ) : onCooldown ? (
+              <button disabled className="cursor-not-allowed rounded-xl border border-space-border bg-space-surface px-6 py-3.5 text-sm font-semibold text-text-muted">
+                Next claim in {cooldownFmt}
+              </button>
+            ) : (
+              <button
+                onClick={claim}
+                disabled={isPending || waiting}
+                className="btn-lime rounded-xl px-6 py-3.5 text-sm"
+              >
+                {waiting ? "Confirming..." : isPending ? "Approve in wallet..." : "Claim 100 $LIME →"}
+              </button>
+            )}
+            <a
+              href="https://liteforge.hub.caldera.xyz"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 text-[11px] text-text-muted transition hover:text-lime-300 sm:justify-end"
             >
-              {waiting ? "Confirming..." : isPending ? "Approve in wallet..." : "Claim 100 $LIME"}
-            </button>
-          )}
-          <a
-            href="https://liteforge.hub.caldera.xyz"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-[11px] text-text-muted transition hover:text-lime-300 sm:text-right"
-          >
-            Need gas? Get native zkLTC →
-          </a>
+              <svg viewBox="0 0 12 12" fill="none" className="h-2.5 w-2.5">
+                <path d="M3 6h6M6 3l3 3-3 3" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+              Need gas? Get native zkLTC
+            </a>
+          </div>
         </div>
       </div>
     </div>
