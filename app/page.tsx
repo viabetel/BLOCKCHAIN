@@ -17,10 +17,6 @@ import { useHiddenMarkets } from "@/lib/useHiddenMarkets";
 const CATEGORIES = ["All", "Crypto", "Ecosystem", "Launch", "Policy", "General"] as const;
 const SORT_OPTIONS = ["Trending", "Volume", "Ending Soon", "Newest"] as const;
 
-// Set this to your mascot path once you drop the PNG into /public
-// e.g. "/mascot.png"
-const MASCOT_SRC: string | undefined = undefined;
-
 export default function HomePage() {
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState<string>("All");
@@ -113,7 +109,7 @@ export default function HomePage() {
   return (
     <>
       <Nav />
-      <Hero mascotSrc={MASCOT_SRC} />
+      <Hero />
       <TickerBar />
 
       {featured.length > 0 && <FeaturedSection markets={featured} />}
