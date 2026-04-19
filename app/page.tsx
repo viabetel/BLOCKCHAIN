@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { addresses, factoryAbi, marketAbi } from "@/lib/contracts";
 import { MarketCard } from "@/components/MarketCard";
-import { ConnectButton } from "@/components/ConnectButton";
 import { Logo, Wordmark } from "@/components/Logo";
 import { TickerBar } from "@/components/TickerBar";
 import { FaucetCard } from "@/components/FaucetCard";
@@ -108,7 +107,6 @@ export default function HomePage() {
 
   return (
     <>
-      <Nav />
       <Hero />
       <TickerBar />
 
@@ -141,40 +139,7 @@ export default function HomePage() {
 /* ============================================
    NAV
    ============================================ */
-function Nav() {
-  return (
-    <header className="sticky top-0 z-40 border-b border-white/5 bg-space-deep/60 backdrop-blur-2xl">
-      {/* Subtle glow line at bottom */}
-      <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-lime-500/20 to-transparent" />
-      <div className="mx-auto flex max-w-[1400px] items-center justify-between px-6 py-4 lg:px-8">
-        <Link href="/" className="flex items-center gap-3">
-          <Logo className="h-8 w-8" />
-          <Wordmark className="text-lg tracking-tighter text-text-primary" />
-          <span className="ml-1 rounded-md border border-lime-500/25 bg-lime-500/5 px-2 py-0.5 font-mono text-[9px] font-semibold uppercase tracking-[0.15em] text-lime-300">
-            Testnet
-          </span>
-        </Link>
-        <nav className="hidden items-center gap-8 md:flex">
-          <NavLink href="#markets">Markets</NavLink>
-          <NavLink href="#how-it-works">How it works</NavLink>
-          <NavLink href="https://liteforge.hub.caldera.xyz" external>Faucet</NavLink>
-          <NavLink href="https://docs.litvm.com" external>Docs</NavLink>
-        </nav>
-        <ConnectButton />
-      </div>
-    </header>
-  );
-}
-
-function NavLink({ href, external, children }: { href: string; external?: boolean; children: React.ReactNode }) {
-  return (
-    <a href={href} target={external ? "_blank" : undefined} rel={external ? "noopener noreferrer" : undefined}
-      className="group relative text-sm font-medium text-text-secondary transition hover:text-lime-200">
-      {children}
-      <span className="absolute -bottom-1 left-0 h-px w-0 bg-gradient-to-r from-lime-400 to-transparent transition-all duration-300 group-hover:w-full" />
-    </a>
-  );
-}
+// Nav and NavLink removed — StickyHeader (imported) replaces them.
 
 /* ============================================
    FEATURED MARKETS

@@ -2,18 +2,22 @@
 
 import Link from "next/link";
 import { useReadContract } from "wagmi";
+import { Logo, Wordmark } from "@/components/Logo";
+import { ConnectButton } from "@/components/ConnectButton";
 import { addresses, factoryAbi } from "@/lib/contracts";
-import { formatEther } from "viem";
 
 /**
- * HERO v9 — Premium refinement.
- * Key improvements:
- * - Satoshi display font (loaded via Fontshare in layout)
- * - Strong vignette overlays protecting text readability on top of image
- * - Hero text backdrop gradients creating "paper" areas
- * - Stats in glass capsules (not a plain strip)
- * - Headline with tight tracking + heavy weight
- * - Refined gradient on "future" word
+ * HERO v10 — Full-bleed composition matching the reference poster style.
+ *
+ * Architecture:
+ * - <section> is the viewport: full width, full height ~85vh desktop / auto mobile
+ * - Background <img> fills 100% via object-cover (yes, some crop on extreme aspect
+ *   ratios, but that's expected in full-bleed — user explicitly accepted)
+ * - Dark gradient overlay at TOP protects header + headline legibility
+ * - Dark gradient overlay at BOTTOM transitions into next section cleanly
+ * - HEADER is absolute-positioned inside the section, fully transparent,
+ *   with subtle gradient backdrop only at top (not a solid bar)
+ * - CONTENT is centered vertically+horizontally using flex
  */
 export function Hero() {
   const { data: length } = useReadContract({
@@ -24,223 +28,196 @@ export function Hero() {
   const count = Number(length ?? 0n);
 
   return (
-    <section className="relative overflow-hidden bg-space-deep">
-      {/* Ambient glow from page background */}
-      <div className="pointer-events-none absolute inset-0">
-        <div className="absolute inset-x-0 top-0 h-[50%] bg-[radial-gradient(ellipse_80%_60%_at_50%_0%,rgba(132,204,22,0.08),transparent_60%)]" />
-        <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-b from-transparent to-space" />
+    <section className="relative flex min-h-[760px] w-full flex-col overflow-hidden lg:min-h-[85vh]">
+      {/* ============================================
+          BACKGROUND IMAGE - full bleed
+          ============================================ */}
+      <div className="absolute inset-0 z-0">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/hero-image.jpg"
+          alt=""
+          className="h-full w-full object-cover"
+          draggable={false}
+          loading="eager"
+          // @ts-ignore
+          fetchPriority="high"
+        />
       </div>
 
-      <div className="relative mx-auto max-w-[1400px] px-6 pt-8 lg:px-8 lg:pt-10">
-        {/* Live badge */}
-        <div className="mb-5 flex justify-center lg:justify-start">
-          <div className="animate-fade-up inline-flex items-center gap-2 rounded-full border border-lime-500/30 bg-lime-500/5 px-3.5 py-1.5 backdrop-blur-md">
+      {/* ============================================
+          OVERLAYS - protect readability
+          ============================================ */}
+      {/* Top gradient - darkens top for header + headline */}
+      <div
+        className="pointer-events-none absolute inset-x-0 top-0 z-10 h-[55%]"
+        style={{
+          background:
+            "linear-gradient(180deg, rgba(6,9,16,0.85) 0%, rgba(6,9,16,0.55) 40%, rgba(6,9,16,0.2) 75%, transparent 100%)",
+        }}
+      />
+      {/* Side vignettes - soften the edges where extra lemons appear */}
+      <div
+        className="pointer-events-none absolute inset-0 z-10"
+        style={{
+          background:
+            "radial-gradient(ellipse 100% 70% at 50% 50%, transparent 40%, rgba(6,9,16,0.35) 80%, rgba(6,9,16,0.6) 100%)",
+        }}
+      />
+      {/* Bottom fade into next section */}
+      <div
+        className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-40"
+        style={{
+          background:
+            "linear-gradient(180deg, transparent 0%, rgba(10,14,20,0.7) 60%, #0a0e14 100%)",
+        }}
+      />
+
+      {/* ============================================
+          FLOATING HEADER
+          ============================================ */}
+      <header className="relative z-30 w-full">
+        <div className="mx-auto flex max-w-[1400px] items-center justify-between px-6 py-5 lg:px-10">
+          <Link href="/" className="flex items-center gap-3 group">
+            <Logo className="h-9 w-9 drop-shadow-[0_2px_20px_rgba(132,204,22,0.3)]" />
+            <Wordmark className="text-lg tracking-tighter text-white drop-shadow-[0_1px_8px_rgba(0,0,0,0.5)]" />
+            <span className="ml-1 rounded-md border border-lime-400/30 bg-white/5 px-2 py-0.5 font-mono text-[9px] font-semibold uppercase tracking-[0.15em] text-lime-200 backdrop-blur-md">
+              Testnet
+            </span>
+          </Link>
+
+          <nav className="hidden items-center gap-8 md:flex">
+            <HeaderLink href="#markets">Markets</HeaderLink>
+            <HeaderLink href="#how-it-works">How it works</HeaderLink>
+            <HeaderLink href="https://liteforge.hub.caldera.xyz" external>Faucet</HeaderLink>
+            <HeaderLink href="https://docs.litvm.com" external>Docs</HeaderLink>
+          </nav>
+
+          <ConnectButton />
+        </div>
+      </header>
+
+      {/* ============================================
+          CENTERED CONTENT
+          ============================================ */}
+      <div className="relative z-20 flex flex-1 items-center justify-center px-6 pb-16 pt-8 lg:pb-24 lg:pt-12">
+        <div className="w-full max-w-4xl text-center">
+          {/* Live badge */}
+          <div className="animate-fade-up mb-7 inline-flex items-center gap-2 rounded-full border border-lime-400/30 bg-black/40 px-4 py-1.5 backdrop-blur-md">
             <span className="relative flex h-1.5 w-1.5">
               <span className="absolute inset-0 animate-ping rounded-full bg-lime-400 opacity-75" />
               <span className="relative h-1.5 w-1.5 rounded-full bg-lime-400" />
             </span>
-            <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-lime-200">
+            <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-lime-200">
               Live on LitVM · LiteForge Testnet
             </span>
           </div>
-        </div>
 
-        {/* IMAGE CONTAINER */}
-        <div className="relative mx-auto w-full overflow-hidden rounded-2xl ring-1 ring-white/5">
-          {/* Hero image — 16:9 preserved, no crop */}
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/hero-image.jpg"
-            alt="Limero — Lime mascot in cosmic prediction market scene"
-            className="block h-auto w-full select-none"
-            style={{ aspectRatio: "16 / 9" }}
-            draggable={false}
-            loading="eager"
-            // @ts-ignore
-            fetchPriority="high"
-          />
-
-          {/* VIGNETTE OVERLAYS — protect readability without killing the image */}
-          {/* Left-top darker area for headline */}
-          <div
-            className="pointer-events-none absolute inset-0 hidden lg:block"
-            style={{
-              background:
-                "radial-gradient(ellipse 55% 65% at 0% 0%, rgba(6, 9, 16, 0.78) 0%, rgba(6, 9, 16, 0.35) 40%, transparent 75%)",
-            }}
-          />
-          {/* Right-top darker area for subhead */}
-          <div
-            className="pointer-events-none absolute inset-0 hidden lg:block"
-            style={{
-              background:
-                "radial-gradient(ellipse 45% 55% at 100% 0%, rgba(6, 9, 16, 0.7) 0%, rgba(6, 9, 16, 0.3) 45%, transparent 75%)",
-            }}
-          />
-          {/* Bottom fade for stats strip readability */}
-          <div
-            className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3"
-            style={{
-              background:
-                "linear-gradient(180deg, transparent 0%, rgba(6, 9, 16, 0.4) 60%, rgba(6, 9, 16, 0.75) 100%)",
-            }}
-          />
-
-          {/* DESKTOP: Headline (left) + Subhead+CTAs (right) */}
-          <div className="pointer-events-none absolute inset-0 hidden lg:block">
-            {/* HEADLINE — left */}
-            <div className="absolute left-[5%] top-[12%] max-w-[44%]">
-              <h1
-                className="animate-fade-up pointer-events-auto headline-display text-text-primary [text-wrap:balance]"
-                style={{
-                  fontSize: "clamp(44px, 4.8vw, 72px)",
-                  animationDelay: "0.05s",
-                  textShadow:
-                    "0 2px 40px rgba(0,0,0,0.7), 0 0 1px rgba(0,0,0,0.5)",
-                }}
-              >
-                Trade the{" "}
-                <span className="text-gradient-lime">future</span>
-                <br />
-                in <span className="italic font-semibold" style={{ fontFamily: "var(--font-display)" }}>hard money</span>.
-              </h1>
-              <div
-                className="animate-fade-up pointer-events-auto mt-7 flex items-center gap-3"
-                style={{ animationDelay: "0.15s" }}
-              >
-                <Link
-                  href="#markets"
-                  className="btn-lime inline-flex items-center gap-2 rounded-xl px-6 py-3.5 text-sm"
-                >
-                  Explore markets
-                  <span aria-hidden>→</span>
-                </Link>
-                <Link
-                  href="#how-it-works"
-                  className="btn-ghost rounded-xl px-6 py-3.5 text-sm"
-                >
-                  How it works
-                </Link>
-              </div>
-            </div>
-
-            {/* SUBHEAD — right */}
-            <div className="absolute right-[5%] top-[14%] max-w-[32%]">
-              <p
-                className="animate-fade-up pointer-events-auto text-right text-base leading-[1.55] text-white/90"
-                style={{
-                  fontSize: "clamp(13px, 1.05vw, 16px)",
-                  animationDelay: "0.1s",
-                  textShadow: "0 1px 20px rgba(0,0,0,0.8)",
-                  fontWeight: 400,
-                }}
-              >
-                The first binary prediction market native to LitVM.
-                Price real-world outcomes in <span className="font-semibold text-lime-200">$LIME</span>, settled onchain by
-                Litecoin's proof-of-work security.
-              </p>
-              <div
-                className="animate-fade-up pointer-events-auto mt-4 flex items-center justify-end gap-2"
-                style={{ animationDelay: "0.18s" }}
-              >
-                <span className="terminal-pill">MAINNET Q3 2026</span>
-                <span className="terminal-pill">CHAIN 4441</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* MOBILE content below image */}
-        <div className="mt-8 lg:hidden">
+          {/* Headline */}
           <h1
-            className="animate-fade-up headline-display text-text-primary [text-wrap:balance]"
+            className="animate-fade-up headline-display text-white [text-wrap:balance]"
             style={{
-              fontSize: "clamp(40px, 10vw, 60px)",
+              fontSize: "clamp(48px, 7.2vw, 104px)",
               animationDelay: "0.05s",
+              textShadow:
+                "0 4px 40px rgba(0,0,0,0.7), 0 1px 2px rgba(0,0,0,0.5)",
+              letterSpacing: "-0.045em",
+              lineHeight: "0.95",
             }}
           >
-            Trade the <span className="text-gradient-lime">future</span> in <span className="italic font-semibold">hard money</span>.
+            Trade the{" "}
+            <span
+              style={{
+                background:
+                  "linear-gradient(135deg, #d9f99d 0%, #bef264 50%, #84cc16 100%)",
+                WebkitBackgroundClip: "text",
+                backgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                filter: "drop-shadow(0 0 25px rgba(190, 242, 100, 0.3))",
+              }}
+            >
+              future
+            </span>
+            <br />
+            in{" "}
+            <span
+              className="italic"
+              style={{ fontFamily: "var(--font-display)", fontWeight: 800 }}
+            >
+              hard money
+            </span>
+            .
           </h1>
+
+          {/* Subhead */}
           <p
-            className="animate-fade-up mt-5 max-w-lg text-base leading-relaxed text-text-secondary sm:text-lg"
-            style={{ animationDelay: "0.1s" }}
+            className="animate-fade-up mx-auto mt-7 max-w-2xl text-base leading-relaxed text-white/85 sm:text-lg"
+            style={{
+              animationDelay: "0.1s",
+              textShadow: "0 2px 20px rgba(0,0,0,0.8)",
+              letterSpacing: "-0.005em",
+            }}
           >
-            Limero is the first binary prediction market native to LitVM.
-            Price real-world outcomes in <span className="font-semibold text-lime-200">$LIME</span>, settled onchain by Litecoin's
-            proof-of-work security.
+            The first binary prediction market native to LitVM.
+            Price real-world outcomes in{" "}
+            <span className="font-semibold text-lime-200">$LIME</span>, settled
+            onchain by Litecoin's proof-of-work security.
           </p>
+
+          {/* CTAs */}
           <div
-            className="animate-fade-up mt-6 flex flex-wrap items-center gap-3"
+            className="animate-fade-up mt-9 flex flex-wrap items-center justify-center gap-3"
             style={{ animationDelay: "0.15s" }}
           >
             <Link
               href="#markets"
-              className="btn-lime inline-flex items-center gap-2 rounded-xl px-6 py-3.5 text-sm"
+              className="btn-lime inline-flex items-center gap-2 rounded-xl px-7 py-4 text-sm"
             >
               Explore markets
               <span aria-hidden>→</span>
             </Link>
             <Link
               href="#how-it-works"
-              className="btn-ghost rounded-xl px-6 py-3.5 text-sm"
+              className="btn-ghost rounded-xl px-7 py-4 text-sm"
             >
               How it works
             </Link>
           </div>
-        </div>
 
-        {/* STATS STRIP — Glass capsules */}
-        <div
-          className="animate-fade-up mt-10 grid grid-cols-2 gap-3 md:grid-cols-4"
-          style={{ animationDelay: "0.22s" }}
-        >
-          <StatCapsule label="Active markets" value={count.toString()} />
-          <StatCapsule label="Settlement asset" value="$LIME" accent />
-          <StatCapsule label="Chain" value="LiteForge" sub="4441" mono />
-          <StatCapsule label="Status" value="Live" pulse />
+          {/* Terminal pills */}
+          <div
+            className="animate-fade-up mt-7 flex flex-wrap items-center justify-center gap-2"
+            style={{ animationDelay: "0.2s" }}
+          >
+            <span className="terminal-pill">MAINNET Q3 2026</span>
+            <span className="terminal-pill">CHAIN 4441</span>
+            <span className="terminal-pill">{count} ACTIVE MARKETS</span>
+          </div>
         </div>
-
-        <div className="h-16" />
       </div>
     </section>
   );
 }
 
-function StatCapsule({
-  label,
-  value,
-  sub,
-  mono,
-  accent,
-  pulse,
+function HeaderLink({
+  href,
+  external,
+  children,
 }: {
-  label: string;
-  value: string;
-  sub?: string;
-  mono?: boolean;
-  accent?: boolean;
-  pulse?: boolean;
+  href: string;
+  external?: boolean;
+  children: React.ReactNode;
 }) {
   return (
-    <div className="glass-capsule rounded-2xl px-5 py-4">
-      <div className="text-[10px] font-semibold uppercase tracking-[0.15em] text-text-muted">
-        {label}
-      </div>
-      <div className="mt-2 flex items-baseline gap-1.5">
-        {pulse && (
-          <span className="mr-1 h-1.5 w-1.5 animate-pulse-dot rounded-full bg-lime-400" />
-        )}
-        <span
-          className={`text-2xl font-bold tracking-tighter tabular ${
-            mono ? "font-mono" : "font-display"
-          } ${accent ? "text-gradient-lime" : "text-text-primary"}`}
-        >
-          {value}
-        </span>
-        {sub && (
-          <span className="font-mono text-xs font-medium text-text-muted tabular">{sub}</span>
-        )}
-      </div>
-    </div>
+    <a
+      href={href}
+      target={external ? "_blank" : undefined}
+      rel={external ? "noopener noreferrer" : undefined}
+      className="group relative text-sm font-medium text-white/85 transition hover:text-lime-200"
+      style={{ textShadow: "0 1px 10px rgba(0,0,0,0.6)" }}
+    >
+      {children}
+      <span className="absolute -bottom-1 left-0 h-px w-0 bg-gradient-to-r from-lime-400 to-transparent transition-all duration-300 group-hover:w-full" />
+    </a>
   );
 }
