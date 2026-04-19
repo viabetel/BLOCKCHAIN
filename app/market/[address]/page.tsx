@@ -121,10 +121,12 @@ export default function MarketPage({ params }: { params: { address: string } }) 
                       won={resolved && winningOutcome === 0n}
                       lost={resolved && winningOutcome !== 0n} />
                   </div>
-                  <div className="flex gap-1 text-[11px] font-semibold">
+                  <div className="flex gap-0.5 rounded-lg border border-space-border bg-space-deep/40 p-0.5 text-[11px] font-semibold">
                     {["1H", "1D", "1W", "ALL"].map((t, i) => (
-                      <button key={t} className={`rounded-md px-2.5 py-1 transition ${
-                        i === 1 ? "bg-space-elevated text-space-deep" : "text-text-muted hover:text-text-primary"
+                      <button key={t} className={`rounded-md px-3 py-1.5 transition ${
+                        i === 1
+                          ? "bg-lime-500/15 text-lime-300 ring-1 ring-lime-500/30"
+                          : "text-text-muted hover:text-text-primary"
                       }`}>{t}</button>
                     ))}
                   </div>

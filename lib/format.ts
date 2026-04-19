@@ -54,6 +54,60 @@ export function fmtPct(value: number, decimals = 1): string {
   return value.toFixed(decimals);
 }
 
+/**
+ * Format a number with thousand separators (1,000,000 style).
+ * Used for input displays and balance readouts where precision matters.
+ */
+export function fmtGrouped(n: number, opts?: { maxDecimals?: number }): string {
+  if (!isFinite(n)) return "0";
+  const max = opts?.maxDecimals ?? 2;
+  return n.toLocaleString("en-US", {
+    maximumFractionDigits: max,
+    minimumFractionDigits: Math.abs(n) >= 1 ? 0 : 0,
+  });
+}
+
+/**
+ * Parse a grouped number string back to a plain number string for parseEther.
+ * Handles "1,000,000.50" → "1000000.50" and "1.000.000,50" EU style.
+ */
+export function parseGroupedInput(v: string): string {
+  if (!v) return "";
+  // Allow only digits, one dot and no commas in final string
+  // First strip commas (thousand separators, en-US)
+  let cleaned = v.replace(/,/g, "");
+  // Strip any non-digit-non-dot character
+  cleaned = cleaned.replace(/[^0-9.]/g, "");
+  // Keep only the first dot
+  const firstDot = cleaned.indexOf(".");
+  if (firstDot !== -1) {
+    cleaned =
+      cleaned.slice(0, firstDot + 1) +
+      cleaned.slice(firstDot + 1).replace(/\./g, "");
+  }
+  return cleaned;
+}
+
+/**
+ * Format a raw input string as user types, grouping thousands.
+ * Example: "1000000" → "1,000,000"; "1000.50" → "1,000.50"
+ */
+export function formatInputAsGrouped(v: string): string {
+  if (!v) return "";
+  const clean = parseGroupedInput(v);
+  if (!clean) return "";
+  const [intPart, decPart] = clean.split(".");
+  const groupedInt = intPart
+    ? Number(intPart).toLocaleString("en-US", { maximumFractionDigits: 0 })
+    : "0";
+  if (decPart !== undefined) {
+    return `${groupedInt}.${decPart}`;
+  }
+  // If the user typed "1000." keep the trailing dot
+  if (v.endsWith(".")) return `${groupedInt}.`;
+  return groupedInt;
+}
+
 export function fmtCents(pct: number): string {
   if (!isFinite(pct)) return "0.0";
   return pct.toFixed(1);
