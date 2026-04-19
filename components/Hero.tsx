@@ -100,7 +100,7 @@ export function Hero() {
       {/* ============================================
           CENTERED CONTENT
           ============================================ */}
-      <div className="relative z-20 flex flex-1 items-center justify-center px-6 pb-16 pt-8 lg:pb-24 lg:pt-12">
+      <div className="relative z-20 flex flex-1 items-start justify-center px-6 pb-16 pt-4 lg:pb-24 lg:pt-6">
         <div className="w-full max-w-4xl text-center">
           {/* Live badge */}
           <div className="animate-fade-up mb-7 inline-flex items-center gap-2 rounded-full border border-lime-400/30 bg-black/40 px-4 py-1.5 backdrop-blur-md">

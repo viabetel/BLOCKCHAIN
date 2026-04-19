@@ -10,6 +10,7 @@ import { TickerBar } from "@/components/TickerBar";
 import { FaucetCard } from "@/components/FaucetCard";
 import { PartnerTicker } from "@/components/PartnerTicker";
 import { Hero } from "@/components/Hero";
+import { AstronomicalJuice } from "@/components/AstronomicalJuice";
 import { fmtZkLTC, inferCategory } from "@/lib/format";
 import { useHiddenMarkets } from "@/lib/useHiddenMarkets";
 
@@ -109,6 +110,8 @@ export default function HomePage() {
     <>
       <Hero />
       <TickerBar />
+
+      <AstronomicalJuice />
 
       {featured.length > 0 && <FeaturedSection markets={featured} />}
 
