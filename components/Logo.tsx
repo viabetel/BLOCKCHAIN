@@ -1,3 +1,13 @@
+/**
+ * Limero mark — minimalist lime-slice geometry.
+ *
+ * Concept: a circle split by radial lines suggesting citrus segments.
+ * Inspired by the discipline of Arbitrum / Ethena / Lido marks:
+ * - single color (lime)
+ * - geometric precision
+ * - works at any size
+ * - no gradient, no shine, no emoji
+ */
 export function Logo({ className = "h-7 w-7" }: { className?: string }) {
   return (
     <svg
@@ -7,42 +17,61 @@ export function Logo({ className = "h-7 w-7" }: { className?: string }) {
       className={className}
       aria-hidden
     >
-      <defs>
-        <linearGradient id="limeBodyMini" x1="0.3" y1="0.2" x2="0.7" y2="0.9">
-          <stop offset="0%" stopColor="#d9f99d" />
-          <stop offset="50%" stopColor="#a3e635" />
-          <stop offset="100%" stopColor="#65a30d" />
-        </linearGradient>
-        <linearGradient id="leafMini" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="#4d7c0f" />
-          <stop offset="100%" stopColor="#365314" />
-        </linearGradient>
-      </defs>
-
-      {/* Lime body */}
-      <ellipse cx="16" cy="18" rx="11" ry="10" fill="url(#limeBodyMini)" />
-
-      {/* Rim */}
-      <ellipse cx="16" cy="18" rx="11" ry="10" fill="none" stroke="#84cc16" strokeWidth="0.5" opacity="0.5" />
-
-      {/* Highlight */}
-      <ellipse cx="12" cy="14" rx="4" ry="3" fill="#ffffff" opacity="0.25" />
-
-      {/* Stem */}
-      <rect x="15.2" y="6" width="1.6" height="3" rx="0.6" fill="#65a30d" />
-
-      {/* Leaf */}
-      <path
-        d="M 16.5 6.5 Q 22 3, 25 7 Q 22 9.5, 17.5 8.5 Q 16.5 7.5, 16.5 6.5 Z"
-        fill="url(#leafMini)"
+      {/* Outer circle */}
+      <circle
+        cx="16"
+        cy="16"
+        r="13"
+        stroke="currentColor"
+        strokeWidth="1.75"
+        fill="none"
       />
+      {/* Inner smaller circle - creates the "peel" effect */}
+      <circle
+        cx="16"
+        cy="16"
+        r="9.5"
+        stroke="currentColor"
+        strokeWidth="1.2"
+        fill="none"
+        opacity="0.55"
+      />
+      {/* Center dot */}
+      <circle cx="16" cy="16" r="1.6" fill="currentColor" />
+      {/* Segment lines - 6 radial strokes (like a sliced lime) */}
+      {[0, 60, 120, 180, 240, 300].map((deg) => {
+        const rad = (deg * Math.PI) / 180;
+        const x1 = 16 + Math.cos(rad) * 2.2;
+        const y1 = 16 + Math.sin(rad) * 2.2;
+        const x2 = 16 + Math.cos(rad) * 9;
+        const y2 = 16 + Math.sin(rad) * 9;
+        return (
+          <line
+            key={deg}
+            x1={x1}
+            y1={y1}
+            x2={x2}
+            y2={y2}
+            stroke="currentColor"
+            strokeWidth="1.2"
+            strokeLinecap="round"
+            opacity="0.65"
+          />
+        );
+      })}
     </svg>
   );
 }
 
 export function Wordmark({ className = "" }: { className?: string }) {
   return (
-    <span className={`font-display font-bold tracking-tighter ${className}`}>
+    <span
+      className={`font-display font-bold ${className}`}
+      style={{
+        letterSpacing: "-0.04em",
+        fontFamily: "var(--font-display)",
+      }}
+    >
       Limero
     </span>
   );
