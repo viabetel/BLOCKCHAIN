@@ -63,13 +63,20 @@ export function Logo({ className = "h-7 w-7" }: { className?: string }) {
   );
 }
 
-export function Wordmark({ className = "" }: { className?: string }) {
+export function Wordmark({
+  className = "",
+  style,
+}: {
+  className?: string;
+  style?: React.CSSProperties;
+}) {
   return (
     <span
       className={`font-display font-bold ${className}`}
       style={{
         letterSpacing: "-0.04em",
         fontFamily: "var(--font-display)",
+        ...style,
       }}
     >
       Limero
