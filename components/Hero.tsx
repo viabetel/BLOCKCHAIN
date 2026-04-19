@@ -73,10 +73,7 @@ export function Hero() {
         <div className="mx-auto flex max-w-[1400px] items-center justify-between px-6 py-5 lg:px-10">
           <Link href="/" className="flex items-center gap-2.5">
             <Logo className="h-8 w-8 text-lime-400 drop-shadow-[0_0_20px_rgba(132,204,22,0.4)]" />
-            <Wordmark
-              className="text-[19px] text-white"
-              style={{ letterSpacing: "-0.04em" }}
-            />
+            <Wordmark className="text-[19px] text-white" />
             <span className="ml-2 rounded-md border border-lime-400/30 bg-white/5 px-2 py-0.5 font-mono text-[9px] font-semibold uppercase tracking-[0.18em] text-lime-200 backdrop-blur-md">
               Testnet
             </span>
