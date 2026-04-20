@@ -65,14 +65,17 @@ export default function AdminPage() {
             </p>
           </div>
         ) : (
-          <div className="grid gap-6 lg:grid-cols-2">
-            <SeedMarketsCard />
-            <CreateMarketCard />
-            <MintTokensCard />
-            <div className="lg:col-span-2">
-              <ManageMarketsCard />
+          <>
+            <AdminDeployerCard />
+            <div className="grid gap-6 lg:grid-cols-2">
+              <SeedMarketsCard />
+              <CreateMarketCard />
+              <MintTokensCard />
+              <div className="lg:col-span-2">
+                <ManageMarketsCard />
+              </div>
             </div>
-          </div>
+          </>
         )}
       </main>
     </>
@@ -104,6 +107,33 @@ function Card({ title, subtitle, accent, children }: { title?: string; subtitle?
       )}
       {children}
     </div>
+  );
+}
+
+
+function AdminDeployerCard() {
+  return (
+    <Card
+      title="Vault deployer"
+      subtitle="Direct link for admin to deploy the LIME and USDC vaults"
+      accent
+    >
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <p className="text-sm text-text-secondary">
+            Open the one-click deploy page hosted from <span className="font-mono text-text-primary">/deploy-vaults.html</span>.
+          </p>
+        </div>
+        <a
+          href="/deploy-vaults.html"
+          target="_blank"
+          rel="noreferrer"
+          className="btn-ink inline-flex items-center justify-center rounded-lg px-4 py-3 text-sm"
+        >
+          Open vault deployer ↗
+        </a>
+      </div>
+    </Card>
   );
 }
 
