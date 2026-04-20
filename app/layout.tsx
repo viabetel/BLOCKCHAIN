@@ -20,7 +20,7 @@ const mono = IBM_Plex_Mono({
 
 export const metadata: Metadata = {
   title: "Limero — Hard Money Prediction Markets",
-  description: "The first binary prediction market native to LitVM. Trade real-world outcomes in $LIME, settled onchain by Litecoin's proof-of-work security.",
+  description: "Dual-collateral prediction markets on LitVM. Trade real-world outcomes in $LIME or USDC, settled onchain.",
   openGraph: {
     title: "Limero — Hard Money Prediction Markets",
     description: "Trade the future in hard money. Binary prediction markets on LitVM.",

@@ -6,6 +6,7 @@ import { parseEther } from "viem";
 import { liteforge, ADMIN_WALLET } from "@/lib/wagmi";
 import { addresses, erc20Abi } from "@/lib/contracts";
 import { fmtZkLTCExact, fmtAddress } from "@/lib/format";
+import { LimeTokenIcon } from "@/components/LimeTokenIcon";
 import Link from "next/link";
 
 export function ConnectButton() {
@@ -59,9 +60,9 @@ export function ConnectButton() {
   if (isConnected && address) {
     return (
       <div className="relative flex items-center gap-2">
-        {/* Balance chip */}
-        <div className="hidden items-center gap-2 rounded-xl border border-lime-500/20 bg-lime-500/5 px-3 py-2 md:flex">
-          <div className="h-4 w-4 rounded-full bg-gradient-to-br from-lime-300 to-lime-600 shadow-inner" />
+        {/* Balance chip - with official LIME token icon */}
+        <div className="hidden items-center gap-2 rounded-xl border border-lime-500/20 bg-lime-500/5 px-3 py-1.5 md:flex">
+          <LimeTokenIcon size={20} />
           <span className="font-mono text-xs font-semibold text-lime-200 tabular">
             {fmtZkLTCExact(tokenBalBig)}
           </span>

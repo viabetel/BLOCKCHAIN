@@ -95,20 +95,11 @@ function detectTokens(q: string): TokenSymbol[] {
   return found;
 }
 
-// For the partner ticker footer
-export const PARTNER_LOGOS = [
-  { name: "Litecoin", url: `${TRUSTWALLET_BASE}/litecoin/info/logo.png`, fallback: "#345D9D" },
-  { name: "Arbitrum", url: `${TRUSTWALLET_BASE}/arbitrum/info/logo.png`, fallback: "#28A0F0" },
-  { name: "Ethereum", url: `${TRUSTWALLET_BASE}/ethereum/info/logo.png`, fallback: "#627EEA" },
-  { name: "Bitcoin", url: `${TRUSTWALLET_BASE}/bitcoin/info/logo.png`, fallback: "#F7931A" },
-];
-
-// Partners without official icons in Trust Wallet (placeholders for local assets)
-export const PARTNER_TEXT_ONLY = [
-  "LitVM",
-  "Caldera",
-  "BitcoinOS",
-  "Succinct",
-  "Espresso",
-  "QuickSwap",
+// Official LitVM infrastructure partners (verifiable on docs.litvm.com)
+// No false sponsorship claims — only infra/stack providers.
+export const ECOSYSTEM_PARTNERS = [
+  { name: "LitVM", role: "L2 rollup", color: "#22d3ee" },
+  { name: "Arbitrum Orbit", role: "Stack", color: "#28A0F0" },
+  { name: "Caldera", role: "Infra", color: "#ef4444" },
+  { name: "Espresso", role: "Sequencer", color: "#a855f7" },
 ];

@@ -48,7 +48,7 @@ const HOTSPOTS: Hotspot[] = [
     label: "Network Layer",
     subtitle: "Settlement mesh",
     color: "#b9764a",
-    body: "Built on LitVM — Litecoin's first EVM rollup powered by Arbitrum Orbit & Caldera. Every outcome settles onchain under proof-of-work security.",
+    body: "Built on LitVM LiteForge — an Arbitrum Orbit rollup operated by Caldera. Every outcome settles onchain with verifiable execution.",
     status: "LIVE",
   },
   {

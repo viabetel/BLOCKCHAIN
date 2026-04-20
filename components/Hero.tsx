@@ -147,10 +147,10 @@ export function Hero() {
               textShadow: "0 2px 20px rgba(0,0,0,0.9)",
             }}
           >
-            The first binary prediction market native to LitVM.
-            Price real-world outcomes in{" "}
-            <span className="font-semibold text-lime-200">$LIME</span>, settled
-            onchain by Litecoin's proof-of-work security.
+            The first dual-collateral prediction market on LitVM.
+            Trade in <span className="font-semibold text-lime-200">$LIME</span> or{" "}
+            <span className="font-semibold text-slate-200">USDC</span> — liquidity pools
+            separate, markets in parallel.
           </p>
 
           {/* CTAs */}

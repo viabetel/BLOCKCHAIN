@@ -11,6 +11,7 @@ import { FaucetCard } from "@/components/FaucetCard";
 import { PartnerTicker } from "@/components/PartnerTicker";
 import { Hero } from "@/components/Hero";
 import { AstronomicalJuice } from "@/components/AstronomicalJuice";
+import { VaultsSection } from "@/components/VaultsSection";
 import { fmtZkLTC, inferCategory } from "@/lib/format";
 import { useHiddenMarkets } from "@/lib/useHiddenMarkets";
 
@@ -112,6 +113,8 @@ export default function HomePage() {
       <TickerBar />
 
       <AstronomicalJuice />
+
+      <VaultsSection />
 
       {featured.length > 0 && <FeaturedSection markets={featured} />}
 
@@ -360,23 +363,23 @@ function WhyLimeroSection() {
   const features = [
     {
       icon: "⟠",
-      title: "Hard money settlement",
-      body: "Every market is settled in $LIME, native to a chain secured by Litecoin proof-of-work — not corporate stablecoins.",
+      title: "Dual-collateral markets",
+      body: "Pick your exposure: trade in $LIME for growth markets, or in USDC for stable-reference markets. Liquidity pools separate by collateral.",
     },
     {
       icon: "◆",
-      title: "Onchain proof",
-      body: "Trades, resolutions, and payouts are verifiable on LitVM's block explorer. No hidden matching, no custody.",
+      title: "Onchain verifiable",
+      body: "Every trade, resolution, and payout is inspectable on the LiteForge block explorer. No hidden matching, no custodial wrappers.",
     },
     {
       icon: "▲",
       title: "Trader-grade UX",
-      body: "FPMM with instant pricing, limit-style outcome chips, deep liquidity provision, and real-time positions.",
+      body: "FPMM with continuous pricing, per-market liquidity provision, real-time positions, and a dashboard for your full portfolio.",
     },
     {
       icon: "◇",
-      title: "First on LitVM",
-      body: "Native to LitVM's ecosystem from day one. Markets on Litecoin narratives, ETF flows, BTC dominance, and more.",
+      title: "Deployed on LitVM",
+      body: "Running on LitVM LiteForge — an Arbitrum Orbit rollup via Caldera. Fast confirmations, low fees, EVM-compatible.",
     },
   ];
 
@@ -387,12 +390,11 @@ function WhyLimeroSection() {
           <div className="max-w-xl">
             <span className="chip chip-cat">Differentiators</span>
             <h2 className="mt-4 font-display text-4xl font-bold leading-[1.05] tracking-tighter text-text-primary sm:text-5xl">
-              Built for <span className="text-gradient-lime">serious traders</span>.
+              Built for <span className="text-gradient-lime">real markets</span>.
             </h2>
           </div>
           <p className="max-w-md text-sm leading-relaxed text-text-secondary">
-            Polymarket settles in USDC. Kalshi settles in USD. Limero settles in the only onchain
-            asset with fifteen years of PoW security. Betting conviction, denominated in hard money.
+            Most prediction platforms lock users into a single collateral. Limero runs parallel markets in $LIME and USDC — you pick how much risk you want denominated in.
           </p>
         </div>
 
@@ -495,7 +497,7 @@ function Footer() {
               <Wordmark className="text-base text-text-primary" />
             </div>
             <p className="mt-4 max-w-xs text-sm text-text-secondary">
-              Hard money prediction markets. Settled onchain in $LIME, secured by Litecoin proof-of-work.
+              Dual-collateral prediction markets on LitVM. Trade in $LIME or USDC, settled onchain.
             </p>
           </div>
           <FooterCol title="Protocol">
