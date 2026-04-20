@@ -1,13 +1,17 @@
 export const addresses = {
   factory: "0xbB2b40F1ed12F64966ac2eA6157760Da26020032" as `0x${string}`,
+  // Legacy LIME (MockZkLTC with public mint) · currently used as collateral in deployed markets
   collateral: "0x967662A01D65c6a18D836365eef13De128a2caa7" as `0x${string}`,
+  // LIME Token v2 · fixed supply 100M, EIP-2612 permit. Will replace legacy on mainnet.
+  limeV2: "0x59a8d18113f6d64e09c3ae8a5fb3782cabea0345" as `0x${string}`,
+  // USDC bridged via Arbitrum Bridge
   usdc: "0x5adf1045C4a7C3e2176DbCbD09a7E6D1b0f75cfB" as `0x${string}`,
-  // Vault addresses — deployed on LitVM LiteForge (Chain 4441)
+  // Yield vaults · deployed on LitVM LiteForge (Chain 4441)
   limeVault: "0x81ba4b26174B488671791696277111566D66ea9d" as `0x${string}` | "",
   usdcVault: "0xAFf48d4c339737957b04c60E31d5Bcc1e818E842" as `0x${string}` | "",
 };
 
-// Vault ABI — matches LimeroVault.sol
+// Vault ABI · matches LimeroVault.sol
 export const vaultAbi = [
   { type: "function", name: "totalAssets", stateMutability: "view", inputs: [], outputs: [{ type: "uint256" }] },
   { type: "function", name: "totalShares", stateMutability: "view", inputs: [], outputs: [{ type: "uint256" }] },

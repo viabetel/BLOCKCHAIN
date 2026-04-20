@@ -96,7 +96,7 @@ function detectTokens(q: string): TokenSymbol[] {
 }
 
 // Official LitVM infrastructure partners (verifiable on docs.litvm.com)
-// No false sponsorship claims — only infra/stack providers.
+// No false sponsorship claims · only infra/stack providers.
 export const ECOSYSTEM_PARTNERS = [
   { name: "LitVM", role: "L2 rollup", color: "#22d3ee" },
   { name: "Arbitrum Orbit", role: "Stack", color: "#28A0F0" },

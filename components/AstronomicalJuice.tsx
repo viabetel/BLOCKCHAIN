@@ -3,12 +3,12 @@
 import { useState, useEffect } from "react";
 
 /**
- * AstronomicalJuice v5 — Carousel INSIDE the image.
+ * AstronomicalJuice v5 · Carousel INSIDE the image.
  *
  * Key change from v4:
  *  - The content panel is no longer BELOW the image
  *  - It sits INSIDE the image, positioned EXACTLY over the 2 blurred dock
- *    bars at the bottom of the composition — covering them completely
+ *    bars at the bottom of the composition · covering them completely
  *  - A left-right pagination (carousel) lets the user browse all 4 pillars
  *  - Auto-advance every 6s; pauses on hover
  *
@@ -38,7 +38,7 @@ const HOTSPOTS: Hotspot[] = [
     label: "Price Volatility",
     subtitle: "Movement engine",
     color: "#c68b5a",
-    body: "Every trade updates the probability curve continuously. Priced by a Fixed Product Market Maker — not matched against a stale orderbook.",
+    body: "Every trade updates the probability curve continuously. Priced by a Fixed Product Market Maker · not matched against a stale orderbook.",
     status: "LIVE",
   },
   {
@@ -48,7 +48,7 @@ const HOTSPOTS: Hotspot[] = [
     label: "Network Layer",
     subtitle: "Settlement mesh",
     color: "#b9764a",
-    body: "Built on LitVM LiteForge — an Arbitrum Orbit rollup operated by Caldera. Every outcome settles onchain with verifiable execution.",
+    body: "Built on LitVM LiteForge · an Arbitrum Orbit rollup operated by Caldera. Every outcome settles onchain with verifiable execution.",
     status: "LIVE",
   },
   {
@@ -121,7 +121,7 @@ export function AstronomicalJuice() {
           }}
         />
 
-        {/* ZONE 1 — TOP LEFT: Eyebrow + Headline */}
+        {/* ZONE 1 · TOP LEFT: Eyebrow + Headline */}
         <div className="absolute left-0 top-0 z-20 max-w-[52%] p-6 sm:p-8 lg:max-w-[42%] lg:p-10">
           <div className="animate-fade-up mb-3 inline-flex items-center gap-2 rounded-full border border-purple-400/30 bg-purple-500/[0.1] px-3 py-1 backdrop-blur-md">
             <span className="relative flex h-1.5 w-1.5">
@@ -166,7 +166,7 @@ export function AstronomicalJuice() {
           </p>
         </div>
 
-        {/* ZONE 2 — TOP RIGHT: Market state pill */}
+        {/* ZONE 2 · TOP RIGHT: Market state pill */}
         <div className="absolute right-0 top-0 z-20 hidden p-6 sm:p-8 lg:block lg:p-10">
           <div className="flex items-center gap-1 rounded-full border border-white/10 bg-black/70 px-2 py-1 backdrop-blur-md">
             <StateLabel label="Created" />
@@ -177,7 +177,7 @@ export function AstronomicalJuice() {
           </div>
         </div>
 
-        {/* ZONE 3 — Hotspots over coins (indicators only) */}
+        {/* ZONE 3 · Hotspots over coins (indicators only) */}
         {HOTSPOTS.map((h, i) => {
           const isActive = index === i;
           const isHovered = hovered === h.id;
@@ -231,8 +231,8 @@ export function AstronomicalJuice() {
           );
         })}
 
-        {/* ZONE 4 — CAROUSEL PANEL positioned to cover the 2 blurred bars
-            (the bars sit at ~86-92% y in the image — our panel is centered there) */}
+        {/* ZONE 4 · CAROUSEL PANEL positioned to cover the 2 blurred bars
+            (the bars sit at ~86-92% y in the image · our panel is centered there) */}
         <div
           className="absolute inset-x-0 z-25 px-4 sm:px-8 lg:px-12"
           style={{ bottom: "5%" }}
@@ -336,7 +336,7 @@ export function AstronomicalJuice() {
             </div>
           </div>
 
-          {/* Roadmap strip — below carousel, outside image */}
+          {/* Roadmap strip · below carousel, outside image */}
         </div>
 
         {/* Bottom fade connecting into next section */}
@@ -349,7 +349,7 @@ export function AstronomicalJuice() {
         />
       </div>
 
-      {/* ROADMAP STRIP — below the image */}
+      {/* ROADMAP STRIP · below the image */}
       <div className="mx-auto w-full max-w-[1400px] px-6 py-5 lg:px-10">
         <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-2 rounded-xl border border-white/5 bg-white/[0.02] px-4 py-2.5 sm:justify-between">
           <div className="flex items-center gap-2">

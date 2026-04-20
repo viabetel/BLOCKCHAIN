@@ -22,7 +22,7 @@ import {
 } from "@/lib/format";
 
 /**
- * Personal Dashboard — shows the user's full portfolio across Limero:
+ * Personal Dashboard · shows the user's full portfolio across Limero:
  *  - $LIME balance + USDC balance + zkLTC gas balance (top cards)
  *  - Active positions across all markets (YES/NO/LP shares)
  *  - Per-market profit/loss estimation (current price vs avg entry)

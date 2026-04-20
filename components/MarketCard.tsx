@@ -83,7 +83,7 @@ export function MarketCard({ address, featured }: { address: `0x${string}`; feat
         </div>
       </Link>
 
-      {/* Probability split — shimmered */}
+      {/* Probability split · shimmered */}
       <div className="mb-3">
         <div className="flex h-2 overflow-hidden rounded-full bg-space-border shadow-inner">
           <div

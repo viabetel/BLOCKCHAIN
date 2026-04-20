@@ -436,7 +436,7 @@ export function TradeBox({
             : tab === "Buy" && needsApproval
             ? "Approve $LIME"
             : tab === "Buy"
-            ? `Buy ${side} — ${displayAmount} $LIME`
+            ? `Buy ${side} · ${displayAmount} $LIME`
             : tab === "Sell"
             ? `Sell ${displayAmount} ${side}`
             : tab === "Liquidity" && needsApprovalLiq

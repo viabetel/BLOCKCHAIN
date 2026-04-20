@@ -145,7 +145,7 @@ export default function HomePage() {
 /* ============================================
    NAV
    ============================================ */
-// Nav and NavLink removed — StickyHeader (imported) replaces them.
+// Nav and NavLink removed · StickyHeader (imported) replaces them.
 
 /* ============================================
    FEATURED MARKETS
@@ -379,7 +379,7 @@ function WhyLimeroSection() {
     {
       icon: "◇",
       title: "Deployed on LitVM",
-      body: "Running on LitVM LiteForge — an Arbitrum Orbit rollup via Caldera. Fast confirmations, low fees, EVM-compatible.",
+      body: "Running on LitVM LiteForge · an Arbitrum Orbit rollup via Caldera. Fast confirmations, low fees, EVM-compatible.",
     },
   ];
 
@@ -394,7 +394,7 @@ function WhyLimeroSection() {
             </h2>
           </div>
           <p className="max-w-md text-sm leading-relaxed text-text-secondary">
-            Most prediction platforms lock users into a single collateral. Limero runs parallel markets in $LIME and USDC — you pick how much risk you want denominated in.
+            Most prediction platforms lock users into a single collateral. Limero runs parallel markets in $LIME and USDC · you pick how much risk you want denominated in.
           </p>
         </div>
 

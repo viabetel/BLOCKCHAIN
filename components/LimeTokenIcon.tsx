@@ -1,9 +1,9 @@
 /**
- * Token icon components — no styled-jsx, just plain Tailwind + inline styles.
+ * Token icon components · no styled-jsx, just plain Tailwind + inline styles.
  */
 
 /**
- * LimeTokenIcon — the official $LIME token visual using our Logo SVG.
+ * LimeTokenIcon · the official $LIME token visual using our Logo SVG.
  */
 export function LimeTokenIcon({
   size = 24,

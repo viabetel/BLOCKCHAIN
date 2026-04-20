@@ -8,7 +8,7 @@ import { LimeTokenIcon, UsdcTokenIcon } from "@/components/LimeTokenIcon";
 import { fmtGrouped, formatInputAsGrouped, parseGroupedInput, fmtCompact } from "@/lib/format";
 
 /**
- * Vaults section — LIME Vault + USDC Vault.
+ * Vaults section · LIME Vault + USDC Vault.
  * Shows TVL, share price, APY (approximate), user position.
  * Depositing mints vault shares that appreciate as markets accrue fees.
  */
@@ -255,18 +255,18 @@ function VaultCard({
         <div className="mb-4 grid grid-cols-3 gap-2">
           <VaultMetric
             label="TVL"
-            value={deployed ? fmtCompact(totalAssetsN, { maxDecimals: 2 }) : "—"}
+            value={deployed ? fmtCompact(totalAssetsN, { maxDecimals: 2 }) : "-"}
             unit={tokenSymbol}
           />
           <VaultMetric
             label="Share price"
-            value={deployed ? sharePriceN.toFixed(4) : "—"}
+            value={deployed ? sharePriceN.toFixed(4) : "-"}
             unit=""
             mono
           />
           <VaultMetric
             label="Est. APR"
-            value={deployed ? `${projectedApr.toFixed(1)}%` : "—"}
+            value={deployed ? `${projectedApr.toFixed(1)}%` : "-"}
             unit=""
             accent
           />

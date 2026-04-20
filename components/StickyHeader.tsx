@@ -7,7 +7,7 @@ import { ConnectButton } from "@/components/ConnectButton";
 
 /**
  * Sticky header that fades in AFTER the user scrolls past the hero.
- * Pattern used by Linear, Arbitrum, Monad — floating header during hero,
+ * Pattern used by Linear, Arbitrum, Monad · floating header during hero,
  * solid header after scroll.
  */
 export function StickyHeader() {

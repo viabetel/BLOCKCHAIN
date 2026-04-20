@@ -89,7 +89,7 @@ export function PriceChart({
     setHoverIdx(Math.max(0, Math.min(n - 1, idx)));
   };
 
-  // Label collision avoidance — if YES and NO are within 20% of each other, push them
+  // Label collision avoidance · if YES and NO are within 20% of each other, push them
   const yesLabelY = yesYs[n - 1];
   let noLabelY = noYs[n - 1];
   if (Math.abs(lastYes - lastNo) < 20) {

@@ -7,7 +7,7 @@ import { ConnectButton } from "@/components/ConnectButton";
 import { addresses, factoryAbi } from "@/lib/contracts";
 
 /**
- * HERO v11 — Composition fix.
+ * HERO v11 · Composition fix.
  *
  * Problem with v10: text was centered, but the mascot occupies center-bottom
  * of the image → headline always landed on the face.
@@ -147,10 +147,10 @@ export function Hero() {
               textShadow: "0 2px 20px rgba(0,0,0,0.9)",
             }}
           >
-            The first dual-collateral prediction market on LitVM.
+            Prediction markets with dual-asset yield vaults, native to LitVM.
             Trade in <span className="font-semibold text-lime-200">$LIME</span> or{" "}
-            <span className="font-semibold text-slate-200">USDC</span> — liquidity pools
-            separate, markets in parallel.
+            <span className="font-semibold text-slate-200">USDC</span>. Earn fees
+            by depositing into the vault.
           </p>
 
           {/* CTAs */}

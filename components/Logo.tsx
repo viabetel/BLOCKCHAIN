@@ -1,5 +1,5 @@
 /**
- * Limero mark — minimalist lime-slice geometry.
+ * Limero mark · minimalist lime-slice geometry.
  *
  * Concept: a circle split by radial lines suggesting citrus segments.
  * Inspired by the discipline of Arbitrum / Ethena / Lido marks:

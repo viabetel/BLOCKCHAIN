@@ -145,7 +145,8 @@ function VaultDeployer() {
   const { data: walletClient } = useWalletClient();
   const publicClient = usePublicClient();
   const [pending, setPending] = useState(false);
-  const [result, setResult] = useState<DeploymentResult | null>(null);
+  // Keep a LIST of deployments so LIME + USDC vaults both stay visible
+  const [results, setResults] = useState<DeploymentResult[]>([]);
   const [error, setError] = useState<string | null>(null);
 
   const [underlying, setUnderlying] = useState("");
@@ -163,7 +164,6 @@ function VaultDeployer() {
     }
     setPending(true);
     setError(null);
-    setResult(null);
 
     try {
       const deployData = encodeDeployData({
@@ -180,11 +180,15 @@ function VaultDeployer() {
       if (!receipt.contractAddress) {
         throw new Error("No contract address in receipt");
       }
-      setResult({
-        contract: "LimeroVault",
-        address: receipt.contractAddress,
-        txHash,
-      });
+      // Append to history · never overwrite previous deploys
+      setResults((prev) => [
+        {
+          contract: `${vaultSymbol} (${vaultName})`,
+          address: receipt.contractAddress!,
+          txHash,
+        },
+        ...prev,
+      ]);
     } catch (e: any) {
       setError(e.shortMessage || e.message || "Deploy failed");
     } finally {
@@ -196,11 +200,13 @@ function VaultDeployer() {
     setUnderlying("0x967662A01D65c6a18D836365eef13De128a2caa7");
     setVaultName("Limero LIME Vault");
     setVaultSymbol("vLIME");
+    setError(null);
   };
   const presetUsdc = () => {
     setUnderlying("0x5adf1045C4a7C3e2176DbCbD09a7E6D1b0f75cfB");
     setVaultName("Limero USDC Vault");
     setVaultSymbol("vUSDC");
+    setError(null);
   };
 
   return (
@@ -208,7 +214,7 @@ function VaultDeployer() {
       title="Yield Vault"
       subtitle="LIME or USDC backing"
       description="Deposit-only vault that routes liquidity to markets. Share price rises as fees accrue."
-      deployed={Boolean(result)}
+      deployed={results.length > 0}
       contractName="LimeroVault"
     >
       {/* Presets */}
@@ -260,7 +266,18 @@ function VaultDeployer() {
       />
 
       {error && <ErrorBanner message={error} />}
-      {result && <ResultBanner result={result} label="Vault" />}
+      {results.length > 0 && (
+        <div className="space-y-2">
+          {results.map((r, i) => (
+            <ResultBanner
+              key={r.txHash}
+              result={r}
+              label={r.contract}
+              fresh={i === 0}
+            />
+          ))}
+        </div>
+      )}
     </DeploySection>
   );
 }
@@ -382,12 +399,19 @@ function ErrorBanner({ message }: { message: string }) {
   );
 }
 
-function ResultBanner({ result, label }: { result: DeploymentResult; label: string }) {
+function ResultBanner({ result, label, fresh }: { result: DeploymentResult; label: string; fresh?: boolean }) {
   const copy = (text: string) => navigator.clipboard.writeText(text);
   return (
-    <div className="space-y-2 rounded-lg border border-lime-500/30 bg-lime-500/5 p-3">
-      <div className="flex items-center gap-2 text-xs font-semibold text-lime-300">
-        <span className="h-1.5 w-1.5 rounded-full bg-lime-400" />✓ {label} deployed
+    <div
+      className={`space-y-2 rounded-lg border p-3 ${
+        fresh
+          ? "border-lime-500/40 bg-lime-500/10 shadow-[0_0_24px_-8px_rgba(132,204,22,0.4)]"
+          : "border-space-border bg-space-deep/40"
+      }`}
+    >
+      <div className={`flex items-center gap-2 text-xs font-semibold ${fresh ? "text-lime-300" : "text-text-secondary"}`}>
+        <span className={`h-1.5 w-1.5 rounded-full ${fresh ? "bg-lime-400" : "bg-text-muted"}`} />
+        ✓ {label} deployed
       </div>
       <div className="flex items-center justify-between gap-2 rounded border border-space-border bg-space-deep/60 px-2 py-1.5">
         <span className="break-all font-mono text-[10px] text-text-primary">{result.address}</span>

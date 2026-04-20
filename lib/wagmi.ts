@@ -28,5 +28,5 @@ export const wagmiConfig = createConfig({
   ssr: true,
 });
 
-// Admin wallet — only this address sees the Admin panel.
+// Admin wallet · only this address sees the Admin panel.
 export const ADMIN_WALLET = "0x375c84c7fa74d41f75ba892753ba70a716d6f256";

@@ -3,7 +3,7 @@
 import { ECOSYSTEM_PARTNERS } from "@/components/TokenIcon";
 
 /**
- * EcosystemTicker — honest representation of LitVM's infrastructure stack.
+ * EcosystemTicker · honest representation of LitVM's infrastructure stack.
  *
  * No sponsorship claims, no "backed by X" implications. These are the real
  * components that LitVM docs attest to:

@@ -11,7 +11,7 @@
  *    Mainnet v2 will be a fixed-supply ERC20.
  *
  *  - USDC: Circle's stablecoin bridged via Arbitrum Bridge (decimals: 6!)
- *    Not deployed by us — it's the canonical USDC bridged to LitVM.
+ *    Not deployed by us · it's the canonical USDC bridged to LitVM.
  *
  * IMPORTANT: USDC uses 6 decimals, all others use 18. Every parseUnits/
  * formatUnits call MUST pass the correct decimals.
@@ -56,7 +56,7 @@ export const TOKENS = {
     address: "0x5adf1045C4a7C3e2176DbCbD09a7E6D1b0f75cfB",
     symbol: "USDC",
     name: "USD Coin",
-    decimals: 6, // CRITICAL — different from LIME/zkLTC
+    decimals: 6, // CRITICAL · different from LIME/zkLTC
     description: "USDC bridged via Arbitrum Bridge. Stable reference.",
     role: "stable-reference",
     faucetUrl: "https://faucet.circle.com", // Circle official USDC faucet
