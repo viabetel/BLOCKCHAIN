@@ -2,10 +2,9 @@ export const addresses = {
   factory: "0xbB2b40F1ed12F64966ac2eA6157760Da26020032" as `0x${string}`,
   collateral: "0x967662A01D65c6a18D836365eef13De128a2caa7" as `0x${string}`,
   usdc: "0x5adf1045C4a7C3e2176DbCbD09a7E6D1b0f75cfB" as `0x${string}`,
-  // Vault addresses — set after deployment via Remix
-  // If empty string "" the UI shows "Vault pending deployment"
-  limeVault: "" as `0x${string}` | "",
-  usdcVault: "" as `0x${string}` | "",
+  // Vault addresses — deployed on LitVM LiteForge (Chain 4441)
+  limeVault: "0x81ba4b26174B488671791696277111566D66ea9d" as `0x${string}` | "",
+  usdcVault: "0xAFf48d4c339737957b04c60E31d5Bcc1e818E842" as `0x${string}` | "",
 };
 
 // Vault ABI — matches LimeroVault.sol

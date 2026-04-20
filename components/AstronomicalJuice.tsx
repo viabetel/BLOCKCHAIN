@@ -231,8 +231,12 @@ export function AstronomicalJuice() {
           );
         })}
 
-        {/* ZONE 4 — CAROUSEL PANEL covering the 2 blurred bars at bottom */}
-        <div className="absolute inset-x-0 bottom-0 z-25 px-4 pb-5 sm:px-8 sm:pb-7 lg:px-12 lg:pb-8">
+        {/* ZONE 4 — CAROUSEL PANEL positioned to cover the 2 blurred bars
+            (the bars sit at ~86-92% y in the image — our panel is centered there) */}
+        <div
+          className="absolute inset-x-0 z-25 px-4 sm:px-8 lg:px-12"
+          style={{ bottom: "5%" }}
+        >
           <div
             className="relative mx-auto w-full max-w-[1200px] overflow-hidden rounded-2xl border border-white/10 backdrop-blur-xl"
             style={{
