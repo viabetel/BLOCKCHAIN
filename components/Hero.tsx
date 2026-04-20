@@ -82,7 +82,7 @@ export function Hero() {
           <nav className="hidden items-center gap-8 md:flex">
             <HeaderLink href="#markets">Markets</HeaderLink>
             <HeaderLink href="#astronomical-juice">Engine</HeaderLink>
-            <HeaderLink href="#how-it-works">How it works</HeaderLink>
+            <HeaderLink href="/dashboard">Dashboard</HeaderLink>
             <HeaderLink href="https://docs.litvm.com" external>Docs</HeaderLink>
           </nav>
 

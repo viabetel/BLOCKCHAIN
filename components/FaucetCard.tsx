@@ -5,6 +5,7 @@ import { parseEther } from "viem";
 import { useEffect, useState } from "react";
 import { addresses, erc20Abi } from "@/lib/contracts";
 import { fmtZkLTCExact } from "@/lib/format";
+import { Logo } from "@/components/Logo";
 
 const CLAIM_AMOUNT = parseEther("100");
 const COOLDOWN_SECONDS = 60 * 60;
@@ -82,11 +83,19 @@ export function FaucetCard() {
       <div className="card-glass relative rounded-2xl">
         <div className="flex flex-col gap-5 p-6 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-start gap-5">
-            {/* $LIME token coin */}
+            {/* $LIME token coin - official logo */}
             <div className="relative shrink-0">
               <div className="absolute inset-0 animate-pulse-glow rounded-full" />
-              <div className="relative flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-lime-300 via-lime-500 to-lime-700 shadow-[0_0_40px_-5px_rgba(132,204,22,0.6)] ring-2 ring-lime-400/40">
-                <span className="text-4xl drop-shadow-lg">🍋</span>
+              <div
+                className="relative flex h-16 w-16 items-center justify-center rounded-full ring-2 ring-lime-400/40"
+                style={{
+                  background:
+                    "linear-gradient(135deg, #fde047 0%, #bef264 50%, #65a30d 100%)",
+                  boxShadow:
+                    "inset 0 2px 4px rgba(255,255,255,0.4), inset 0 -3px 6px rgba(0,0,0,0.25), 0 0 40px -5px rgba(132,204,22,0.6)",
+                }}
+              >
+                <Logo className="h-9 w-9 text-space-deep" />
               </div>
               {/* Orbiting dot */}
               <span className="absolute -right-1 -top-1 h-3 w-3 rounded-full bg-lime-300 shadow-[0_0_12px_rgba(190,242,100,0.8)]" />

@@ -125,6 +125,10 @@ export function ConnectButton() {
                   Admin Panel →
                 </Link>
               )}
+              <Link href="/dashboard" onClick={() => setOpen(false)}
+                className="block border-b border-space-border px-4 py-3 text-sm font-semibold text-text-primary transition hover:bg-space-surface hover:text-lime-300">
+                Dashboard →
+              </Link>
               <button onClick={() => { disconnect(); setOpen(false); }}
                 className="w-full bg-space-surface px-4 py-3 text-left text-sm font-medium text-bear transition hover:bg-red-950/30">
                 Disconnect

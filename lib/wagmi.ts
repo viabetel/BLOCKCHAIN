@@ -4,11 +4,19 @@ import { injected } from "wagmi/connectors";
 
 export const liteforge = defineChain({
   id: 4441,
-  name: "LiteForge",
-  nativeCurrency: { name: "Limero Token", symbol: "LIME", decimals: 18 },
-  rpcUrls: { default: { http: ["https://liteforge.rpc.caldera.xyz/http"] } },
+  name: "LitVM LiteForge",
+  nativeCurrency: { name: "zkLTC", symbol: "zkLTC", decimals: 18 },
+  rpcUrls: {
+    default: {
+      http: ["https://liteforge.rpc.caldera.xyz/http"],
+      webSocket: ["wss://liteforge.rpc.caldera.xyz/ws"],
+    },
+  },
   blockExplorers: {
-    default: { name: "LiteForge Explorer", url: "https://liteforge.explorer.caldera.xyz" },
+    default: {
+      name: "LiteForge Explorer",
+      url: "https://liteforge.explorer.caldera.xyz",
+    },
   },
   testnet: true,
 });
