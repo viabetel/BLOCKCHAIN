@@ -3,26 +3,22 @@
 import { useState, useEffect } from "react";
 
 /**
- * AstronomicalJuice v5 · Carousel INSIDE the image.
+ * AstronomicalJuice v6 · LitVM-native repositioning.
  *
- * Key change from v4:
- *  - The content panel is no longer BELOW the image
- *  - It sits INSIDE the image, positioned EXACTLY over the 2 blurred dock
- *    bars at the bottom of the composition · covering them completely
- *  - A left-right pagination (carousel) lets the user browse all 4 pillars
- *  - Auto-advance every 6s; pauses on hover
+ * Changes from v5:
+ *  - Hotspot order is now zkLTC-first, LIME demoted to incentive layer.
+ *  - Copy for every hotspot ties back to LitVM's thesis: productive
+ *    zkLTC capital, Litecoin-native markets, vault-routed liquidity.
+ *  - USDC is now explicitly the "stable reference", not a parallel
+ *    collateral equivalent to zkLTC.
  *
- * Image anatomy reminder:
- *  - Bottom-left blurred bar: ~5-38% x, ~84-92% y
- *  - Bottom-right blurred bar: ~58-95% x, ~84-92% y
- *  - Between them (~38-58% x): slight natural gap we leave clean
- *  - Our panel spans the full bottom width covering both bars seamlessly
+ * Image anatomy and layout preserved from v5.
  */
 
 type Hotspot = {
-  id: "volatility" | "network" | "usdc" | "lime";
-  x: number; // % of container width
-  y: number; // % of container height
+  id: "zkltc" | "vaults" | "usdc" | "lime";
+  x: number;
+  y: number;
   label: string;
   subtitle: string;
   color: string;
@@ -32,43 +28,43 @@ type Hotspot = {
 
 const HOTSPOTS: Hotspot[] = [
   {
-    id: "volatility",
+    id: "zkltc",
     x: 22,
     y: 40,
-    label: "Price Volatility",
-    subtitle: "Movement engine",
-    color: "#c68b5a",
-    body: "Every trade updates the probability curve continuously. Priced by a Fixed Product Market Maker · not matched against a stale orderbook.",
+    label: "zkLTC Core",
+    subtitle: "Primary collateral",
+    color: "#bef264",
+    body: "Every Limero market and vault is denominated in zkLTC · LTC bridged 1:1 via BitcoinOS Grail. This is how Litecoin becomes productive, onchain capital on LitVM.",
     status: "LIVE",
   },
   {
-    id: "network",
+    id: "vaults",
     x: 20,
     y: 72,
-    label: "Network Layer",
-    subtitle: "Settlement mesh",
-    color: "#b9764a",
-    body: "Built on LitVM LiteForge · an Arbitrum Orbit rollup operated by Caldera. Every outcome settles onchain with verifiable execution.",
+    label: "Yield Vaults",
+    subtitle: "Productive capital engine",
+    color: "#84cc16",
+    body: "Vaults route depositor liquidity into every active market. LTC holders deposit zkLTC, earn trading fees, withdraw anytime. No side-picking required.",
     status: "LIVE",
   },
   {
     id: "usdc",
     x: 82,
     y: 32,
-    label: "USDC Collateral",
-    subtitle: "Stable reference",
+    label: "USDC Reference",
+    subtitle: "Stable denomination",
     color: "#cbd5e1",
-    body: "Circle's USDC bridged via Arbitrum Bridge anchors price discovery. Native LIME/USDC liquidity pool deploys with mainnet.",
+    body: "Circle USDC bridged via Arbitrum. Used for USD-denominated markets where stable reference matters · complementary to the zkLTC core, not central to it.",
     status: "SOON",
   },
   {
     id: "lime",
     x: 83,
     y: 65,
-    label: "$LIME Token",
-    subtitle: "Native collateral",
+    label: "$LIME Incentives",
+    subtitle: "Points · rewards · governance",
     color: "#e0b464",
-    body: "The native asset of Limero. Powers onboarding, market collateral, LP positions and incentives across the entire protocol.",
+    body: "LIME powers the incentive layer: trader points, LP streak rewards, curator bonuses, and post-mainnet governance. It is not the primary collateral.",
     status: "LIVE",
   },
 ];
@@ -82,7 +78,6 @@ export function AstronomicalJuice() {
 
   const active = HOTSPOTS[index];
 
-  // Auto-advance carousel
   useEffect(() => {
     if (paused) return;
     const t = setInterval(() => {
@@ -96,13 +91,11 @@ export function AstronomicalJuice() {
       id="astronomical-juice"
       className="relative w-full overflow-hidden border-y border-white/5 bg-space-deep"
     >
-      {/* Container for image + overlays */}
       <div
         className="relative aspect-[16/8.6] w-full lg:aspect-[16/7.4]"
         onMouseEnter={() => setPaused(true)}
         onMouseLeave={() => setPaused(false)}
       >
-        {/* Background image - full bleed */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="/engine-image.jpg"
@@ -112,7 +105,6 @@ export function AstronomicalJuice() {
           loading="lazy"
         />
 
-        {/* Corner vignettes */}
         <div
           className="pointer-events-none absolute inset-0"
           style={{
@@ -121,7 +113,7 @@ export function AstronomicalJuice() {
           }}
         />
 
-        {/* ZONE 1 · TOP LEFT: Eyebrow + Headline */}
+        {/* ZONE 1 · TOP LEFT */}
         <div className="absolute left-0 top-0 z-20 max-w-[52%] p-6 sm:p-8 lg:max-w-[42%] lg:p-10">
           <div className="animate-fade-up mb-3 inline-flex items-center gap-2 rounded-full border border-purple-400/30 bg-purple-500/[0.1] px-3 py-1 backdrop-blur-md">
             <span className="relative flex h-1.5 w-1.5">
@@ -142,7 +134,7 @@ export function AstronomicalJuice() {
               animationDelay: "0.05s",
             }}
           >
-            Astronomical{" "}
+            A{" "}
             <span
               style={{
                 background:
@@ -152,8 +144,9 @@ export function AstronomicalJuice() {
                 WebkitTextFillColor: "transparent",
               }}
             >
-              Juice
+              zkLTC engine
             </span>
+            , four layers.
           </h2>
           <p
             className="animate-fade-up mt-3 max-w-sm text-sm leading-relaxed text-white/75"
@@ -162,11 +155,11 @@ export function AstronomicalJuice() {
               animationDelay: "0.1s",
             }}
           >
-            Four assets orbit a single market core. Browse each layer below.
+            zkLTC at the core. Vaults, stable reference and incentives orbit around it.
           </p>
         </div>
 
-        {/* ZONE 2 · TOP RIGHT: Market state pill */}
+        {/* ZONE 2 · TOP RIGHT */}
         <div className="absolute right-0 top-0 z-20 hidden p-6 sm:p-8 lg:block lg:p-10">
           <div className="flex items-center gap-1 rounded-full border border-white/10 bg-black/70 px-2 py-1 backdrop-blur-md">
             <StateLabel label="Created" />
@@ -177,7 +170,7 @@ export function AstronomicalJuice() {
           </div>
         </div>
 
-        {/* ZONE 3 · Hotspots over coins (indicators only) */}
+        {/* ZONE 3 · Hotspots */}
         {HOTSPOTS.map((h, i) => {
           const isActive = index === i;
           const isHovered = hovered === h.id;
@@ -231,8 +224,7 @@ export function AstronomicalJuice() {
           );
         })}
 
-        {/* ZONE 4 · CAROUSEL PANEL positioned to cover the 2 blurred bars
-            (the bars sit at ~86-92% y in the image · our panel is centered there) */}
+        {/* ZONE 4 · CAROUSEL PANEL */}
         <div
           className="absolute inset-x-0 z-25 px-4 sm:px-8 lg:px-12"
           style={{ bottom: "5%" }}
@@ -245,12 +237,10 @@ export function AstronomicalJuice() {
               boxShadow: `0 30px 60px -20px rgba(0,0,0,0.9), inset 0 0 40px ${active.color}10`,
             }}
           >
-            {/* Carousel slide content */}
             <div
               key={active.id}
               className="animate-fade-up flex items-center gap-4 p-5 sm:gap-5 sm:p-6"
             >
-              {/* Left: color-coded accent bar */}
               <div
                 className="h-16 w-1 shrink-0 rounded-full"
                 style={{
@@ -259,7 +249,6 @@ export function AstronomicalJuice() {
                 }}
               />
 
-              {/* Middle: content */}
               <div className="min-w-0 flex-1">
                 <div className="mb-1.5 flex flex-wrap items-center gap-2">
                   <span className="font-mono text-[9px] font-semibold uppercase tracking-[0.22em] text-white/50">
@@ -289,7 +278,6 @@ export function AstronomicalJuice() {
                 </p>
               </div>
 
-              {/* Right: prev / next buttons */}
               <div className="flex shrink-0 items-center gap-1.5">
                 <CarouselButton
                   onClick={() =>
@@ -304,7 +292,6 @@ export function AstronomicalJuice() {
               </div>
             </div>
 
-            {/* Progress dots */}
             <div className="flex items-center justify-center gap-1.5 border-t border-white/5 bg-black/30 px-4 py-2.5">
               {HOTSPOTS.map((h, i) => (
                 <button
@@ -335,11 +322,8 @@ export function AstronomicalJuice() {
               </span>
             </div>
           </div>
-
-          {/* Roadmap strip · below carousel, outside image */}
         </div>
 
-        {/* Bottom fade connecting into next section */}
         <div
           className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-16"
           style={{
@@ -349,7 +333,7 @@ export function AstronomicalJuice() {
         />
       </div>
 
-      {/* ROADMAP STRIP · below the image */}
+      {/* ROADMAP STRIP · updated for LitVM fit */}
       <div className="mx-auto w-full max-w-[1400px] px-6 py-5 lg:px-10">
         <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-2 rounded-xl border border-white/5 bg-white/[0.02] px-4 py-2.5 sm:justify-between">
           <div className="flex items-center gap-2">
@@ -362,11 +346,11 @@ export function AstronomicalJuice() {
             </span>
           </div>
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-white/50">
-            <RoadmapItem label="LIME/USDC Swap" eta="Q2 2026" />
+            <RoadmapItem label="Native zkLTC vault" eta="30d" />
             <span className="text-white/20">·</span>
-            <RoadmapItem label="AMM pools" eta="Q3 2026" />
+            <RoadmapItem label="Permissionless markets" eta="60d" />
             <span className="text-white/20">·</span>
-            <RoadmapItem label="Permissionless markets" eta="Q3" />
+            <RoadmapItem label="Trader streaks · points" eta="60d" />
             <span className="text-white/20">·</span>
             <RoadmapItem label="UMA oracle" eta="Mainnet" />
           </div>
@@ -391,21 +375,9 @@ function CarouselButton({
     >
       <svg viewBox="0 0 16 16" fill="none" className="h-4 w-4">
         {direction === "prev" ? (
-          <path
-            d="M10 4L6 8L10 12"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
+          <path d="M10 4L6 8L10 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
         ) : (
-          <path
-            d="M6 4L10 8L6 12"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
+          <path d="M6 4L10 8L6 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
         )}
       </svg>
     </button>
@@ -427,9 +399,7 @@ function StateLabel({ label, active }: { label: string; active?: boolean }) {
   return (
     <span className="flex items-center gap-1.5 px-2 py-0.5">
       <span
-        className={`h-1.5 w-1.5 rounded-full ${
-          active ? "animate-pulse-dot" : ""
-        }`}
+        className={`h-1.5 w-1.5 rounded-full ${active ? "animate-pulse-dot" : ""}`}
         style={{
           background: active ? "#bef264" : "rgba(255,255,255,0.25)",
           boxShadow: active ? "0 0 12px rgba(190,242,100,0.8)" : "none",

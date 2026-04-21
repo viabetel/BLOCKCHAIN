@@ -8,9 +8,19 @@ import { LimeTokenIcon, UsdcTokenIcon } from "@/components/LimeTokenIcon";
 import { fmtGrouped, formatInputAsGrouped, parseGroupedInput, fmtCompact } from "@/lib/format";
 
 /**
- * Vaults section · LIME Vault + USDC Vault.
- * Shows TVL, share price, APY (approximate), user position.
- * Depositing mints vault shares that appreciate as markets accrue fees.
+ * Vaults section · productive zkLTC + USDC liquidity layer.
+ *
+ * v19 strategic rewrite (LitVM fit):
+ *  - Headline frames vaults as the Litecoin yield engine, not a
+ *    generic "deposit to earn" widget.
+ *  - Primary asset in copy is zkLTC; USDC is the stable reference.
+ *  - LIME is demoted: shown only as incentive-layer tag on the card.
+ *  - Copy ties vaults directly to LitVM's yield-markets thesis.
+ *
+ * Note on wiring: the legacy on-chain vault is addresses.limeVault
+ * (collateralized by the LIME MockZkLTC). Until the zkLTC-native
+ * vault is deployed, we label that card as the "Incentive vault"
+ * and point users to the future zkLTC vault via the Roadmap.
  */
 export function VaultsSection() {
   return (
@@ -31,24 +41,27 @@ export function VaultsSection() {
             <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-lime-500/30 bg-lime-500/[0.06] px-3 py-1.5">
               <span className="h-1 w-1 rounded-full bg-lime-400" />
               <span className="text-[10px] font-semibold uppercase tracking-[0.22em] text-lime-200">
-                Yield vaults
+                Productive zkLTC · Yield vaults
               </span>
             </div>
             <h2
               className="headline-display text-text-primary"
               style={{ fontSize: "clamp(34px, 4.2vw, 60px)" }}
             >
-              Deposit once. <span className="text-gradient-lime">Earn everywhere.</span>
+              Deposit once.{" "}
+              <span className="text-gradient-lime">Fund every market.</span>
             </h2>
             <p className="mt-4 max-w-xl text-base leading-relaxed text-text-secondary sm:text-lg">
-              Each vault auto-distributes your deposit as liquidity across every
-              active market. Collect a share of trading fees without picking
-              sides. Withdraw anytime.
+              Limero vaults route user-deposited liquidity into the protocol's
+              active prediction markets. LTC holders park zkLTC, the vault
+              provisions LP depth across markets, and depositors earn a share
+              of the 2% trading fee · automatic, withdrawable anytime.
             </p>
           </div>
           <div className="flex items-center gap-2">
             <span className="terminal-pill">2% FEE SHARE</span>
             <span className="terminal-pill">WITHDRAW ANYTIME</span>
+            <span className="terminal-pill">zkLTC-BACKED</span>
           </div>
         </div>
 
@@ -58,21 +71,23 @@ export function VaultsSection() {
             vaultAddress={addresses.limeVault}
             underlyingAddress={addresses.collateral}
             tokenSymbol="LIME"
-            tokenName="Limero Token"
+            tokenName="Incentive Vault"
             decimals={18}
             icon={<LimeTokenIcon size={48} />}
             accent="#84cc16"
-            description="Native collateral vault. Best for fast onboarding via faucet."
+            description="Incentive-layer vault. Bootstraps market liquidity during testnet. zkLTC-native vault in Roadmap 30/60/90."
+            tag="Incentive"
           />
           <VaultCard
             vaultAddress={addresses.usdcVault}
             underlyingAddress={addresses.usdc}
             tokenSymbol="USDC"
-            tokenName="USD Coin"
+            tokenName="Stable Reference Vault"
             decimals={6}
             icon={<UsdcTokenIcon size={48} />}
             accent="#60a5fa"
-            description="Stable reference vault. Bridge USDC via Arbitrum."
+            description="Stable-denominated vault for USD-referenced markets. USDC bridged via Arbitrum."
+            tag="Stable"
           />
         </div>
 
@@ -81,12 +96,12 @@ export function VaultsSection() {
           <HowStep
             n="01"
             title="Deposit"
-            body="Send LIME or USDC to the vault. Receive vault shares."
+            body="Send zkLTC, USDC, or LIME to the vault. Receive vault shares."
           />
           <HowStep
             n="02"
             title="Auto-routed"
-            body="Vault capital backs liquidity across active markets."
+            body="Vault capital funds LP depth across active markets."
           />
           <HowStep
             n="03"
@@ -98,6 +113,21 @@ export function VaultsSection() {
             title="Withdraw"
             body="Burn shares anytime, receive principal + fees."
           />
+        </div>
+
+        {/* zkLTC vault roadmap hint */}
+        <div className="mt-5 rounded-2xl border border-lime-500/20 bg-gradient-to-r from-lime-500/[0.06] to-transparent p-4 text-sm text-text-secondary">
+          <span className="font-mono text-[10px] font-bold uppercase tracking-[0.18em] text-lime-300">
+            Roadmap · 30 days
+          </span>
+          <p className="mt-1.5">
+            Native zkLTC vault in deployment. Direct productive yield for LTC
+            holders on LitVM, without wrappers. See{" "}
+            <a href="/docs/roadmap" className="underline underline-offset-2 hover:text-lime-200">
+              testnet scope
+            </a>
+            .
+          </p>
         </div>
       </div>
     </section>
@@ -115,6 +145,7 @@ function VaultCard({
   icon,
   accent,
   description,
+  tag,
 }: {
   vaultAddress: `0x${string}` | "";
   underlyingAddress: `0x${string}`;
@@ -124,6 +155,7 @@ function VaultCard({
   icon: React.ReactNode;
   accent: string;
   description: string;
+  tag?: string;
 }) {
   const { address: user, isConnected } = useAccount();
   const [action, setAction] = useState<"deposit" | "withdraw">("deposit");
@@ -131,7 +163,6 @@ function VaultCard({
 
   const deployed = Boolean(vaultAddress && vaultAddress.length === 42);
 
-  // Read vault state (only if deployed)
   const { data: vaultReads } = useReadContracts({
     contracts: deployed
       ? [
@@ -166,7 +197,6 @@ function VaultCard({
   const userBalN = Number(formatUnits(userBal, decimals));
   const userAssetValue = (userSharesN * Number(sharePrice)) / 1e18;
   const sharePriceN = Number(sharePrice) / 1e18;
-  // APR is a projection until we have real fee data
   const projectedApr = totalAssets > 0n ? 12.5 : 0;
 
   const parsedAmount = amount ? safeParse(amount, decimals) : 0n;
@@ -219,34 +249,31 @@ function VaultCard({
         boxShadow: `0 20px 60px -20px rgba(0,0,0,0.8), inset 0 0 60px ${accent}05`,
       }}
     >
-      {/* Ambient glow */}
       <div
-        className="pointer-events-none absolute -right-20 -top-20 h-48 w-48 rounded-full opacity-20 blur-3xl"
+        className="pointer-events-none absolute right-0 top-0 h-48 w-48 rounded-full opacity-30 blur-3xl"
         style={{ background: accent }}
       />
 
-      <div className="relative p-5">
+      <div className="relative p-5 lg:p-6">
         {/* Header */}
-        <div className="mb-5 flex items-start justify-between">
-          <div className="flex items-center gap-3">
-            {icon}
-            <div>
-              <div className="flex items-center gap-2">
-                <h3 className="font-display text-xl font-bold tracking-tight text-text-primary">
-                  {tokenSymbol} Vault
-                </h3>
-                {!deployed && (
-                  <span className="rounded-md border border-purple-500/30 bg-purple-500/10 px-1.5 py-0.5 font-mono text-[9px] font-bold uppercase tracking-wider text-purple-300">
-                    Coming soon
-                  </span>
-                )}
-                {deployed && (
-                  <span className="rounded-md border border-lime-500/30 bg-lime-500/10 px-1.5 py-0.5 font-mono text-[9px] font-bold uppercase tracking-wider text-lime-300">
-                    Live
-                  </span>
-                )}
-              </div>
-              <p className="mt-0.5 text-xs text-text-muted">{description}</p>
+        <div className="mb-5 flex items-start gap-3">
+          <div className="shrink-0">{icon}</div>
+          <div className="flex-1">
+            <div className="flex items-center gap-2">
+              <h3 className="font-display text-lg font-bold tracking-tight text-text-primary">
+                {tokenName}
+              </h3>
+              {tag && (
+                <span className="rounded-md border border-white/10 bg-white/[0.04] px-1.5 py-0.5 font-mono text-[9px] font-semibold uppercase tracking-[0.14em] text-text-muted">
+                  {tag}
+                </span>
+              )}
+            </div>
+            <p className="mt-1 text-xs leading-relaxed text-text-muted">
+              {description}
+            </p>
+            <div className="mt-2 font-mono text-[10px] text-text-muted">
+              v{tokenSymbol} · {tokenSymbol} underlying
             </div>
           </div>
         </div>
@@ -272,7 +299,7 @@ function VaultCard({
           />
         </div>
 
-        {/* Your position (if connected + has shares) */}
+        {/* Your position */}
         {deployed && isConnected && userShares > 0n && (
           <div
             className="mb-4 rounded-xl border p-3"
@@ -335,7 +362,6 @@ function VaultCard({
               </button>
             </div>
 
-            {/* Input */}
             <div>
               <div className="mb-1.5 flex items-center justify-between">
                 <label className="text-[10px] font-semibold uppercase tracking-[0.15em] text-text-muted">
@@ -371,7 +397,6 @@ function VaultCard({
               </div>
             </div>
 
-            {/* Submit */}
             <button
               onClick={
                 !isConnected

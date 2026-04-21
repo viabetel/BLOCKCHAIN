@@ -20,14 +20,35 @@ const DURATION_PRESETS = [
   { label: "1y", seconds: 365 * 86400 },
 ];
 
+/**
+ * LitVM-native Market Pack (v19).
+ *
+ * Seeds are grouped into 4 editorial buckets that signal alignment with
+ * the LitVM thesis: LTC price bands, LitVM ecosystem milestones, Litecoin
+ * treasury / ETF themes, and builder / onchain activity. Every market is
+ * designed to generate recurring LTC-denominated activity.
+ */
 const SEED_MARKETS = [
-  { q: "Will the LitVM Builders Program exceed 200 participating teams by June 7, 2026?", days: 60 },
-  { q: "Will $LITVM Token Generation Event happen before September 1, 2026?", days: 140 },
-  { q: "Will LTC close above $120 on December 31, 2026?", days: 260 },
-  { q: "Will the Canary Litecoin ETF (LTCC) exceed $500M AUM by end of 2026?", days: 260 },
-  { q: "Will LitVM Mainnet launch before November 1, 2026?", days: 200 },
-  { q: "Will Luxxfolio hold 500,000+ LTC in treasury by end of 2026?", days: 260 },
-  { q: "Will Bitcoin dominance drop below 55% before November 2026?", days: 200 },
+  // --- LTC price bands (recurring, habit-forming) ---
+  { q: "Will LTC close above $120 on December 31, 2026?", days: 260, cat: "LTC Price" },
+  { q: "Will LTC trade above $150 at any point before October 1, 2026?", days: 170, cat: "LTC Price" },
+  { q: "Will LTC outperform BTC on a 90-day basis by August 1, 2026?", days: 110, cat: "LTC Price" },
+
+  // --- LitVM ecosystem milestones ---
+  { q: "Will the LitVM Builders Program exceed 200 participating teams by June 7, 2026?", days: 60, cat: "LitVM" },
+  { q: "Will $LITVM Token Generation Event happen before September 1, 2026?", days: 140, cat: "LitVM" },
+  { q: "Will LitVM Mainnet launch before November 1, 2026?", days: 200, cat: "LitVM" },
+  { q: "Will LitVM daily active wallets exceed 10,000 by August 2026?", days: 110, cat: "LitVM" },
+
+  // --- Litecoin treasury / ETF themes ---
+  { q: "Will the Canary Litecoin ETF (LTCC) exceed $500M AUM by end of 2026?", days: 260, cat: "LTC Treasury" },
+  { q: "Will Luxxfolio hold 500,000+ LTC in treasury by end of 2026?", days: 260, cat: "LTC Treasury" },
+  { q: "Will a second public company announce an LTC treasury before Q4 2026?", days: 200, cat: "LTC Treasury" },
+
+  // --- Builder / onchain activity ---
+  { q: "Will Limero vault TVL exceed 10,000 zkLTC by September 1, 2026?", days: 140, cat: "Builder" },
+  { q: "Will more than 5 LitVM builder projects reach mainnet launch by December 2026?", days: 260, cat: "Builder" },
+  { q: "Will Bitcoin dominance drop below 55% before November 2026?", days: 200, cat: "Builder" },
 ];
 
 const PRESET_QUESTIONS = SEED_MARKETS.map((m) => m.q);
@@ -51,7 +72,26 @@ export default function AdminPage() {
 
         <div className="mb-6 flex items-baseline gap-3">
           <h1 className="font-display text-3xl font-semibold tracking-tighter text-text-primary">Admin Panel</h1>
-          <span className="chip chip-cat">Private</span>
+          <span className="chip chip-cat">Curator</span>
+        </div>
+
+        {/* Permissionless roadmap banner · signals the protocol is moving past admin-centric ops */}
+        <div className="mb-6 rounded-xl border border-purple-500/30 bg-gradient-to-r from-purple-500/[0.08] via-purple-500/[0.04] to-transparent p-4">
+          <div className="flex flex-wrap items-center gap-3">
+            <span className="rounded-md border border-purple-400/40 bg-purple-500/15 px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-[0.18em] text-purple-200">
+              Roadmap · 60d
+            </span>
+            <p className="flex-1 text-sm text-text-secondary">
+              <span className="font-semibold text-text-primary">Permissionless market creation</span>{" "}
+              ships in 60 days. This panel becomes the{" "}
+              <span className="font-semibold text-text-primary">editorial curator layer</span>{" "}
+              for featured markets · not a gate. See{" "}
+              <a href="/docs/architecture" className="underline underline-offset-2 hover:text-lime-200">
+                architecture
+              </a>
+              .
+            </p>
+          </div>
         </div>
 
         {!isConnected ? (
@@ -154,7 +194,7 @@ function SeedMarketsCard() {
   const running = currentIdx !== null;
 
   return (
-    <Card title="Seed 7 default markets" subtitle="One click, creates all 7 preset markets in English" accent>
+    <Card title="Seed LitVM-native Market Pack" subtitle={`${SEED_MARKETS.length} curated markets · LTC price, LitVM milestones, treasury themes, builder activity`} accent>
       <div className="space-y-3">
         <div className="max-h-56 space-y-1.5 overflow-y-auto rounded-lg border border-space-border bg-space p-3">
           {SEED_MARKETS.map((m, i) => (
@@ -165,6 +205,9 @@ function SeedMarketsCard() {
                 "bg-space-elevated text-text-muted"
               }`}>
                 {i < completed ? "✓" : i + 1}
+              </span>
+              <span className="shrink-0 rounded border border-space-border bg-space-deep px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-wider text-text-muted">
+                {m.cat}
               </span>
               <span className={`truncate ${i < completed ? "text-text-muted line-through" : "text-text-secondary"}`}>
                 {m.q}
@@ -177,10 +220,10 @@ function SeedMarketsCard() {
           className="btn-ink w-full rounded-lg px-4 py-3 text-sm">
           {running ? `Creating ${completed + 1} / ${SEED_MARKETS.length}...` :
            completed === SEED_MARKETS.length ? `Seeded ${completed} markets ✓` :
-           "Seed All 7 Markets"}
+           `Seed All ${SEED_MARKETS.length} Markets`}
         </button>
         <p className="text-[11px] text-text-muted">
-          You will need to confirm one transaction per market (7 total). Each costs ~0.005 $LIME gas.
+          One transaction per market ({SEED_MARKETS.length} total). Each costs ~0.005 zkLTC-eq in gas. These are the curator-picked featured markets for the testnet launch.
         </p>
         {error && <p className="text-[11px] text-red-400">Error: {error.message.slice(0, 120)}</p>}
       </div>
@@ -270,7 +313,7 @@ function MintTokensCard() {
   };
 
   return (
-    <Card title="Mint test $LIME" subtitle="MockZkLTC faucet">
+    <Card title="Mint test LIME" subtitle="Incentive-layer bootstrap faucet">
       <div className="space-y-3">
         <input type="text" value={recipient} onChange={(e) => setRecipient(e.target.value)}
           placeholder={address ? `${fmtAddress(address)} (you)` : "0x..."}
@@ -287,7 +330,7 @@ function MintTokensCard() {
         </div>
         <button onClick={mint} disabled={!amount || isPending || waiting}
           className="btn-ink w-full rounded-lg px-4 py-3 text-sm">
-          {waiting ? "Confirming..." : isPending ? "Approve..." : isSuccess ? "Minted ✓" : `Mint ${amount} $LIME`}
+          {waiting ? "Confirming..." : isPending ? "Approve..." : isSuccess ? "Minted ✓" : `Mint ${amount} LIME`}
         </button>
       </div>
     </Card>

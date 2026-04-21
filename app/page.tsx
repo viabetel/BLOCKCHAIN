@@ -70,14 +70,12 @@ export default function HomePage() {
 
   const totalLiquidity = useMemo(() => marketInfo.reduce((acc, m) => acc + m.tvl, 0n), [marketInfo]);
 
-  // Filter visible markets
   const visible = useMemo(() => {
     let list = [...marketInfo];
     if (hiddenMounted) list = list.filter((m) => !isHidden(m.address));
     return list;
   }, [marketInfo, hiddenMounted, isHidden]);
 
-  // Featured: top 3 by volume (non-resolved)
   const featured = useMemo(() => {
     return [...visible]
       .filter((m) => !m.resolved)
@@ -112,11 +110,14 @@ export default function HomePage() {
       <Hero />
       <TickerBar />
 
-      <AstronomicalJuice />
+      {/* NEW: Why zkLTC · anchors the whole protocol in LitVM thesis */}
+      <WhyZkLTCSection />
 
       <VaultsSection />
 
       {featured.length > 0 && <FeaturedSection markets={featured} />}
+
+      <AstronomicalJuice />
 
       <FaucetSection />
 
@@ -143,9 +144,96 @@ export default function HomePage() {
 }
 
 /* ============================================
-   NAV
+   WHY zkLTC · NEW SECTION · LitVM thesis anchor
    ============================================ */
-// Nav and NavLink removed · StickyHeader (imported) replaces them.
+function WhyZkLTCSection() {
+  const pillars = [
+    {
+      tag: "01",
+      title: "Productive LTC capital",
+      body: "zkLTC parked in Limero vaults funds LP depth across every live market. Litecoin stops sitting idle and starts earning onchain fees.",
+    },
+    {
+      tag: "02",
+      title: "Hard-money market layer",
+      body: "Prediction and yield markets denominated in the asset Litecoin holders already understand. No new collateral to trust, no wrapped detour.",
+    },
+    {
+      tag: "03",
+      title: "Recurring onchain activity",
+      body: "Daily and weekly markets, trader streaks and liquidity rewards · designed so LTC holders keep coming back to LitVM, not churn after one trade.",
+    },
+    {
+      tag: "04",
+      title: "LitVM-native by design",
+      body: "Built on LiteForge, an Arbitrum Orbit rollup via Caldera. Every market, vault and settlement lives on LitVM · no bridging out to earn.",
+    },
+  ];
+
+  return (
+    <section
+      id="why-zkltc"
+      className="relative overflow-hidden border-b border-space-border bg-space py-20 lg:py-24"
+    >
+      <div className="pointer-events-none absolute inset-0">
+        <div className="absolute left-1/2 top-1/2 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-lime-500/[0.03] blur-3xl" />
+      </div>
+
+      <div className="relative mx-auto max-w-[1400px] px-6 lg:px-10">
+        <div className="mb-12 flex flex-wrap items-end justify-between gap-6">
+          <div className="max-w-2xl">
+            <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-lime-500/30 bg-lime-500/[0.06] px-3 py-1.5">
+              <span className="h-1 w-1 rounded-full bg-lime-400" />
+              <span className="text-[10px] font-semibold uppercase tracking-[0.22em] text-lime-200">
+                Why zkLTC on Limero
+              </span>
+            </div>
+            <h2
+              className="headline-display text-text-primary"
+              style={{ fontSize: "clamp(34px, 4.4vw, 64px)" }}
+            >
+              Litecoin, made{" "}
+              <span className="text-gradient-lime">productive.</span>
+            </h2>
+            <p className="mt-5 max-w-xl text-base leading-relaxed text-text-secondary sm:text-lg">
+              Limero exists for a specific reason · turning the most conservative
+              crypto user base into active onchain participants without asking
+              them to leave the asset they trust. Every primitive in the protocol
+              is designed to deepen zkLTC utility on LitVM.
+            </p>
+          </div>
+          <div className="flex flex-col items-end gap-2">
+            <span className="terminal-pill">BUILT FOR LTC HOLDERS</span>
+            <span className="terminal-pill">LITVM-ALIGNED THESIS</span>
+          </div>
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          {pillars.map((p, i) => (
+            <div
+              key={p.tag}
+              className="card-glass animate-fade-up rounded-2xl p-6"
+              style={{ animationDelay: `${i * 0.08}s` }}
+            >
+              <div className="mb-4 flex items-center justify-between">
+                <span className="font-mono text-xs font-bold text-lime-300 tabular">
+                  {p.tag}
+                </span>
+                <span className="h-px flex-1 ml-3 bg-space-border" />
+              </div>
+              <h3 className="mb-2 font-display text-base font-semibold tracking-tight text-text-primary">
+                {p.title}
+              </h3>
+              <p className="text-sm leading-relaxed text-text-secondary">
+                {p.body}
+              </p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
 
 /* ============================================
    FEATURED MARKETS
@@ -202,7 +290,6 @@ function MarketsSection({
   return (
     <section id="markets" className="border-b border-space-border bg-space py-14">
       <div className="mx-auto max-w-[1400px] px-6 lg:px-8">
-        {/* Header */}
         <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
           <div>
             <div className="flex items-baseline gap-3">
@@ -213,7 +300,7 @@ function MarketsSection({
             </div>
             <div className="mt-1.5 flex items-center gap-4 text-xs text-text-muted">
               <span>
-                TVL <span className="font-mono font-semibold text-text-secondary tabular">{fmtZkLTC(totalLiquidity)} $LIME</span>
+                TVL <span className="font-mono font-semibold text-text-secondary tabular">{fmtZkLTC(totalLiquidity)} zkLTC-eq</span>
               </span>
               <span className="h-3 w-px bg-space-border" />
               <span className="flex items-center gap-1.5">
@@ -223,7 +310,6 @@ function MarketsSection({
             </div>
           </div>
 
-          {/* Search */}
           <div className="relative w-full md:w-80">
             <svg className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <circle cx="11" cy="11" r="7" />
@@ -235,7 +321,6 @@ function MarketsSection({
           </div>
         </div>
 
-        {/* Filters */}
         <div className="mb-8 flex flex-wrap items-center justify-between gap-3">
           <div className="flex flex-wrap items-center gap-1.5">
             {CATEGORIES.map((c) => (
@@ -258,7 +343,6 @@ function MarketsSection({
           </div>
         </div>
 
-        {/* Grid */}
         {count === 0 ? <EmptyState /> : markets.length === 0 ? <NoResults /> : (
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {markets.map((m: any, i: number) => (
@@ -297,29 +381,29 @@ function NoResults() {
 }
 
 /* ============================================
-   HOW IT WORKS
+   HOW IT WORKS · v19 copy (zkLTC-first)
    ============================================ */
 function HowItWorksSection() {
   const steps = [
     {
       n: "01",
       title: "Pick a side",
-      body: "Every market asks a yes-or-no question. Buy YES if you think it resolves true, NO if not. Price is the market's live probability.",
+      body: "Every market asks a yes-or-no question. Buy YES if you expect it to resolve true, NO if not. Price reflects the market's live probability.",
     },
     {
       n: "02",
-      title: "Trade the price",
-      body: "Prices move as traders buy in. If YES sits at 32%, you pay 0.32 $LIME per share. Sell anytime before resolution.",
+      title: "Trade in zkLTC",
+      body: "Prices move as traders buy in. If YES sits at 32%, you pay 0.32 zkLTC per share. Exit anytime before resolution.",
     },
     {
       n: "03",
       title: "Oracle resolves",
-      body: "At expiry, the oracle reports the outcome onchain. Liquidity providers and traders can immediately redeem.",
+      body: "At expiry, the oracle reports the outcome onchain. Vault LPs and traders can redeem immediately.",
     },
     {
       n: "04",
       title: "Redeem 1:1",
-      body: "Winning shares redeem 1 $LIME each. Losing shares go to zero. LPs get paid from the winning side.",
+      body: "Winning shares redeem 1 zkLTC each. Losing shares go to zero. Vaults collect fees continuously.",
     },
   ];
 
@@ -332,8 +416,8 @@ function HowItWorksSection() {
             Four steps to a <span className="text-gradient-lime">settled outcome</span>.
           </h2>
           <p className="mt-4 max-w-xl text-base leading-relaxed text-text-secondary">
-            Limero runs on a Fixed Product Market Maker. Each market holds a pool of YES and NO
-            outcome tokens that settle 1:1 against $LIME once the oracle resolves.
+            Limero runs on a Fixed Product Market Maker. Each market holds YES and NO
+            outcome tokens that settle 1:1 against zkLTC once the oracle resolves.
           </p>
         </div>
 
@@ -357,24 +441,24 @@ function HowItWorksSection() {
 }
 
 /* ============================================
-   WHY LIMERO
+   WHY LIMERO · v19 rewrite (no "dual-collateral" pitch)
    ============================================ */
 function WhyLimeroSection() {
   const features = [
     {
       icon: "⟠",
-      title: "Dual-collateral markets",
-      body: "Pick your exposure: trade in $LIME for growth markets, or in USDC for stable-reference markets. Liquidity pools separate by collateral.",
+      title: "zkLTC-native liquidity",
+      body: "Every vault and market is denominated in zkLTC. LTC holders keep exposure in the asset they already trust · no wrapped detour.",
     },
     {
       icon: "◆",
       title: "Onchain verifiable",
-      body: "Every trade, resolution, and payout is inspectable on the LiteForge block explorer. No hidden matching, no custodial wrappers.",
+      body: "Every trade, resolution and payout is inspectable on the LiteForge block explorer. No hidden matching, no custodial wrappers.",
     },
     {
       icon: "▲",
-      title: "Trader-grade UX",
-      body: "FPMM with continuous pricing, per-market liquidity provision, real-time positions, and a dashboard for your full portfolio.",
+      title: "Vault-routed yield",
+      body: "Depositors fund LP depth across every active market automatically. Earn a share of the 2% trading fee · withdraw anytime.",
     },
     {
       icon: "◇",
@@ -390,11 +474,13 @@ function WhyLimeroSection() {
           <div className="max-w-xl">
             <span className="chip chip-cat">Differentiators</span>
             <h2 className="mt-4 font-display text-4xl font-bold leading-[1.05] tracking-tighter text-text-primary sm:text-5xl">
-              Built for <span className="text-gradient-lime">real markets</span>.
+              Built for <span className="text-gradient-lime">Litecoin on LitVM</span>.
             </h2>
           </div>
           <p className="max-w-md text-sm leading-relaxed text-text-secondary">
-            Most prediction platforms lock users into a single collateral. Limero runs parallel markets in $LIME and USDC · you pick how much risk you want denominated in.
+            Most prediction platforms are generic multichain apps. Limero is a
+            Litecoin-native protocol: its collateral, its vaults, and its
+            incentive design all exist to expand zkLTC utility on LitVM.
           </p>
         </div>
 
@@ -417,7 +503,7 @@ function WhyLimeroSection() {
 }
 
 /* ============================================
-   PROTOCOL STATS
+   PROTOCOL STATS · v19: TVL denominated in zkLTC-eq
    ============================================ */
 function ProtocolStatsSection({ marketCount, totalLiquidity }: { marketCount: number; totalLiquidity: bigint }) {
   return (
@@ -432,7 +518,7 @@ function ProtocolStatsSection({ marketCount, totalLiquidity }: { marketCount: nu
 
         <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
           <StatBig label="Active markets" value={marketCount.toString()} />
-          <StatBig label="Total liquidity" value={fmtZkLTC(totalLiquidity)} unit="$LIME" />
+          <StatBig label="Total liquidity" value={fmtZkLTC(totalLiquidity)} unit="zkLTC-eq" />
           <StatBig label="Chain" value="LiteForge" unit="4441" mono />
           <StatBig label="Trading fee" value="2.00" unit="% per trade" />
         </div>
@@ -456,7 +542,7 @@ function StatBig({ label, value, unit, mono }: { label: string; value: string; u
 }
 
 /* ============================================
-   CTA FINAL
+   CTA FINAL · v19 headline reposicionada
    ============================================ */
 function CTAFinalSection() {
   return (
@@ -464,18 +550,19 @@ function CTAFinalSection() {
       <div className="relative mx-auto max-w-4xl px-6 text-center lg:px-8">
         <span className="chip chip-featured">Open beta · Testnet</span>
         <h2 className="mt-5 font-display text-5xl font-bold leading-[1.0] tracking-tightest text-text-primary sm:text-6xl [text-wrap:balance]">
-          Trade the first <span className="text-gradient-lime">hard money</span> prediction market.
+          Make your <span className="text-gradient-lime">Litecoin</span> do something.
         </h2>
         <p className="mx-auto mt-5 max-w-xl text-base leading-relaxed text-text-secondary">
-          No real funds at risk. Claim 100 $LIME from the faucet, pick a market, and settle conviction onchain.
+          No real funds at risk on testnet. Claim zkLTC from the LitVM faucet,
+          deposit into a vault, and start earning fees from every market trade.
         </p>
         <div className="mt-8 flex flex-wrap justify-center gap-3">
-          <Link href="#markets" className="btn-lime inline-flex items-center gap-2 rounded-xl px-7 py-4 text-sm">
-            Start trading <span aria-hidden>→</span>
+          <Link href="#vaults" className="btn-lime inline-flex items-center gap-2 rounded-xl px-7 py-4 text-sm">
+            Open a vault <span aria-hidden>→</span>
           </Link>
-          <a href="https://docs.litvm.com" target="_blank" rel="noopener noreferrer"
+          <a href="https://builders.litvm.com" target="_blank" rel="noopener noreferrer"
             className="btn-ghost rounded-xl px-7 py-4 text-sm">
-            Read LitVM docs
+            LitVM Builders Program
           </a>
         </div>
       </div>
@@ -484,7 +571,7 @@ function CTAFinalSection() {
 }
 
 /* ============================================
-   FOOTER
+   FOOTER · v19 one-liner reposicionada
    ============================================ */
 function Footer() {
   return (
@@ -497,12 +584,14 @@ function Footer() {
               <Wordmark className="text-base text-text-primary" />
             </div>
             <p className="mt-4 max-w-xs text-sm text-text-secondary">
-              Dual-collateral prediction markets on LitVM. Trade in $LIME or USDC, settled onchain.
+              Litecoin-native prediction and yield markets on LitVM. Turning
+              zkLTC into productive onchain capital.
             </p>
           </div>
           <FooterCol title="Protocol">
+            <FooterLink href="#why-zkltc">Why zkLTC</FooterLink>
+            <FooterLink href="#vaults">Vaults</FooterLink>
             <FooterLink href="#markets">Markets</FooterLink>
-            <FooterLink href="#how-it-works">How it works</FooterLink>
             <FooterLink href="https://liteforge.explorer.caldera.xyz" external>Block Explorer</FooterLink>
           </FooterCol>
           <FooterCol title="Developers">
@@ -523,7 +612,7 @@ function Footer() {
 
         <div className="mt-10 flex flex-col items-start justify-between gap-3 border-t border-space-border pt-6 text-xs text-text-muted md:flex-row md:items-center">
           <span>© 2026 Limero Labs. Testnet deployment.</span>
-          <span className="font-mono tabular">v0.7.0</span>
+          <span className="font-mono tabular">v0.8.0 · LitVM-native</span>
         </div>
       </div>
     </footer>

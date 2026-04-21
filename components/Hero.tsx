@@ -7,16 +7,16 @@ import { ConnectButton } from "@/components/ConnectButton";
 import { addresses, factoryAbi } from "@/lib/contracts";
 
 /**
- * HERO v11 · Composition fix.
+ * HERO v12 · LitVM-native repositioning.
  *
- * Problem with v10: text was centered, but the mascot occupies center-bottom
- * of the image → headline always landed on the face.
+ * Strategic shift (for LitVM Builders Program fit):
+ *  - Headline centers zkLTC utility, not $LIME brand.
+ *  - Subhead anchors the product to Litecoin's hard-money user base
+ *    and LitVM's thesis (yield markets + productive capital for LTC holders).
+ *  - $LIME is present but demoted to "points / incentive layer" in copy.
+ *  - zkLTC is framed as the primary economic asset of the protocol.
  *
- * Fix:
- * - Text anchored LEFT (mascot lives center-right in our image)
- * - Headline + CTAs all in the left 50% of the viewport
- * - Left side has stronger vignette to protect text
- * - Right side stays clean for the mascot/lemons
+ * Composition from v11 is preserved (left-anchored text, mascot right).
  */
 export function Hero() {
   const { data: length } = useReadContract({
@@ -43,7 +43,6 @@ export function Hero() {
       </div>
 
       {/* OVERLAYS */}
-      {/* Strong left-side darkening to protect text */}
       <div
         className="pointer-events-none absolute inset-0 z-10"
         style={{
@@ -51,7 +50,6 @@ export function Hero() {
             "linear-gradient(90deg, rgba(6,9,16,0.92) 0%, rgba(6,9,16,0.75) 25%, rgba(6,9,16,0.35) 50%, transparent 70%)",
         }}
       />
-      {/* Top header area protection */}
       <div
         className="pointer-events-none absolute inset-x-0 top-0 z-10 h-32"
         style={{
@@ -59,7 +57,6 @@ export function Hero() {
             "linear-gradient(180deg, rgba(6,9,16,0.7) 0%, transparent 100%)",
         }}
       />
-      {/* Bottom transition */}
       <div
         className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-40"
         style={{
@@ -80,10 +77,11 @@ export function Hero() {
           </Link>
 
           <nav className="hidden items-center gap-8 md:flex">
+            <HeaderLink href="#why-zkltc">Why zkLTC</HeaderLink>
+            <HeaderLink href="#vaults">Vaults</HeaderLink>
             <HeaderLink href="#markets">Markets</HeaderLink>
-            <HeaderLink href="#astronomical-juice">Engine</HeaderLink>
             <HeaderLink href="/dashboard">Dashboard</HeaderLink>
-            <HeaderLink href="https://docs.litvm.com" external>Docs</HeaderLink>
+            <HeaderLink href="https://docs.litvm.com" external>LitVM Docs</HeaderLink>
           </nav>
 
           <ConnectButton />
@@ -100,22 +98,22 @@ export function Hero() {
               <span className="relative h-1.5 w-1.5 rounded-full bg-lime-400" />
             </span>
             <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-lime-200">
-              Live on LitVM · LiteForge Testnet
+              Litecoin-native · Built on LitVM LiteForge
             </span>
           </div>
 
-          {/* Headline - left aligned */}
+          {/* Headline - left aligned, zkLTC-first */}
           <h1
             className="animate-fade-up headline-display text-white [text-wrap:balance]"
             style={{
-              fontSize: "clamp(48px, 6.2vw, 92px)",
+              fontSize: "clamp(44px, 5.8vw, 88px)",
               animationDelay: "0.05s",
               textShadow: "0 4px 40px rgba(0,0,0,0.7)",
               letterSpacing: "-0.045em",
               lineHeight: "0.95",
             }}
           >
-            Trade the{" "}
+            Put{" "}
             <span
               style={{
                 background:
@@ -126,20 +124,20 @@ export function Hero() {
                 filter: "drop-shadow(0 0 25px rgba(190, 242, 100, 0.3))",
               }}
             >
-              future
-            </span>
+              zkLTC
+            </span>{" "}
+            to work.
             <br />
-            in{" "}
             <span
               className="italic"
               style={{ fontFamily: "var(--font-display)", fontWeight: 800 }}
             >
-              hard money
-            </span>
-            .
+              Hard money,
+            </span>{" "}
+            live markets.
           </h1>
 
-          {/* Subhead */}
+          {/* Subhead · repositioned around LTC utility */}
           <p
             className="animate-fade-up mt-6 max-w-lg text-base leading-relaxed text-white/80 sm:text-lg"
             style={{
@@ -147,10 +145,10 @@ export function Hero() {
               textShadow: "0 2px 20px rgba(0,0,0,0.9)",
             }}
           >
-            Prediction markets with dual-asset yield vaults, native to LitVM.
-            Trade in <span className="font-semibold text-lime-200">$LIME</span> or{" "}
-            <span className="font-semibold text-slate-200">USDC</span>. Earn fees
-            by depositing into the vault.
+            Limero turns{" "}
+            <span className="font-semibold text-lime-200">zkLTC</span> into
+            productive, recurring onchain activity through prediction and
+            yield markets · built for Litecoin holders on LitVM.
           </p>
 
           {/* CTAs */}
@@ -166,10 +164,10 @@ export function Hero() {
               <span aria-hidden>→</span>
             </Link>
             <Link
-              href="#astronomical-juice"
+              href="#vaults"
               className="btn-ghost rounded-xl px-7 py-3.5 text-sm"
             >
-              See the engine
+              Earn with vaults
             </Link>
           </div>
 
@@ -178,9 +176,10 @@ export function Hero() {
             className="animate-fade-up mt-8 flex flex-wrap items-center gap-2"
             style={{ animationDelay: "0.2s" }}
           >
-            <span className="terminal-pill">MAINNET Q3 2026</span>
+            <span className="terminal-pill">zkLTC-NATIVE</span>
             <span className="terminal-pill">CHAIN 4441</span>
             <span className="terminal-pill">{count} ACTIVE MARKETS</span>
+            <span className="terminal-pill">MAINNET Q3 2026</span>
           </div>
         </div>
       </div>
