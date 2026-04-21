@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Limero Vault Deployer</title>
+<script src="https://cdn.jsdelivr.net/npm/ethers@6.13.4/dist/ethers.umd.min.js"></script>
+<style>
+  :root{color-scheme:dark}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family: ui-sans-serif, system-ui, sans-serif;
+    background:
+      radial-gradient(ellipse 80% 50% at 50% -10%, rgba(132,204,22,.08), transparent),
+      radial-gradient(ellipse 60% 50% at 80% 10%, rgba(132,204,22,.05), transparent),
+      #0a0e14;
+    color:#f3f4f6;
+    min-height:100vh;
+    padding:40px 20px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+  }
+  .wrap{max-width:720px;width:100%}
+  h1{
+    font-size:40px;
+    font-weight:800;
+    letter-spacing:-.04em;
+    margin-bottom:8px;
+    background:linear-gradient(135deg,#fff,#d9f99d,#84cc16);
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  }
+  p.lead{color:#9ca3af;font-size:15px;line-height:1.6;margin-bottom:32px}
+  .badge{
+    display:inline-flex;align-items:center;gap:6px;
+    padding:4px 10px;border-radius:999px;
+    border:1px solid rgba(132,204,22,.3);background:rgba(132,204,22,.06);
+    color:#bef264;font-size:10px;font-weight:600;
+    letter-spacing:.2em;text-transform:uppercase;margin-bottom:14px;
+  }
+  .badge .dot{width:6px;height:6px;border-radius:50%;background:#84cc16;box-shadow:0 0 8px #84cc16}
+  .card{
+    background:linear-gradient(180deg,rgba(26,34,49,.55),rgba(18,24,33,.75));
+    border:1px solid rgba(255,255,255,.06);
+    backdrop-filter:blur(16px);
+    border-radius:18px;
+    padding:24px;
+    margin-bottom:16px;
+    box-shadow:0 20px 40px -20px rgba(0,0,0,.7), inset 0 1px 0 rgba(255,255,255,.05);
+  }
+  .card h2{font-size:20px;font-weight:700;letter-spacing:-.02em;margin-bottom:4px}
+  .card .sub{color:#9ca3af;font-size:13px;margin-bottom:18px}
+  .row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;font-size:13px;border-top:1px solid rgba(255,255,255,.05)}
+  .row:first-of-type{border-top:none}
+  .row .k{color:#6b7280;font-size:11px;text-transform:uppercase;letter-spacing:.1em;font-weight:600}
+  .row .v{font-family:ui-monospace,monospace;color:#d1d5db;font-size:12px}
+  .btn{
+    display:block;width:100%;margin-top:16px;
+    padding:14px 20px;
+    font-weight:700;font-size:14px;letter-spacing:-.01em;
+    border-radius:12px;cursor:pointer;border:none;
+    transition:all 150ms ease;
+    background:linear-gradient(180deg,#bef264,#84cc16);
+    color:#0a0e14;
+    box-shadow:0 1px 0 rgba(255,255,255,.3) inset, 0 0 0 1px rgba(132,204,22,.5), 0 6px 20px -4px rgba(132,204,22,.5);
+  }
+  .btn:hover:not(:disabled){filter:brightness(1.1);transform:translateY(-1px)}
+  .btn:disabled{opacity:.4;cursor:not-allowed}
+  .btn.secondary{
+    background:rgba(255,255,255,.04);color:#f3f4f6;
+    border:1px solid rgba(255,255,255,.12);box-shadow:none;
+  }
+  .btn.secondary:hover:not(:disabled){background:rgba(255,255,255,.08)}
+  .log{
+    margin-top:18px;
+    padding:12px;
+    background:rgba(0,0,0,.4);
+    border:1px solid rgba(255,255,255,.05);
+    border-radius:10px;
+    font-family:ui-monospace,monospace;
+    font-size:11px;line-height:1.7;
+    color:#9ca3af;
+    max-height:200px;overflow-y:auto;
+    white-space:pre-wrap;word-break:break-all;
+  }
+  .log .ok{color:#bef264}
+  .log .err{color:#f87171}
+  .log .info{color:#60a5fa}
+  .status{
+    display:inline-flex;align-items:center;gap:6px;
+    padding:3px 8px;border-radius:6px;font-size:10px;font-weight:700;
+    letter-spacing:.1em;text-transform:uppercase;
+  }
+  .status.pending{background:rgba(168,85,247,.15);color:#c4b5fd;border:1px solid rgba(168,85,247,.3)}
+  .status.done{background:rgba(132,204,22,.15);color:#bef264;border:1px solid rgba(132,204,22,.3)}
+  .connect-bar{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:12px 16px;border-radius:14px;
+    background:rgba(26,34,49,.6);border:1px solid rgba(255,255,255,.08);
+    margin-bottom:20px;
+  }
+  .wallet-chip{
+    display:flex;align-items:center;gap:8px;
+    font-family:ui-monospace,monospace;font-size:12px;color:#d1d5db;
+  }
+  .wallet-chip .dot{width:8px;height:8px;border-radius:50%;background:#84cc16;box-shadow:0 0 8px rgba(132,204,22,.8)}
+  .wallet-chip.off .dot{background:#6b7280;box-shadow:none}
+  .deployed-address{
+    margin-top:12px;padding:10px 12px;
+    background:rgba(132,204,22,.08);border:1px solid rgba(132,204,22,.3);
+    border-radius:8px;
+    font-family:ui-monospace,monospace;font-size:12px;
+    color:#bef264;word-break:break-all;
+    display:flex;justify-content:space-between;align-items:center;gap:8px;
+  }
+  .copy-btn{
+    padding:4px 10px;font-size:10px;
+    background:rgba(132,204,22,.2);border:1px solid rgba(132,204,22,.4);
+    border-radius:6px;color:#bef264;cursor:pointer;font-weight:700;
+    text-transform:uppercase;letter-spacing:.1em;
+  }
+  .copy-btn:hover{background:rgba(132,204,22,.3)}
+  .final-box{
+    margin-top:24px;padding:18px;
+    background:linear-gradient(135deg,rgba(132,204,22,.1),rgba(34,197,94,.05));
+    border:2px solid rgba(132,204,22,.4);
+    border-radius:14px;
+  }
+  .final-box h3{font-size:16px;margin-bottom:10px;color:#bef264}
+  .final-box pre{
+    font-family:ui-monospace,monospace;font-size:13px;color:#d9f99d;
+    background:rgba(0,0,0,.4);padding:10px;border-radius:6px;margin-top:8px;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="badge"><span class="dot"></span>LitVM LiteForge · Chain 4441</div>
+  <h1>Limero Vault Deployer</h1>
+  <p class="lead">One-click deployment for the LIME Vault and USDC Vault smart contracts. Connects to MetaMask, compiles locally, and deploys straight to LitVM LiteForge testnet.</p>
+
+  <div class="connect-bar">
+    <div id="wallet-status" class="wallet-chip off">
+      <span class="dot"></span>
+      <span>Not connected</span>
+    </div>
+    <button class="btn secondary" id="connect-btn" style="margin:0;width:auto;padding:8px 16px;font-size:12px">Connect MetaMask</button>
+  </div>
+
+  <!-- LIME VAULT -->
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px">
+      <h2>🍋 LIME Vault</h2>
+      <span id="lime-status" class="status pending">Not deployed</span>
+    </div>
+    <div class="sub">Native collateral vault. Accepts $LIME deposits.</div>
+    <div class="row"><span class="k">Underlying</span><span class="v">0x967662A0...28a2caa7</span></div>
+    <div class="row"><span class="k">Vault name</span><span class="v">Limero LIME Vault</span></div>
+    <div class="row"><span class="k">Vault symbol</span><span class="v">vLIME</span></div>
+    <div class="row"><span class="k">Decimals</span><span class="v">18</span></div>
+    <button class="btn" id="deploy-lime" disabled>Deploy LIME Vault</button>
+    <div id="lime-deployed" style="display:none" class="deployed-address">
+      <span id="lime-address"></span>
+      <button class="copy-btn" onclick="copyAddr('lime-address')">Copy</button>
+    </div>
+  </div>
+
+  <!-- USDC VAULT -->
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px">
+      <h2>💵 USDC Vault</h2>
+      <span id="usdc-status" class="status pending">Not deployed</span>
+    </div>
+    <div class="sub">Stable reference vault. Accepts USDC deposits.</div>
+    <div class="row"><span class="k">Underlying</span><span class="v">0x5adf1045...b0f75cfB</span></div>
+    <div class="row"><span class="k">Vault name</span><span class="v">Limero USDC Vault</span></div>
+    <div class="row"><span class="k">Vault symbol</span><span class="v">vUSDC</span></div>
+    <div class="row"><span class="k">Decimals</span><span class="v">6</span></div>
+    <button class="btn" id="deploy-usdc" disabled>Deploy USDC Vault</button>
+    <div id="usdc-deployed" style="display:none" class="deployed-address">
+      <span id="usdc-address"></span>
+      <button class="copy-btn" onclick="copyAddr('usdc-address')">Copy</button>
+    </div>
+  </div>
+
+  <div class="log" id="log">Open console ready. Connect your wallet to begin.</div>
+
+  <div id="final-box" class="final-box" style="display:none">
+    <h3>✓ Both vaults deployed successfully</h3>
+    <p style="color:#9ca3af;font-size:13px;margin-bottom:8px">Send these two lines to Claude and the UI will go live:</p>
+    <pre id="final-output"></pre>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// CONFIG
+// ============================================================
+const LITVM = {
+  chainId: "0x1159",  // 4441 in hex
+  chainName: "LitVM LiteForge",
+  rpcUrls: ["https://liteforge.rpc.caldera.xyz/http"],
+  nativeCurrency: { name: "zkLTC", symbol: "zkLTC", decimals: 18 },
+  blockExplorerUrls: ["https://liteforge.explorer.caldera.xyz"]
+};
+
+const LIME_TOKEN = "0x967662A01D65c6a18D836365eef13De128a2caa7";
+const USDC_TOKEN = "0x5adf1045C4a7C3e2176DbCbD09a7E6D1b0f75cfB";
+
+// ============================================================
+// LimeroVault — precompiled bytecode + ABI
+// Compiled from contracts/LimeroVault.sol with Solidity 0.8.20, optimizer 200 runs
+// ============================================================
+const VAULT_ABI = [
+  "constructor(address _underlying, string _name, string _symbol)",
+  "function owner() view returns (address)",
+  "function underlying() view returns (address)",
+  "function name() view returns (string)",
+  "function symbol() view returns (string)",
+  "function decimals() view returns (uint8)",
+  "function totalAssets() view returns (uint256)",
+  "function totalShares() view returns (uint256)",
+  "function sharePrice() view returns (uint256)",
+  "function sharesOf(address) view returns (uint256)",
+  "function convertToShares(uint256) view returns (uint256)",
+  "function convertToAssets(uint256) view returns (uint256)",
+  "function deposit(uint256 assets) returns (uint256 shares)",
+  "function withdraw(uint256 shares) returns (uint256 assets)",
+  "function routeToMarket(address market, uint256 amount)",
+  "function pullFromMarket(address market, uint256 liqShares)",
+  "function authorizeMarket(address market)",
+  "function authorizedMarket(address) view returns (bool)",
+  "function harvest()",
+  "function transferOwnership(address newOwner)",
+  "function rescue(address token, uint256 amount)",
+  "function marketCount() view returns (uint256)",
+  "function marketList(uint256) view returns (address)",
+  "event Deposit(address indexed user, uint256 assets, uint256 shares)",
+  "event Withdraw(address indexed user, uint256 assets, uint256 shares)",
+  "event RouteToMarket(address indexed market, uint256 amount)",
+  "event PullFromMarket(address indexed market, uint256 liqShares)",
+  "event Harvest(uint256 newTotalAssets, uint256 totalShares)"
+];
+
+// Compiled bytecode for LimeroVault (Solidity 0.8.20, optimizer 200)
+const VAULT_BYTECODE = "0x60c060405234801562000010575f80fd5b50604051620013ef380380620013ef8339810160408190526200003391620001a0565b6001600160a01b0383166080525f80546001600160a01b0319163317905560016200005f8382620002b0565b5060026200006e8282620002b0565b50826001600160a01b031663313ce5676040518163ffffffff1660e01b8152600401602060405180830381865afa158015620000ac573d5f803e3d5ffd5b505050506040513d601f19601f82011682018060405250810190620000d2919062000378565b60ff1660a05250620003a1915050565b634e487b7160e01b5f52604160045260245ffd5b5f82601f83011262000106575f80fd5b81516001600160401b0380821115620001235762000123620000e2565b604051601f8301601f19908116603f011681019082821181831017156200014e576200014e620000e2565b816040528381526020925086838588010111156200016a575f80fd5b5f91505b838210156200018d57858201830151818301840152908201906200016e565b5f93810190920192909252949350505050565b5f805f60608486031215620001b3575f80fd5b83516001600160a01b0381168114620001ca575f80fd5b60208501519093506001600160401b0380821115620001e7575f80fd5b620001f587838801620000f6565b935060408601519150808211156200020b575f80fd5b506200021a86828701620000f6565b9150509250925092565b600181811c908216806200023957607f821691505b6020821081036200025857634e487b7160e01b5f52602260045260245ffd5b50919050565b601f821115620002ab575f81815260208120601f850160051c81016020861015620002865750805b601f850160051c820191505b81811015620002a75782815560010162000292565b5050505b505050565b81516001600160401b03811115620002cc57620002cc620000e2565b620002e481620002dd845462000224565b846200025e565b602080601f8311600181146200031a575f8415620003025750858301515b5f19600386901b1c1916600185901b178555620002a7565b5f85815260208120601f198616915b828110156200034a5788860151825594840194600190910190840162000329565b50858210156200036857878501515f19600388901b60f8161c191681555b5050505050600190811b01905550565b5f6020828403121562000389575f80fd5b815160ff811681146200039a575f80fd5b9392505050565b60805160a051611009620003e65f395f6101c701525f81816102130152818161034c015281816105a60152818161071a01528181610a6d0152610c0e01526110095ff3fe608060405234801561000f575f80fd5b506004361061013d575f3560e01c80638739145e116100b4578063c6e6f59211610079578063c6e6f592146102a3578063cb2abe33146102b6578063ec979082146102e8578063f2862e67146102f0578063f2fde38b14610303578063f5eb42dc14610316575f80fd5b80638739145e146102505780638aa5a277146102635780638da5cb5b1461027657806395d89b4114610288578063b6b55f2514610290575f80fd5b8063313ce56711610105578063313ce567146101c25780633a98ef39146101fb5780634641257d146102045780636f307dc31461020e5780637a4e4ecf146102355780638726972914610248575f80fd5b806301e1d1141461014157806306fdde031461015c57806307a2d13a14610171578063232b956c146101845780632e1a7d4d146101af575b5f80fd5b610149610335565b6040519081526020015b60405180910390f35b6101646103c2565b6040516101539190610e30565b61014961017f366004610e7b565b61044e565b610197610192366004610e7b565b610481565b6040516001600160a01b039091168152602001610153565b6101496101bd366004610e7b565b6104a9565b6101e97f000000000000000000000000000000000000000000000000000000000000000081565b60405160ff9091168152602001610153565b61014960035481565b61020c61067e565b005b6101977f000000000000000000000000000000000000000000000000000000000000000081565b61020c610243366004610ead565b6106ee565b610149610815565b61020c61025e366004610ead565b610853565b61020c610271366004610ead565b61099d565b5f54610197906001600160a01b031681565b610164610b68565b61014961029e366004610e7b565b610b75565b6101496102b1366004610e7b565b610d11565b6102d86102c4366004610ed5565b60056020525f908152604090205460ff1681565b6040519015158152602001610153565b600654610149565b61020c6102fe366004610ed5565b610d34565b61020c610311366004610ed5565b610de5565b610149610324366004610ed5565b60046020525f908152604090205481565b6040516370a0823160e01b81523060048201525f907f00000000000000000000000000000000000000000000000000000000000000006001600160a01b0316906370a0823190602401602060405180830381865afa158015610399573d5f803e3d5ffd5b505050506040513d601f19601f820116820180604052508101906103bd9190610ef5565b905090565b600180546103cf90610f0c565b80601f01602080910402602001604051908101604052809291908181526020018280546103fb90610f0c565b80156104465780601f1061041d57610100808354040283529160200191610446565b820191905f5260205f20905b81548152906001019060200180831161042957829003601f168201915b505050505081565b5f6003545f0361045c575090565b600354610467610335565b6104719084610f58565b61047b9190610f6f565b92915050565b60068181548110610490575f80fd5b5f918252602090912001546001600160a01b0316905081565b5f6007546001036104cd576040516306fda65d60e31b815260040160405180910390fd5b60016007555f8290036104f357604051631f2a200560e01b815260040160405180910390fd5b335f9081526004602052604090205482111561052257604051633999656760e01b815260040160405180910390fd5b61052b8261044e565b9050805f0361054d57604051631f2a200560e01b815260040160405180910390fd5b335f908152600460205260408120805484929061056b908490610f8e565b925050819055508160035f8282546105839190610f8e565b909155505060405163a9059cbb60e01b8152336004820152602481018290525f907f00000000000000000000000000000000000000000000000000000000000000006001600160a01b03169063a9059cbb906044016020604051808303815f875af11580156105f4573d5f803e3d5ffd5b505050506040513d601f19601f820116820180604052508101906106189190610fa1565b905080610638576040516312171d8360e31b815260040160405180910390fd5b604080518381526020810185905233917ff279e6a1f5e320cca91135676d9cb6e44ca8a08c0b88342bcdb1144f6511b56891015b60405180910390a2505f600755919050565b5f546001600160a01b031633146106a8576040516330cd747160e01b815260040160405180910390fd5b7f6c8433a8e155f0af04dba058d4e4695f7da554578963d876bdf4a6d8d6399d9c6106d1610335565b6003546040805192835260208301919091520160405180910390a1565b5f546001600160a01b03163314610718576040516330cd747160e01b815260040160405180910390fd5b7f00000000000000000000000000000000000000000000000000000000000000006001600160a01b0316826001600160a01b03160361079d5760405162461bcd60e51b815260206004820152601860248201527f63616e6e6f742072657363756520756e6465726c79696e670000000000000000604482015260640160405180910390fd5b5f5460405163a9059cbb60e01b81526001600160a01b039182166004820152602481018390529083169063a9059cbb906044016020604051808303815f875af11580156107ec573d5f803e3d5ffd5b505050506040513d601f19601f820116820180604052508101906108109190610fa1565b505050565b5f6003545f0361082c5750670de0b6b3a764000090565b600354610837610335565b61084990670de0b6b3a7640000610f58565b6103bd9190610f6f565b5f546001600160a01b0316331461087d576040516330cd747160e01b815260040160405180910390fd5b6007546001036108a0576040516306fda65d60e31b815260040160405180910390fd5b60016007556001600160a01b0382165f9081526005602052604090205460ff166108dd57604051639db8d5b160e01b815260040160405180910390fd5b805f036108fd57604051631f2a200560e01b815260040160405180910390fd5b604051639c8f9f2360e01b8152600481018290526001600160a01b03831690639c8f9f23906024015f604051808303815f87803b15801561093c575f80fd5b505af115801561094e573d5f803e3d5ffd5b50505050816001600160a01b03167f8bd65743062bb17d9a7b375d3b2001688072a02e4dbe9992c6cce54334c9dc3c8260405161098d91815260200190565b60405180910390a250505f600755565b5f546001600160a01b031633146109c7576040516330cd747160e01b815260040160405180910390fd5b6007546001036109ea576040516306fda65d60e31b815260040160405180910390fd5b60016007556001600160a01b0382165f9081526005602052604090205460ff16610a2757604051639db8d5b160e01b815260040160405180910390fd5b805f03610a4757604051631f2a200560e01b815260040160405180910390fd5b60405163095ea7b360e01b81526001600160a01b038381166004830152602482018390527f0000000000000000000000000000000000000000000000000000000000000000169063095ea7b3906044016020604051808303815f875af1158015610ab3573d5f803e3d5ffd5b505050506040513d601f19601f82011682018060405250810190610ad79190610fa1565b506040516328e32c8560e11b8152600481018290526001600160a01b038316906351c6590a906024015f604051808303815f87803b158015610b17575f80fd5b505af1158015610b29573d5f803e3d5ffd5b50505050816001600160a01b03167ff03b37649f92bc337c2147b1dbe33368761fc87a4c04c7ea04f4f11b54974c7f8260405161098d91815260200190565b600280546103cf90610f0c565b5f600754600103610b99576040516306fda65d60e31b815260040160405180910390fd5b60016007555f829003610bbf57604051631f2a200560e01b815260040160405180910390fd5b610bc882610d11565b9050805f03610bea57604051631f2a200560e01b815260040160405180910390fd5b6040516323b872dd60e01b8152336004820152306024820152604481018390525f907f00000000000000000000000000000000000000000000000000000000000000006001600160a01b0316906323b872dd906064016020604051808303815f875af1158015610c5c573d5f803e3d5ffd5b505050506040513d601f19601f82011682018060405250810190610c809190610fa1565b905080610ca0576040516312171d8360e31b815260040160405180910390fd5b8160035f828254610cb19190610fc0565b9091555050335f9081526004602052604081208054849290610cd4908490610fc0565b9091555050604080518481526020810184905233917f90890809c654f11d6e72a28fa60149770a0d11ec6c92319d6ceb2bb0a4ea1a15910161066c565b5f6003545f03610d1f575090565b610d27610335565b6003546104719084610f58565b5f546001600160a01b03163314610d5e576040516330cd747160e01b815260040160405180910390fd5b6001600160a01b0381165f9081526005602052604090205460ff16610de2576001600160a01b0381165f818152600560205260408120805460ff191660019081179091556006805491820181559091527ff652222313e28459528d920b65115c16c04f3efc82aaedc97be59f3f377c0d3f0180546001600160a01b03191690911790555b50565b5f546001600160a01b03163314610e0f576040516330cd747160e01b815260040160405180910390fd5b5f80546001600160a01b0319166001600160a01b0392909216919091179055565b5f6020808352835180828501525f5b81811015610e5b57858101830151858201604001528201610e3f565b505f604082860101526040601f19601f8301168501019250505092915050565b5f60208284031215610e8b575f80fd5b5035919050565b80356001600160a01b0381168114610ea8575f80fd5b919050565b5f8060408385031215610ebe575f80fd5b610ec783610e92565b946020939093013593505050565b5f60208284031215610ee5575f80fd5b610eee82610e92565b9392505050565b5f60208284031215610f05575f80fd5b5051919050565b600181811c90821680610f2057607f821691505b602082108103610f3e57634e487b7160e01b5f52602260045260245ffd5b50919050565b634e487b7160e01b5f52601160045260245ffd5b808202811582820484141761047b5761047b610f44565b5f82610f8957634e487b7160e01b5f52601260045260245ffd5b500490565b8181038181111561047b5761047b610f44565b5f60208284031215610fb1575f80fd5b81518015158114610eee575f80fd5b8082018082111561047b5761047b610f4456fea264697066735822122022d7e1d6cb12e69a80aedc602c00a9491dfb0c23e30fa183f280a327d49fdc2c64736f6c63430008140033";
+
+
+// ============================================================
+// UI elements
+// ============================================================
+const walletStatus = document.getElementById("wallet-status");
+const connectBtn = document.getElementById("connect-btn");
+const deployLimeBtn = document.getElementById("deploy-lime");
+const deployUsdcBtn = document.getElementById("deploy-usdc");
+const limeStatus = document.getElementById("lime-status");
+const usdcStatus = document.getElementById("usdc-status");
+const limeDeployed = document.getElementById("lime-deployed");
+const usdcDeployed = document.getElementById("usdc-deployed");
+const limeAddrEl = document.getElementById("lime-address");
+const usdcAddrEl = document.getElementById("usdc-address");
+const finalBox = document.getElementById("final-box");
+const finalOutput = document.getElementById("final-output");
+const logEl = document.getElementById("log");
+
+let signer = null;
+let deployed = { lime: null, usdc: null };
+
+function log(msg, cls) {
+  const line = document.createElement("div");
+  if (cls) line.className = cls;
+  line.textContent = msg;
+  logEl.prepend(line);
+}
+
+function copyAddr(id) {
+  const el = document.getElementById(id);
+  navigator.clipboard.writeText(el.textContent);
+  log("📋 Copied " + el.textContent + " to clipboard", "info");
+}
+
+// ============================================================
+// Connect MetaMask + add/switch LitVM
+// ============================================================
+connectBtn.onclick = async () => {
+  if (!window.ethereum) {
+    log("✗ MetaMask not found. Install from https://metamask.io", "err");
+    return;
+  }
+  try {
+    log("→ Connecting to MetaMask...", "info");
+    await window.ethereum.request({ method: "eth_requestAccounts" });
+
+    // Ensure we're on LitVM
+    const currentChain = await window.ethereum.request({ method: "eth_chainId" });
+    if (currentChain !== LITVM.chainId) {
+      log("→ Switching to LitVM LiteForge (4441)...", "info");
+      try {
+        await window.ethereum.request({
+          method: "wallet_switchEthereumChain",
+          params: [{ chainId: LITVM.chainId }]
+        });
+      } catch (e) {
+        if (e.code === 4902) {
+          log("→ LitVM not added to wallet, adding it...", "info");
+          await window.ethereum.request({
+            method: "wallet_addEthereumChain",
+            params: [LITVM]
+          });
+        } else throw e;
+      }
+    }
+
+    const provider = new ethers.BrowserProvider(window.ethereum);
+    signer = await provider.getSigner();
+    const addr = await signer.getAddress();
+    const bal = await provider.getBalance(addr);
+
+    walletStatus.classList.remove("off");
+    walletStatus.innerHTML = `<span class="dot"></span><span>${addr.slice(0,6)}...${addr.slice(-4)} · ${ethers.formatEther(bal).slice(0,6)} zkLTC</span>`;
+    connectBtn.textContent = "Connected ✓";
+
+    deployLimeBtn.disabled = false;
+    deployUsdcBtn.disabled = false;
+
+    log("✓ Connected as " + addr, "ok");
+    log("   Balance: " + ethers.formatEther(bal) + " zkLTC", "ok");
+
+    if (parseFloat(ethers.formatEther(bal)) < 0.005) {
+      log("⚠ Low balance. Get zkLTC at https://testnet.litvm.com", "err");
+    }
+  } catch (e) {
+    log("✗ " + (e.message || "Connection failed"), "err");
+  }
+};
+
+// ============================================================
+// Deploy helper
+// ============================================================
+async function deployVault(tokenAddr, name, symbol, statusEl, deployedEl, addrEl, key) {
+  if (!signer) {
+    log("✗ Connect wallet first", "err");
+    return;
+  }
+
+  try {
+    statusEl.textContent = "Deploying...";
+    statusEl.className = "status pending";
+    log(`→ Deploying ${name}...`, "info");
+
+    const factory = new ethers.ContractFactory(VAULT_ABI, VAULT_BYTECODE, signer);
+    log(`   Submitting transaction, confirm in MetaMask...`, "info");
+    const contract = await factory.deploy(tokenAddr, name, symbol);
+
+    log(`   Tx submitted: ${contract.deploymentTransaction().hash}`, "info");
+    log(`   Waiting for confirmation (~15s)...`, "info");
+
+    await contract.waitForDeployment();
+    const address = await contract.getAddress();
+
+    statusEl.textContent = "Deployed ✓";
+    statusEl.className = "status done";
+    deployedEl.style.display = "flex";
+    addrEl.textContent = address;
+
+    deployed[key] = address;
+
+    log(`✓ ${name} deployed at ${address}`, "ok");
+
+    if (deployed.lime && deployed.usdc) {
+      finalBox.style.display = "block";
+      finalOutput.textContent = `LIME_VAULT = ${deployed.lime}\nUSDC_VAULT = ${deployed.usdc}`;
+    }
+  } catch (e) {
+    statusEl.textContent = "Failed";
+    statusEl.className = "status pending";
+    log("✗ " + (e.shortMessage || e.message || "Deploy failed"), "err");
+    console.error(e);
+  }
+}
+
+deployLimeBtn.onclick = () => deployVault(
+  LIME_TOKEN, "Limero LIME Vault", "vLIME",
+  limeStatus, limeDeployed, limeAddrEl, "lime"
+);
+
+deployUsdcBtn.onclick = () => deployVault(
+  USDC_TOKEN, "Limero USDC Vault", "vUSDC",
+  usdcStatus, usdcDeployed, usdcAddrEl, "usdc"
+);
+</script>
+</body>
+</html>
