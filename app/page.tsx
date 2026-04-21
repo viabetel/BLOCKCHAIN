@@ -134,6 +134,7 @@ export default function HomePage() {
       />
 
       <HowItWorksSection />
+      <LitVMEcosystemSection />
       <WhyLimeroSection />
       <ProtocolStatsSection marketCount={count} totalLiquidity={totalLiquidity} />
       <PartnerTicker />
@@ -434,6 +435,76 @@ function HowItWorksSection() {
               <p className="text-sm leading-relaxed text-text-secondary">{s.body}</p>
             </div>
           ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+
+function LitVMEcosystemSection() {
+  const bullets = [
+    {
+      title: "Narrative fit",
+      body: "Reframes Limero as a Litecoin-native market layer built to increase zkLTC utility, recurring activity, and vault-backed yield on LitVM.",
+    },
+    {
+      title: "Builder-ready posture",
+      body: "Makes the product feel closer to a serious Builders Program submission by anchoring the UI to LitVM, Litecoin, and productive capital instead of generic multichain language.",
+    },
+    {
+      title: "Clearer ecosystem context",
+      body: "Uses LitVM collateral, explorer, faucet, builders links and public positioning more visibly so the project looks native to the stack instead of merely deployed on it.",
+    },
+  ];
+
+  return (
+    <section className="border-b border-space-border bg-space-deep py-20">
+      <div className="mx-auto grid max-w-[1400px] gap-8 px-6 lg:grid-cols-[1.05fr_0.95fr] lg:px-8">
+        <div>
+          <span className="chip chip-featured">Strategic LitVM fit</span>
+          <h2 className="mt-4 font-display text-4xl font-bold leading-[1.04] tracking-tighter text-text-primary sm:text-5xl">
+            Show the network context, not just the app.
+          </h2>
+          <p className="mt-4 max-w-2xl text-base leading-relaxed text-text-secondary">
+            I added a stronger ecosystem layer so Limero feels more native to LitVM at first glance. This does not fake traction or change onchain state; it improves positioning, trust, and builder-readiness around the Litecoin thesis.
+          </p>
+
+          <div className="mt-8 grid gap-4">
+            {bullets.map((item, i) => (
+              <div key={item.title} className="card-glass rounded-2xl p-5 animate-fade-up" style={{ animationDelay: `${i * 0.06}s` }}>
+                <div className="mb-2 flex items-center gap-2">
+                  <span className="h-2 w-2 rounded-full bg-lime-400" />
+                  <h3 className="font-display text-lg font-semibold tracking-tight text-text-primary">{item.title}</h3>
+                </div>
+                <p className="text-sm leading-relaxed text-text-secondary">{item.body}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-8 flex flex-wrap gap-3">
+            <a href="https://builders.litvm.com" target="_blank" rel="noopener noreferrer" className="btn-lime inline-flex items-center gap-2 rounded-xl px-5 py-3 text-sm">
+              Open Builders Program
+              <span aria-hidden>→</span>
+            </a>
+            <Link href="/docs" className="btn-ghost rounded-xl px-5 py-3 text-sm">
+              Open local docs
+            </Link>
+          </div>
+        </div>
+
+        <div className="card-glass overflow-hidden rounded-[28px] border border-white/8 p-3">
+          <div className="mb-3 flex items-center justify-between px-2">
+            <div>
+              <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-text-muted">LitVM context panel</div>
+              <div className="mt-1 text-sm font-medium text-text-primary">Media-kit one-pager integrated as reference</div>
+            </div>
+            <span className="terminal-pill">ECOSYSTEM</span>
+          </div>
+          <div className="overflow-hidden rounded-[22px] border border-space-border bg-black/20">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/litvm/onepager.png" alt="LitVM one pager" className="h-full w-full object-cover object-top" />
+          </div>
         </div>
       </div>
     </section>

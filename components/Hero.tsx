@@ -81,6 +81,7 @@ export function Hero() {
             <HeaderLink href="#vaults">Vaults</HeaderLink>
             <HeaderLink href="#markets">Markets</HeaderLink>
             <HeaderLink href="/dashboard">Dashboard</HeaderLink>
+            <HeaderLink href="/docs">Limero Docs</HeaderLink>
             <HeaderLink href="https://docs.litvm.com" external>LitVM Docs</HeaderLink>
           </nav>
 

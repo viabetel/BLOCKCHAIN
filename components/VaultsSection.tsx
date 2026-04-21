@@ -122,11 +122,7 @@ export function VaultsSection() {
           </span>
           <p className="mt-1.5">
             Native zkLTC vault in deployment. Direct productive yield for LTC
-            holders on LitVM, without wrappers. See{" "}
-            <a href="/docs/roadmap" className="underline underline-offset-2 hover:text-lime-200">
-              testnet scope
-            </a>
-            .
+            holders on LitVM, without wrappers. See the <a href="/docs/testnet-scope" className="underline underline-offset-2 hover:text-lime-200">testnet scope</a>.
           </p>
         </div>
       </div>
