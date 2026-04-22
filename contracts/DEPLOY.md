@@ -42,6 +42,16 @@ UsdcVault (vUSDC):           0xAFf48d4c339737957b04c60E31d5Bcc1e818E842
 7. Paste into `lib/contracts.ts` → `addresses.{limeVault|usdcVault|collateral}`
 8. Redeploy site to Vercel
 
+## Migration note (zkLTC-first)
+
+When native zkLTC collateral/vault are deployed, update:
+
+- `addresses.zkltcCollateral`
+- `addresses.zkltcVault`
+
+The frontend now resolves primary collateral/vault from those fields first,
+falling back to legacy `collateral`/`limeVault` when unset.
+
 ## Why no more Remix
 
 The admin page now uses `viem.encodeDeployData` + `walletClient.sendTransaction`

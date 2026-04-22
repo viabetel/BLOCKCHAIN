@@ -4,7 +4,7 @@ import { useReadContracts, usePublicClient } from "wagmi";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
-import { marketAbi } from "@/lib/contracts";
+import { marketAbi, getPrimaryCollateralMode } from "@/lib/contracts";
 import { TradeBox } from "@/components/TradeBox";
 import { ConnectButton } from "@/components/ConnectButton";
 import { Logo, Wordmark } from "@/components/Logo";
@@ -16,6 +16,7 @@ import { TokenIcon, TokensFromQuestion } from "@/components/TokenIcon";
 type Tab = "Overview" | "Activity" | "Holders" | "Rules";
 
 export default function MarketPage({ params }: { params: { address: string } }) {
+  const collateralMode = getPrimaryCollateralMode();
   const address = params.address as `0x${string}`;
   const searchParams = useSearchParams();
   const initialSide = searchParams.get("side") === "NO" ? "NO" : "YES";
@@ -98,8 +99,8 @@ export default function MarketPage({ params }: { params: { address: string } }) 
               <div className="flex items-center gap-2">
                 <TokensFromQuestion question={question} size={18} />
               </div>
-              <Metric label="Vol" value={`${fmtZkLTC(tvl)} $LIME`} />
-              <Metric label="Liquidity" value={`${fmtZkLTC(tvl)} $LIME`} />
+              <Metric label="Vol" value={`${fmtZkLTC(tvl)} zkLTC`} />
+              <Metric label="Liquidity" value={`${fmtZkLTC(tvl)} zkLTC`} />
               <Metric label="Fee" value="2.00%" />
             </div>
           </div>
@@ -160,7 +161,7 @@ export default function MarketPage({ params }: { params: { address: string } }) 
                   <OverviewTab
                     question={question} deadline={deadline} oracle={oracle}
                     tvl={tvl} address={address} resolved={resolved}
-                    winningOutcome={winningOutcome}
+                    winningOutcome={winningOutcome} collateralMode={collateralMode}
                   />
                 )}
                 {tab === "Activity" && (
@@ -171,7 +172,7 @@ export default function MarketPage({ params }: { params: { address: string } }) 
                 )}
                 {tab === "Rules" && (
                   <RulesTab
-                    question={question} oracle={oracle} deadline={deadline} address={address}
+                    question={question} oracle={oracle} deadline={deadline} address={address} collateralMode={collateralMode}
                   />
                 )}
               </div>
@@ -218,9 +219,9 @@ function PriceLabel({ label, pct, color, won, lost }: {
   );
 }
 
-function OverviewTab({ question, deadline, oracle, tvl, address, resolved, winningOutcome }: {
+function OverviewTab({ question, deadline, oracle, tvl, address, resolved, winningOutcome, collateralMode }: {
   question: string; deadline: Date; oracle: string; tvl: bigint;
-  address: `0x${string}`; resolved: boolean; winningOutcome: bigint;
+  address: `0x${string}`; resolved: boolean; winningOutcome: bigint; collateralMode: "native-zkltc" | "legacy-mock";
 }) {
   return (
     <div className="space-y-5">
@@ -233,7 +234,7 @@ function OverviewTab({ question, deadline, oracle, tvl, address, resolved, winni
           <p className="mt-2 text-sm font-medium text-text-primary">
             Market resolved <span className={`font-bold ${winningOutcome === 1n ? "text-lime-300" : "text-red-300"}`}>
               {winningOutcome === 1n ? "YES" : "NO"}
-            </span>. Winners can redeem shares 1:1 for $LIME.
+            </span>. Winners can redeem shares 1:1 for {collateralMode === "native-zkltc" ? "zkLTC" : "legacy MockZkLTC"} collateral.
           </p>
         </div>
       )}
@@ -245,13 +246,13 @@ function OverviewTab({ question, deadline, oracle, tvl, address, resolved, winni
         <p className="text-sm leading-relaxed text-text-secondary">
           {question} This market resolves YES if the condition stated in the question is met at
           or before the resolution time. Otherwise, it resolves NO. Both YES and NO outcomes are
-          tradable as outcome shares priced between 0 and 1 $LIME.
+          tradable as outcome shares priced between 0 and 1 {collateralMode === "native-zkltc" ? "zkLTC" : "MockZkLTC"}.
         </p>
       </div>
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <MetaCell label="Ends" value={fmtTimeLeft(deadline)} />
-        <MetaCell label="Liquidity" value={fmtZkLTC(tvl)} unit="$LIME" />
+        <MetaCell label="Liquidity" value={fmtZkLTC(tvl)} unit={collateralMode === "native-zkltc" ? "zkLTC" : "MockZkLTC"} />
         <MetaCell label="Fee" value="2.00" unit="%" />
         <MetaCell label="Contract" value={fmtAddress(address)}
           link={`https://liteforge.explorer.caldera.xyz/address/${address}`} />
@@ -266,7 +267,7 @@ function OverviewTab({ question, deadline, oracle, tvl, address, resolved, winni
             link={`https://liteforge.explorer.caldera.xyz/address/${oracle}`} />
           <InfoRow label="Resolution time" value={deadline.toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" })} />
           <InfoRow label="Market type" value="Binary FPMM" />
-          <InfoRow label="Settlement asset" value="$LIME" />
+          <InfoRow label="Settlement asset" value={collateralMode === "native-zkltc" ? "zkLTC" : "Legacy MockZkLTC"} />
         </div>
       </div>
     </div>
@@ -369,8 +370,8 @@ function HoldersTab({ market }: { market: `0x${string}` }) {
   );
 }
 
-function RulesTab({ question, oracle, deadline, address }: {
-  question: string; oracle: string; deadline: Date; address: `0x${string}`;
+function RulesTab({ question, oracle, deadline, address, collateralMode }: {
+  question: string; oracle: string; deadline: Date; address: `0x${string}`; collateralMode: "native-zkltc" | "legacy-mock";
 }) {
   return (
     <div className="space-y-4 text-sm">
@@ -397,7 +398,7 @@ function RulesTab({ question, oracle, deadline, address }: {
           value={deadline.toLocaleString("en-US", { dateStyle: "full", timeStyle: "short" })} />
         <InfoLine label="Market address" value={fmtAddress(address)}
           link={`https://liteforge.explorer.caldera.xyz/address/${address}`} />
-        <InfoLine label="Settlement asset" value="$LIME (MockZkLTC on LiteForge)" />
+        <InfoLine label="Settlement asset" value={collateralMode === "native-zkltc" ? "zkLTC on LiteForge" : "legacy MockZkLTC on LiteForge"} />
       </div>
       <div className="rounded-lg border border-space-border bg-space-deep p-3 text-xs text-text-secondary">
         <strong className="text-text-primary">Testnet notice:</strong> This market runs on LiteForge

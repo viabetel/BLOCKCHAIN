@@ -80,6 +80,16 @@ export const TOKENS = {
 
 export type TokenKey = keyof typeof TOKENS;
 
+export type PrimaryCollateralMode = "native-zkltc" | "legacy-mock";
+
+/**
+ * Resolve primary collateral token metadata by deployment mode.
+ * Keeps UI/logic explicit while migration is in-progress.
+ */
+export function getPrimaryCollateralToken(mode: PrimaryCollateralMode): TokenMeta {
+  return mode === "native-zkltc" ? TOKENS.zkLTC : TOKENS.LIME;
+}
+
 /** Get metadata by symbol */
 export function getToken(symbol: TokenKey): TokenMeta {
   return TOKENS[symbol];

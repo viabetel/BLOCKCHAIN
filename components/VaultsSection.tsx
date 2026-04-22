@@ -3,7 +3,15 @@
 import { useState } from "react";
 import { useAccount, useReadContracts, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
 import { parseUnits, formatUnits } from "viem";
-import { addresses, vaultAbi, erc20Abi } from "@/lib/contracts";
+import {
+  addresses,
+  vaultAbi,
+  erc20Abi,
+  getPrimaryCollateralAddress,
+  getPrimaryCollateralMode,
+  getPrimaryVaultAddress,
+  getPrimaryVaultMode,
+} from "@/lib/contracts";
 import { LimeTokenIcon, UsdcTokenIcon } from "@/components/LimeTokenIcon";
 import { fmtGrouped, formatInputAsGrouped, parseGroupedInput, fmtCompact } from "@/lib/format";
 
@@ -23,6 +31,11 @@ import { fmtGrouped, formatInputAsGrouped, parseGroupedInput, fmtCompact } from 
  * and point users to the future zkLTC vault via the Roadmap.
  */
 export function VaultsSection() {
+  const primaryCollateral = getPrimaryCollateralAddress();
+  const primaryCollateralMode = getPrimaryCollateralMode();
+  const primaryVault = getPrimaryVaultAddress();
+  const primaryVaultMode = getPrimaryVaultMode();
+
   return (
     <section
       id="vaults"
@@ -68,15 +81,19 @@ export function VaultsSection() {
         {/* Vaults grid */}
         <div className="grid gap-5 md:grid-cols-2">
           <VaultCard
-            vaultAddress={addresses.limeVault}
-            underlyingAddress={addresses.collateral}
-            tokenSymbol="LIME"
-            tokenName="Incentive Vault"
+            vaultAddress={primaryVault}
+            underlyingAddress={primaryCollateral}
+            tokenSymbol={primaryCollateralMode === "native-zkltc" ? "zkLTC" : "MockZkLTC"}
+            tokenName={primaryVaultMode === "native-zkltc" ? "Primary zkLTC Vault" : "Legacy Bootstrap Vault"}
             decimals={18}
             icon={<LimeTokenIcon size={48} />}
             accent="#84cc16"
-            description="Incentive-layer vault. Bootstraps market liquidity during testnet. zkLTC-native vault in Roadmap 30/60/90."
-            tag="Incentive"
+            description={
+              primaryVaultMode === "native-zkltc"
+                ? "Primary zkLTC yield vault. Routes capital across active markets."
+                : "Legacy bootstrap vault still active on current testnet deployment. Switches to native zkLTC vault once address is configured."
+            }
+            tag={primaryVaultMode === "native-zkltc" ? "Primary" : "Legacy"}
           />
           <VaultCard
             vaultAddress={addresses.usdcVault}
@@ -96,7 +113,7 @@ export function VaultsSection() {
           <HowStep
             n="01"
             title="Deposit"
-            body="Send zkLTC, USDC, or LIME to the vault. Receive vault shares."
+            body="Send zkLTC collateral (primary), USDC (stable reference), or LIME incentives to a vault. Receive vault shares."
           />
           <HowStep
             n="02"

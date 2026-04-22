@@ -2,6 +2,8 @@ export const addresses = {
   factory: "0xbB2b40F1ed12F64966ac2eA6157760Da26020032" as `0x${string}`,
   // Legacy LIME (MockZkLTC with public mint) · currently used as collateral in deployed markets
   collateral: "0x967662A01D65c6a18D836365eef13De128a2caa7" as `0x${string}`,
+  // Native zkLTC collateral (set when deployed). Keep empty until available.
+  zkltcCollateral: "" as `0x${string}` | "",
   // LIME Token v2 · fixed supply 100M, EIP-2612 permit. Will replace legacy on mainnet.
   limeV2: "0x59a8d18113f6d64e09c3ae8a5fb3782cabea0345" as `0x${string}`,
   // USDC bridged via Arbitrum Bridge
@@ -9,7 +11,41 @@ export const addresses = {
   // Yield vaults · deployed on LitVM LiteForge (Chain 4441)
   limeVault: "0x81ba4b26174B488671791696277111566D66ea9d" as `0x${string}` | "",
   usdcVault: "0xAFf48d4c339737957b04c60E31d5Bcc1e818E842" as `0x${string}` | "",
+  // Native zkLTC vault (set when deployed). Keep empty until available.
+  zkltcVault: "" as `0x${string}` | "",
 };
+
+function isDeployedAddress(addr: `0x${string}` | ""): addr is `0x${string}` {
+  return Boolean(addr && addr.length === 42);
+}
+
+/**
+ * Primary market collateral by config:
+ *  - prefers native zkLTC once configured
+ *  - falls back to current legacy MockZkLTC collateral
+ */
+export function getPrimaryCollateralAddress(): `0x${string}` {
+  return isDeployedAddress(addresses.zkltcCollateral)
+    ? addresses.zkltcCollateral
+    : addresses.collateral;
+}
+
+export function getPrimaryCollateralMode(): "native-zkltc" | "legacy-mock" {
+  return isDeployedAddress(addresses.zkltcCollateral) ? "native-zkltc" : "legacy-mock";
+}
+
+/**
+ * Primary yield vault by config:
+ *  - prefers native zkLTC vault once configured
+ *  - falls back to current legacy vault so testnet flow keeps working
+ */
+export function getPrimaryVaultAddress(): `0x${string}` | "" {
+  return isDeployedAddress(addresses.zkltcVault) ? addresses.zkltcVault : addresses.limeVault;
+}
+
+export function getPrimaryVaultMode(): "native-zkltc" | "legacy-lime-vault" {
+  return isDeployedAddress(addresses.zkltcVault) ? "native-zkltc" : "legacy-lime-vault";
+}
 
 // Vault ABI · matches LimeroVault.sol
 export const vaultAbi = [

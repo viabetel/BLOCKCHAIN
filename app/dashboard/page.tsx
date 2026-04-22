@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useAccount, useReadContract, useReadContracts, useBalance } from "wagmi";
 import { useMemo } from "react";
 import { formatEther, formatUnits } from "viem";
-import { addresses, factoryAbi, marketAbi, erc20Abi } from "@/lib/contracts";
+import { addresses, factoryAbi, marketAbi, erc20Abi, getPrimaryCollateralAddress, getPrimaryCollateralMode } from "@/lib/contracts";
 import { TOKENS } from "@/lib/tokens";
 import {
   LimeTokenIcon,
@@ -23,13 +23,15 @@ import {
 
 /**
  * Personal Dashboard · shows the user's full portfolio across Limero:
- *  - $LIME balance + USDC balance + zkLTC gas balance (top cards)
+ *  - zkLTC collateral balance + USDC balance + zkLTC gas balance (top cards)
  *  - Active positions across all markets (YES/NO/LP shares)
  *  - Per-market profit/loss estimation (current price vs avg entry)
- *  - Quick links to faucets (LIME + zkLTC + USDC)
+ *  - Quick links to faucets (zkLTC collateral + zkLTC gas + USDC)
  */
 
 export default function DashboardPage() {
+  const collateralAddress = getPrimaryCollateralAddress();
+  const collateralMode = getPrimaryCollateralMode();
   const { address: user, isConnected } = useAccount();
 
   // Read all markets from the factory
@@ -99,7 +101,7 @@ export default function DashboardPage() {
       // Only include markets where the user has a position
       if (yb === 0n && nb === 0n && lb === 0n) continue;
 
-      // Estimate current value (shares * current price in LIME)
+      // Estimate current value (shares * current price in zkLTC collateral units)
       const yesValue = Number(formatEther(yb)) * (yesPct / 100);
       const noValue = Number(formatEther(nb)) * (noPct / 100);
       const lpValue = Number(formatEther(lb)); // LP shares at face value approx
@@ -129,7 +131,7 @@ export default function DashboardPage() {
 
   // Balances
   const { data: limeBalance } = useReadContract({
-    address: addresses.collateral,
+    address: collateralAddress,
     abi: erc20Abi,
     functionName: "balanceOf",
     args: user ? [user] : undefined,
@@ -202,8 +204,8 @@ export default function DashboardPage() {
             <div className="grid gap-4 md:grid-cols-3">
               <BalanceCard
                 icon={<LimeTokenIcon size={40} />}
-                token="$LIME"
-                name="Native collateral"
+                token={collateralMode === "native-zkltc" ? "zkLTC" : "MockZkLTC"}
+                name={collateralMode === "native-zkltc" ? "Primary collateral" : "Legacy collateral"}
                 value={limeN}
                 decimals={4}
                 accent="#84cc16"
@@ -249,7 +251,7 @@ export default function DashboardPage() {
                       {fmtGrouped(totalValue, { maxDecimals: 4 })}
                     </span>
                     <span className="font-mono text-sm font-semibold text-lime-300">
-                      $LIME
+                      zkLTC
                     </span>
                   </div>
                   <div className="mt-1 text-xs text-text-muted">
@@ -505,7 +507,7 @@ function PositionCard({
           >
             {fmtCompact(position.totalValue, { maxDecimals: 2 })}
           </div>
-          <div className="text-[10px] font-mono text-lime-300">$LIME</div>
+          <div className="text-[10px] font-mono text-lime-300">zkLTC</div>
         </div>
       </div>
     </Link>
