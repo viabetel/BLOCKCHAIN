@@ -96,7 +96,7 @@ export function VaultsSection() {
           <HowStep
             n="01"
             title="Deposit"
-            body="Send zkLTC, USDC, or LIME to the vault. Receive vault shares."
+            body="Send zkLTC collateral (primary), USDC (stable reference), or LIME incentives to a vault. Receive vault shares."
           />
           <HowStep
             n="02"

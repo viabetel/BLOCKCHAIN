@@ -60,13 +60,13 @@ export function ConnectButton() {
   if (isConnected && address) {
     return (
       <div className="relative flex items-center gap-2">
-        {/* Balance chip - with official LIME token icon */}
+        {/* Balance chip - primary collateral */}
         <div className="hidden items-center gap-2 rounded-xl border border-lime-500/20 bg-lime-500/5 px-3 py-1.5 md:flex">
           <LimeTokenIcon size={20} />
           <span className="font-mono text-xs font-semibold text-lime-200 tabular">
             {fmtZkLTCExact(tokenBalBig)}
           </span>
-          <span className="text-[10px] font-semibold uppercase tracking-wider text-lime-300/70">$LIME</span>
+          <span className="text-[10px] font-semibold uppercase tracking-wider text-lime-300/70">zkLTC collateral</span>
         </div>
 
         {isAdmin && (
@@ -95,12 +95,12 @@ export function ConnectButton() {
               <div className="border-b border-space-border px-4 py-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <div className="text-[10px] font-semibold uppercase tracking-widest text-text-muted">$LIME Balance</div>
+                    <div className="text-[10px] font-semibold uppercase tracking-widest text-text-muted">zkLTC collateral balance</div>
                     <div className="mt-1.5 flex items-baseline gap-1.5">
                       <span className="font-display text-2xl font-bold text-text-primary tabular tracking-tighter">
                         {fmtZkLTCExact(tokenBalBig)}
                       </span>
-                      <span className="text-xs font-medium text-text-muted">$LIME</span>
+                      <span className="text-xs font-medium text-text-muted">zkLTC collateral</span>
                     </div>
                   </div>
                   {needsTokens && (
