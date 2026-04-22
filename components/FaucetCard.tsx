@@ -18,7 +18,7 @@ const STORAGE_KEY = "limero:lastFaucetClaim";
 
 /**
  * Simple faucet card - just two options:
- *   - Claim 100 $LIME (mint from our contract)
+ *   - Claim 100 zkLTC collateral units (legacy MockZkLTC mint)
  *   - Get zkLTC (link to LitVM official faucet for gas)
  */
 export function FaucetCard() {
@@ -90,13 +90,13 @@ export function FaucetCard() {
       </div>
 
       <div className="grid gap-3 md:grid-cols-2">
-        {/* LIME claim */}
+        {/* zkLTC collateral claim (legacy MockZkLTC) */}
         <div className="rounded-xl border border-lime-500/20 bg-lime-500/[0.03] p-4">
           <div className="flex items-start gap-3">
             <LimeTokenIcon size={40} />
             <div className="min-w-0 flex-1">
               <div className="font-display text-sm font-semibold text-text-primary">
-                $LIME collateral
+                zkLTC collateral
               </div>
               <div className="text-[11px] text-text-muted">
                 Trade markets, provide liquidity
@@ -118,7 +118,7 @@ export function FaucetCard() {
               </div>
             ) : isSuccess ? (
               <button disabled className="btn-lime w-full rounded-lg py-2.5 text-xs">
-                +100 $LIME claimed ✓
+                +100 zkLTC claimed ✓
               </button>
             ) : onCooldown ? (
               <button
@@ -133,7 +133,7 @@ export function FaucetCard() {
                 disabled={isPending || waiting}
                 className="btn-lime w-full rounded-lg py-2.5 text-xs"
               >
-                {waiting ? "Confirming..." : isPending ? "Approve in wallet..." : "Claim 100 $LIME"}
+                {waiting ? "Confirming..." : isPending ? "Approve in wallet..." : "Claim 100 zkLTC"}
               </button>
             )}
           </div>

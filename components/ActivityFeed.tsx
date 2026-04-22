@@ -118,7 +118,7 @@ function EventRow({ ev }: { ev: Event }) {
           {fmtCompact(Number(formatEther(ev.tokens)))} shares
         </span>
         <span className="font-mono text-text-primary tabular">
-          {fmtZkLTC(ev.collateral)} $LIME
+          {fmtZkLTC(ev.collateral)} zkLTC
         </span>
       </div>
     );
@@ -136,7 +136,7 @@ function EventRow({ ev }: { ev: Event }) {
           <span className="text-text-muted">added liquidity</span>
         </div>
         <span className="font-mono text-text-primary tabular">
-          {fmtZkLTC(ev.collateral)} $LIME
+          {fmtZkLTC(ev.collateral)} zkLTC
         </span>
       </div>
     );

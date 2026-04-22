@@ -19,8 +19,8 @@ const mono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Limero · Prediction Markets on LitVM",
-  description: "Dual-asset prediction markets with yield vaults. Trade outcomes in $LIME, earn fees in USDC. Built on LitVM LiteForge testnet.",
+  title: "Limero · zkLTC Productivity Engine on LitVM",
+  description: "Litecoin-native prediction and yield markets on LitVM. zkLTC is primary collateral, vaults drive yield, LIME is incentive layer.",
   icons: {
     icon: [
       { url: "/favicon.svg", type: "image/svg+xml" },
@@ -29,15 +29,15 @@ export const metadata: Metadata = {
     apple: "/apple-touch-icon.png",
   },
   openGraph: {
-    title: "Limero · Prediction Markets on LitVM",
-    description: "Dual-asset prediction markets. Trade in $LIME, earn in USDC.",
+    title: "Limero · zkLTC Productivity Engine on LitVM",
+    description: "zkLTC-first event markets with vault-backed liquidity and LIME incentives on LitVM.",
     type: "website",
     images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Limero" }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Limero · Prediction Markets on LitVM",
-    description: "Dual-asset prediction markets. Trade in $LIME, earn in USDC.",
+    title: "Limero · zkLTC Productivity Engine on LitVM",
+    description: "zkLTC-first event markets with vault-backed liquidity and LIME incentives on LitVM.",
     images: ["/og-image.png"],
   },
 };
