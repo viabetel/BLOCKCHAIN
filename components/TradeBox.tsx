@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
 import { parseEther, formatEther } from "viem";
-import { addresses, marketAbi, erc20Abi } from "@/lib/contracts";
+import { marketAbi, erc20Abi, getPrimaryCollateralAddress, getPrimaryCollateralMode } from "@/lib/contracts";
 import {
   fmtPct,
   fmtTokens,
@@ -16,8 +16,8 @@ import {
 type Side = "YES" | "NO";
 type Tab = "Buy" | "Sell" | "Liquidity";
 
-// Symbolic peg for USDC display (1 LIME ≈ 1 USDC in testnet)
-const LIME_TO_USDC = 1;
+// Symbolic peg for USDC display (1 zkLTC collateral unit ≈ 1 USDC in current testnet UI)
+const ZKLTC_TO_USDC = 1;
 
 export function TradeBox({
   market,
@@ -30,6 +30,8 @@ export function TradeBox({
   yesPct: number;
   initialSide?: Side;
 }) {
+  const collateralAddress = getPrimaryCollateralAddress();
+  const collateralMode = getPrimaryCollateralMode();
   const { address: user } = useAccount();
   const [tab, setTab] = useState<Tab>("Buy");
   const [side, setSide] = useState<Side>(initialSide ?? "YES");
@@ -44,14 +46,14 @@ export function TradeBox({
   const currentPrice = side === "YES" ? yesPct : 100 - yesPct;
 
   const { data: allowance, refetch: refetchAllowance } = useReadContract({
-    address: addresses.collateral,
+    address: collateralAddress,
     abi: erc20Abi,
     functionName: "allowance",
     args: user ? [user, market] : undefined,
     query: { enabled: Boolean(user) },
   });
   const { data: balance } = useReadContract({
-    address: addresses.collateral,
+    address: collateralAddress,
     abi: erc20Abi,
     functionName: "balanceOf",
     args: user ? [user] : undefined,
@@ -112,7 +114,7 @@ export function TradeBox({
   const amountN = amount ? Number(amount) : 0;
   const estTokens = amountN > 0 && currentPrice > 0 ? amountN / (currentPrice / 100) : 0;
   const estProceeds = amountN > 0 ? amountN * (currentPrice / 100) : 0;
-  const usdcEquivalent = amountN * LIME_TO_USDC;
+  const usdcEquivalent = amountN * ZKLTC_TO_USDC;
 
   const handleAmountChange = (raw: string) => {
     const clean = parseGroupedInput(raw);
@@ -131,7 +133,7 @@ export function TradeBox({
 
   const approve = () =>
     writeContract({
-      address: addresses.collateral,
+      address: collateralAddress,
       abi: erc20Abi,
       functionName: "approve",
       args: [market, 2n ** 256n - 1n],
@@ -184,7 +186,11 @@ export function TradeBox({
         </div>
         <div className="mt-4 rounded-xl border-2 border-dashed border-space-border bg-space-deep/50 p-8 text-center">
           <p className="text-sm font-semibold text-text-primary">Connect wallet to trade</p>
-          <p className="mt-1 text-xs text-text-muted">You need $LIME on LiteForge testnet</p>
+          <p className="mt-1 text-xs text-text-muted">
+            {collateralMode === "native-zkltc"
+              ? "You need zkLTC collateral on LiteForge testnet"
+              : "You need legacy MockZkLTC collateral on LiteForge testnet"}
+          </p>
         </div>
       </div>
     );
@@ -271,7 +277,7 @@ export function TradeBox({
               Provide liquidity
             </div>
             <p className="mt-1 text-xs leading-relaxed text-text-secondary">
-              Deposit $LIME to earn a share of the 2% trading fees. Your LP
+              Deposit zkLTC collateral to earn a share of the 2% trading fees. Your LP
               settles against the winning side at resolution.
             </p>
           </div>
@@ -294,7 +300,7 @@ export function TradeBox({
                 {fmtGrouped(Number(formatEther(maxForTab)), { maxDecimals: 4 })}
               </button>
               <span className="font-mono text-[9px] uppercase text-text-muted">
-                {tab === "Sell" ? "" : "$LIME"}
+                {tab === "Sell" ? "" : "zkLTC"}
               </span>
             </div>
           </div>
@@ -310,7 +316,7 @@ export function TradeBox({
             />
             <div className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-1">
               <span className="font-mono text-xs font-bold text-lime-300">
-                {tab === "Sell" ? side : "$LIME"}
+                {tab === "Sell" ? side : "zkLTC"}
               </span>
             </div>
           </div>
@@ -366,14 +372,14 @@ export function TradeBox({
               ],
               [
                 "Payout if wins",
-                `${fmtGrouped(estTokens, { maxDecimals: 4 })} $LIME`,
+                `${fmtGrouped(estTokens, { maxDecimals: 4 })} zkLTC`,
                 true,
               ],
               [
                 "Max profit",
                 `+${fmtGrouped(Math.max(0, estTokens - amountN), {
                   maxDecimals: 4,
-                })} $LIME`,
+                })} zkLTC`,
                 false,
                 "bull",
               ],
@@ -387,7 +393,7 @@ export function TradeBox({
               ["Avg price", `${fmtPct(currentPrice)}¢`],
               [
                 "You receive",
-                `~${fmtGrouped(estProceeds, { maxDecimals: 4 })} $LIME`,
+                `~${fmtGrouped(estProceeds, { maxDecimals: 4 })} zkLTC`,
                 true,
               ],
             ]}
@@ -396,7 +402,7 @@ export function TradeBox({
         {parsedAmount > 0n && !insufficient && tab === "Liquidity" && (
           <PreviewBox
             rows={[
-              ["Depositing", `${displayAmount} $LIME`],
+              ["Depositing", `${displayAmount} zkLTC`],
               ["Your current LP", fmtGrouped(Number(formatEther(liqBalBig)), { maxDecimals: 4 })],
               ["Fee earnings", "Pro-rata from 2% trade fees"],
             ]}
@@ -434,14 +440,14 @@ export function TradeBox({
             : parsedAmount === 0n
             ? "Enter amount"
             : tab === "Buy" && needsApproval
-            ? "Approve $LIME"
+            ? "Approve zkLTC"
             : tab === "Buy"
-            ? `Buy ${side} · ${displayAmount} $LIME`
+            ? `Buy ${side} · ${displayAmount} zkLTC`
             : tab === "Sell"
             ? `Sell ${displayAmount} ${side}`
             : tab === "Liquidity" && needsApprovalLiq
-            ? "Approve $LIME"
-            : `Add ${displayAmount} $LIME liquidity`}
+            ? "Approve zkLTC"
+            : `Add ${displayAmount} zkLTC liquidity`}
         </button>
 
         {tab === "Liquidity" && liqBalBig > 0n && (

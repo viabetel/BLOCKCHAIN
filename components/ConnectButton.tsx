@@ -4,12 +4,14 @@ import { useAccount, useBalance, useConnect, useDisconnect, useChainId, useSwitc
 import { useState, useEffect } from "react";
 import { parseEther } from "viem";
 import { liteforge, ADMIN_WALLET } from "@/lib/wagmi";
-import { addresses, erc20Abi } from "@/lib/contracts";
+import { erc20Abi, getPrimaryCollateralAddress, getPrimaryCollateralMode } from "@/lib/contracts";
 import { fmtZkLTCExact, fmtAddress } from "@/lib/format";
 import { LimeTokenIcon } from "@/components/LimeTokenIcon";
 import Link from "next/link";
 
 export function ConnectButton() {
+  const collateralAddress = getPrimaryCollateralAddress();
+  const collateralMode = getPrimaryCollateralMode();
   const { address, isConnected } = useAccount();
   const { connect, connectors, isPending } = useConnect();
   const { disconnect } = useDisconnect();
@@ -17,7 +19,7 @@ export function ConnectButton() {
   const { switchChain } = useSwitchChain();
   const { data: balance } = useBalance({ address });
   const { data: tokenBalance } = useReadContract({
-    address: addresses.collateral,
+    address: collateralAddress,
     abi: erc20Abi,
     functionName: "balanceOf",
     args: address ? [address] : undefined,
@@ -40,7 +42,7 @@ export function ConnectButton() {
   const handleClaim = () => {
     if (!address) return;
     mint({
-      address: addresses.collateral,
+      address: collateralAddress,
       abi: erc20Abi,
       functionName: "mint",
       args: [address, parseEther("100")],
@@ -60,13 +62,15 @@ export function ConnectButton() {
   if (isConnected && address) {
     return (
       <div className="relative flex items-center gap-2">
-        {/* Balance chip - with official LIME token icon */}
+        {/* Balance chip - primary collateral */}
         <div className="hidden items-center gap-2 rounded-xl border border-lime-500/20 bg-lime-500/5 px-3 py-1.5 md:flex">
           <LimeTokenIcon size={20} />
           <span className="font-mono text-xs font-semibold text-lime-200 tabular">
             {fmtZkLTCExact(tokenBalBig)}
           </span>
-          <span className="text-[10px] font-semibold uppercase tracking-wider text-lime-300/70">$LIME</span>
+          <span className="text-[10px] font-semibold uppercase tracking-wider text-lime-300/70">
+            {collateralMode === "native-zkltc" ? "zkLTC collateral" : "legacy collateral"}
+          </span>
         </div>
 
         {isAdmin && (
@@ -95,12 +99,16 @@ export function ConnectButton() {
               <div className="border-b border-space-border px-4 py-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <div className="text-[10px] font-semibold uppercase tracking-widest text-text-muted">$LIME Balance</div>
+                    <div className="text-[10px] font-semibold uppercase tracking-widest text-text-muted">
+                      {collateralMode === "native-zkltc" ? "zkLTC collateral balance" : "legacy collateral balance"}
+                    </div>
                     <div className="mt-1.5 flex items-baseline gap-1.5">
                       <span className="font-display text-2xl font-bold text-text-primary tabular tracking-tighter">
                         {fmtZkLTCExact(tokenBalBig)}
                       </span>
-                      <span className="text-xs font-medium text-text-muted">$LIME</span>
+                      <span className="text-xs font-medium text-text-muted">
+                        {collateralMode === "native-zkltc" ? "zkLTC collateral" : "legacy MockZkLTC"}
+                      </span>
                     </div>
                   </div>
                   {needsTokens && (

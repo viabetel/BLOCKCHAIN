@@ -8,7 +8,7 @@ import {
 } from "wagmi";
 import { parseEther } from "viem";
 import { useEffect, useState } from "react";
-import { addresses, erc20Abi } from "@/lib/contracts";
+import { erc20Abi, getPrimaryCollateralAddress, getPrimaryCollateralMode } from "@/lib/contracts";
 import { fmtZkLTCExact } from "@/lib/format";
 import { LimeTokenIcon, ZkLtcTokenIcon } from "@/components/LimeTokenIcon";
 
@@ -18,10 +18,12 @@ const STORAGE_KEY = "limero:lastFaucetClaim";
 
 /**
  * Simple faucet card - just two options:
- *   - Claim 100 $LIME (mint from our contract)
+ *   - Claim 100 zkLTC collateral units (legacy MockZkLTC mint)
  *   - Get zkLTC (link to LitVM official faucet for gas)
  */
 export function FaucetCard() {
+  const collateralAddress = getPrimaryCollateralAddress();
+  const collateralMode = getPrimaryCollateralMode();
   const { address, isConnected } = useAccount();
   const [mounted, setMounted] = useState(false);
   const [cooldownLeft, setCooldownLeft] = useState(0);
@@ -41,7 +43,7 @@ export function FaucetCard() {
   }, [mounted, address]);
 
   const { data: balance } = useReadContract({
-    address: addresses.collateral,
+    address: collateralAddress,
     abi: erc20Abi,
     functionName: "balanceOf",
     args: address ? [address] : undefined,
@@ -62,7 +64,7 @@ export function FaucetCard() {
   const claim = () => {
     if (!address) return;
     writeContract({
-      address: addresses.collateral,
+      address: collateralAddress,
       abi: erc20Abi,
       functionName: "mint",
       args: [address, CLAIM_AMOUNT],
@@ -90,13 +92,13 @@ export function FaucetCard() {
       </div>
 
       <div className="grid gap-3 md:grid-cols-2">
-        {/* LIME claim */}
+        {/* zkLTC collateral claim (legacy MockZkLTC) */}
         <div className="rounded-xl border border-lime-500/20 bg-lime-500/[0.03] p-4">
           <div className="flex items-start gap-3">
             <LimeTokenIcon size={40} />
             <div className="min-w-0 flex-1">
               <div className="font-display text-sm font-semibold text-text-primary">
-                $LIME collateral
+                {collateralMode === "native-zkltc" ? "zkLTC collateral" : "Legacy MockZkLTC"}
               </div>
               <div className="text-[11px] text-text-muted">
                 Trade markets, provide liquidity
@@ -118,7 +120,7 @@ export function FaucetCard() {
               </div>
             ) : isSuccess ? (
               <button disabled className="btn-lime w-full rounded-lg py-2.5 text-xs">
-                +100 $LIME claimed ✓
+                +100 zkLTC claimed ✓
               </button>
             ) : onCooldown ? (
               <button
@@ -133,7 +135,7 @@ export function FaucetCard() {
                 disabled={isPending || waiting}
                 className="btn-lime w-full rounded-lg py-2.5 text-xs"
               >
-                {waiting ? "Confirming..." : isPending ? "Approve in wallet..." : "Claim 100 $LIME"}
+                {waiting ? "Confirming..." : isPending ? "Approve in wallet..." : "Claim 100 zkLTC"}
               </button>
             )}
           </div>
